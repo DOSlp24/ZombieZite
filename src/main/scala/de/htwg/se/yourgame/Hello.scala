@@ -6,8 +6,8 @@ import de.htwg.se.yourgame.model.Field
 object Hello {
   def main(args: Array[String]): Unit = {
     val xTest : Int = 3
-    val yTest : Int = 2
+    val yTest : Int = 4
     val area = Area(10, 10)
-    println(area.zeile.apply(yTest).apply(xTest))
+    println(area.zeile(xTest)(yTest))
   }
 }

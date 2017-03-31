@@ -15,7 +15,7 @@ case class Area(breite: Int, laenge: Int) {
   //Spielfeldaufbau
   for (i <- 0 to laenge - 1) {
     for (j <- 0 to breite - 1) {
-      zeile(i)(j) = Field(Position(x + step * j, y + step * i))
+      zeile(j)(i) = Field(Position(x + step * j, y + step * i))
     }
   }
 }
