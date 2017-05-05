@@ -119,7 +119,7 @@ class ControllerSpec extends WordSpec with Matchers {
         c.zombieTurn(c.zombies.last) should be(true)
       }
       "move a Character" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area, "", 1, 1, 1))
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
@@ -165,7 +165,20 @@ class ControllerSpec extends WordSpec with Matchers {
           c.beweapon(p, w)
           c.beweapon(p, null)
         }
-
+      }
+      "attack Zombie" in {
+        c.attackZombie(c.player(0), c.zombies.last) should be(1)
+      }
+      "attack low Zombie" in {
+        c.zombies.last.lifePoints = 1
+        c.player(0).equippedWeapon = Weapon("Axe", 10, 10)
+        c.attackZombie(c.player(0), c.zombies.last)
+      }
+      
+      "attack low Player" in {
+        c.player(0).lifePoints = 1
+        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.attackPlayer(c.player(0), c.zombies.last)
       }
     }
   }

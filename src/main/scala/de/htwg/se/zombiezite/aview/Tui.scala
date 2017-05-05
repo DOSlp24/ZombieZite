@@ -284,13 +284,17 @@ class Tui(controller: Controller) extends Observer {
   def zombieTurn(z: ArrayBuffer[Zombie]) {
     println("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aktivierung Zombies:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     for (i <- 0 to z.length - 1) {
-      controller.zombieTurn(z(i))
+      if (!controller.zombieTurn(z(i))) {
+        System.exit(0)
+      }
       println()
     }
     println("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Zusatzaktivierung Runner:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     for (i <- 0 to z.length - 1) {
       if (z(i).typ == "Runner") {
-        controller.zombieTurn(z(i))
+        if (!controller.zombieTurn(z(i))) {
+          System.exit(0)
+        }
         println()
       }
     }
