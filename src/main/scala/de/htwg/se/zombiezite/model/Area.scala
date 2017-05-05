@@ -1,8 +1,8 @@
-package de.htwg.se.yourgame.model
+package de.htwg.se.zombiezite.model
 
 case class Area(breite: Int, laenge: Int) {
   //Array Definition für zeilen aus reihen
-  var zeile = Array.ofDim[Field](laenge, breite)
+  var line = Array.ofDim[Field](laenge, breite)
 
   //Startpunkt des Spielfeldes
   val x: Int = 0
@@ -15,7 +15,7 @@ case class Area(breite: Int, laenge: Int) {
   //Spielfeldaufbau
   for (i <- 0 to laenge - 1) {
     for (j <- 0 to breite - 1) {
-      zeile(j)(i) = Field(Position(x + step * j, y + step * i))
+      line(j)(i) = Field(Position(x + step * j, y + step * i))
     }
   }
 }
