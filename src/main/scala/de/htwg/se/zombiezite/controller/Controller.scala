@@ -40,66 +40,67 @@ class Controller() extends Observable {
     return tempZombie
   }
 
-  def playerPos() {
-    player.foreach { p => println(p.name + "(" + p.actualField.p.x / 2 + "," + p.actualField.p.y / 2 + ")" + " [" + p.lifePoints + " LP]") }
-    println()
+  def playerPos(): String = {
+    var s = ""
+    player.foreach { p => s += p.name + "(" + p.actualField.p.x / 2 + "," + p.actualField.p.y / 2 + ")" + " [" + p.lifePoints + " LP]\n" }
+    s += "\n"
+    return s
   }
 
-  def zombiePos() {
+  def zombiePos(): String = {
+    var s = ""
     if (zombies.isEmpty) {
-      println("*Keine Zombies auf dem Spielfeld!*\n")
-      return
+      s += "*Keine Zombies auf dem Spielfeld!*\n\n"
+      return s
     }
     for (z <- 0 to zombies.length - 1) {
-      println(zombies(z).typ + "(" + zombies(z).actualField.p.x / 2 + "," + zombies(z).actualField.p.y / 2 + ")" + " [" + zombies(z).lifePoints + " LP]")
+      s += zombies(z).typ + "(" + zombies(z).actualField.p.x / 2 + "," + zombies(z).actualField.p.y / 2 + ")" + " [" + zombies(z).lifePoints + " LP]\n"
     }
-    println()
+    s += "\n"
+    return s
   }
 
-  def zombieTurn(z: Zombie) {
+  def zombieTurn(z: Zombie): Boolean = {
     for (j <- 0 to player.length - 1) {
 
       if (z.actualField.p.x == player(j).actualField.p.x) {
 
         if (z.actualField.p.y == player(j).actualField.p.y) {
           attackPlayer(player(j), z)
-          return
+          return true
         } else if (z.actualField.p.y < player(j).actualField.p.y) {
           z.walk(0, 1)
           println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-          return
+          return true
         } else if (z.actualField.p.y > player(j).actualField.p.y) {
           z.walk(0, -1)
           println("Ein " + z.typ + " ist ein Feld nach unten gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-          return
+          return true
         }
       } else if (z.actualField.p.y == player(j).actualField.p.y) {
-        if (z.actualField.p.y < player(j).actualField.p.y) {
+        if (z.actualField.p.x < player(j).actualField.p.x) {
           z.walk(1, 0)
           println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-          return
-        } else if (z.actualField.p.y > player(j).actualField.p.y) {
+          return true
+        } else if (z.actualField.p.x > player(j).actualField.p.x) {
           z.walk(-1, 0)
           println("Ein " + z.typ + " ist ein Feld nach links gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-          return
+          return true
         }
       }
     }
     if (z.walk(-1, 0)) {
       println("Ein " + z.typ + " ist ein Feld nach links gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-      return
+      return true
     } else if (z.walk(0, 1)) {
       println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-      return
+      return true
     } else if (z.walk(1, 0)) {
       println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-      return
-    } else {
-      println("Ein " + z.typ + " konnte nichts tun       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
-      return
     }
+    return true
   }
-  
+
   def move(char: Character, x: Int, y: Int): Boolean = {
     return char.walk(x, y)
   }
@@ -122,7 +123,7 @@ class Controller() extends Observable {
   }
 
   def beweapon(char: Player, item: Item) {
-    if (item == null && char.equipment.length <= char.EQMAX) {
+    if (item == null && char.equipment.length < char.EQMAX) {
       if (char.equippedWeapon.name != "Fist") {
         println("Du hast *" + char.equippedWeapon.name + "* abgelegt")
         char.equip(char.equippedWeapon)
@@ -132,11 +133,10 @@ class Controller() extends Observable {
         println("Fäuste kannst du nicht ablegen!")
       }
       return
-    } else if (char.equippedWeapon.name != "Fist") {
+    } else if (char.equippedWeapon.name != "Fist" && char.equipment.length >= char.EQMAX) {
       println("Dein Rucksack ist voll. Du kannst  *" + char.equippedWeapon.name + "*  nicht mehr hineinquetschen!")
       return
-    }
-    if (char.equippedWeapon.name != "Fist") {
+    } else if (char.equippedWeapon.name != "Fist") {
       char.equipment.append(char.equippedWeapon)
       char.equippedWeapon = item
       char.drop(item)
@@ -156,7 +156,7 @@ class Controller() extends Observable {
     }
     if (z.lifePoints - dmg <= 0) {
       z.lifePoints = 0
-      z.die()
+      println(z.die())
       zombies.remove(zombies.indexOf(z))
     } else {
       z.lifePoints -= dmg
@@ -169,7 +169,7 @@ class Controller() extends Observable {
     println("\nEin " + z.typ + " verursachte [" + dmg + "] Schaden an " + pl.name + "\n")
     if (pl.lifePoints - dmg <= 0) {
       pl.lifePoints = 0
-      pl.die()
+      println(pl.die())
       val idx = player.indexOf(pl)
       var playerBuf = player.toBuffer
       playerBuf.remove(idx)

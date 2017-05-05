@@ -8,8 +8,8 @@ case class Zombie(area: Area, typ: String, str: Int, ran: Int, lp: Int) extends 
   var targetField: Field = actualField
   var distanceToTargetField = 1000
 
-  def die(): Unit = {
-    println("Ein " + typ + " weniger")
+  def die(): String = {
+    return "Ein " + typ + " weniger"
   }
 
   def leaveField() {

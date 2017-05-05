@@ -4,25 +4,8 @@ import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-import de.htwg.se.zombiezite.model.Player;
-
 @RunWith(classOf[JUnitRunner])
-class ZombieZiteTester extends WordSpec with Matchers {
-
-  "An Area" can {
-    var a = Area(10, 10)
-    "exists" should {
-      "have a size" in {
-        a.laenge should be(10)
-      }
-      "have a width" in {
-        a.breite should be(10)
-      }
-      "have a Field" in {
-        a.line(5)(3) should be(Field(Position(10, 6)))
-      }
-    }
-  }
+class PlayerSpec extends WordSpec with Matchers {
 
   "A Player" can {
     var a = Area(10, 10)
@@ -30,6 +13,12 @@ class ZombieZiteTester extends WordSpec with Matchers {
       val p = new Player(a, "Franz")
       "have Lifepoints" in {
         p.lifePoints should be(100)
+      }
+      "have a range" in {
+        p.range should be(0)
+      }
+      "have an empty eq" in {
+        p.equipment.isEmpty should be(true)
       }
       "do Damage" in {
         p.attack() should be(p.strength)
@@ -104,31 +93,44 @@ class ZombieZiteTester extends WordSpec with Matchers {
         p.actualField should be(Field(Position(18, 18)))
       }
     }
-  }
-
-  "A Weapon" can {
-    "exists" should {
-      val w = Weapon("Weapon", 20, 2)
-      "have a name" in {
-        w.name should be("Weapon")
-      }
-      "have some Damage" in {
-        w.strength should be(20)
-      }
-      "have a range" in {
-        w.range should be(2)
-      }
+    "die" in {
+      val p = Player(a, "")
+      p.die() should be("AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*")
     }
-  }
-
-  "An Armor" can {
-    "exists" should {
-      val a = Armor("Armor", 20)
-      "have a name" in {
-        a.name should be("Armor")
+    "have some eq" should {
+      val p = Player(a, "")
+      "can pick up new eq" in {
+        p.equip(Weapon("Axe", 1, 1)) should be(true)
       }
-      "have some protection" in {
-        a.protection should be(20)
+      "remove an Item when dropped" in {
+        p.equipment.clear()
+        p.equipment.append(Trash(" "))
+        p.drop(Trash(" "))
+        p.equipment.length should be(0)
+      }
+      "cannot pick up too much" in {
+        p.equipment.clear()
+        p.equipment.appendAll(Array(Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" ")))
+        p.equip(Trash(" ")) should be(false)
+      }
+      "can drop an Item" in {
+        p.equipment.clear()
+        p.equipment.append(Trash(" "))
+        p.drop(Trash(" ")) should be(Trash(" "))
+      }
+      "cant drop an Item wich ist not in inv" in {
+        p.drop(Trash("Not in my Inventory")) should be(null)
+      }
+      "print a message if no EQ" in {
+        p.equipment.clear()
+        p.printEqR() should be("--Du hast leider nichts in deinem Rucksack--")
+      }
+      "print his Equipment" in {
+        p.equipment.append(Trash(" "))
+        p.printEqR() should be("[0]  \n")
+      }
+      "use printEq" in {
+        p.printEq() should be(true)
       }
     }
   }

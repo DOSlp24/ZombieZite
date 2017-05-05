@@ -9,8 +9,8 @@ case class Player(area: Area, name: String) extends Character {
   var actualField: Field = null
   var equipment = ArrayBuffer[Item]()
 
-  def die(): Unit = {
-    println("AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*")
+  def die(): String = {
+    return"AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*"
   }
 
   def leaveField() {
@@ -42,9 +42,19 @@ case class Player(area: Area, name: String) extends Character {
     return null
   }
   
-  def printEq(){
-     for (i <- 0 to equipment.length - 1) {
-       println("["+i+"] " + equipment(i).name)
+  def printEq(): Boolean = {
+     println(printEqR())
+     return true
+  }
+  
+  def printEqR(): String = {
+    var s = ""
+    if(equipment.isEmpty){
+      return "--Du hast leider nichts in deinem Rucksack--"
+    }
+    for (i <- 0 to equipment.length - 1) {
+       s += "["+i+"] " + equipment(i).name + "\n"
      }
+    return s
   }
 }

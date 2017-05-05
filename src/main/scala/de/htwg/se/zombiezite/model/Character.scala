@@ -30,7 +30,7 @@ trait Character {
       case _ => return dmg
     }
   }
-  def die(): Unit
+  def die(): String
   def leaveField()
   def enterField()
 }
