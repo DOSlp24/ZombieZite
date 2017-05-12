@@ -5,7 +5,8 @@ trait Character {
   val strength: Int
   val range: Int
   var actualField: Field
-  var equippedWeapon: Item= Weapon("Fist", 0, 1)
+  var equippedWeapon: Item= Weapon("Fist", 1, 0)
+  var kritchance = 20
   val area: Area
   def walk(x: Int, y: Int): Boolean = {
     if (actualField.p.x / 2 + x < 0 || actualField.p.x / 2 + x > area.breite - 1) {
@@ -20,7 +21,7 @@ trait Character {
     return true
   }
   def attack(): Int = {
-    val critRand = util.Random.nextInt(20)
+    val critRand = util.Random.nextInt(kritchance)
     var dmg = strength + equippedWeapon.strength
     critRand match {
       case 1 => {

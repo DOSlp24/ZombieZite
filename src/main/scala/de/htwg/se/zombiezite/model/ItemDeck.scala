@@ -5,7 +5,7 @@ case class ItemDeck() extends Deck[Item] {
   var weapons = Array[Weapon](Weapon("Axe", 30, 1), Weapon("Pistol", 40, 3), Weapon("Mashine Gun", 70, 3), 
       Weapon("Sniper", 40, 5), Weapon("Flame Thrower", 100, 2), Weapon("Knife", 10, 1), Weapon("Shotgun", 100, 1),
       Weapon("Big Mama", 150, 1), Weapon("Evil Sisters", 200, 1), Weapon("Pan", 5, 1))
-      
+  weapons.find { w => w.name == "Flame Thrower"}.get.aoe = 1
   var armors = Array[Armor](Armor("Holy Armor", 60), Armor("Chest", 40), Armor("Boots", 20), Armor("Swat-Shield", 100))
   
   var trash = Array[Trash](Trash("Rice"), Trash("Rice"), Trash("Rice"), Trash("Canned Food"), Trash("Canned Food"), Trash("Water"),

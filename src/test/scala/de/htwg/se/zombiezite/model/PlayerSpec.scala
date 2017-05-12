@@ -21,7 +21,8 @@ class PlayerSpec extends WordSpec with Matchers {
         p.equipment.isEmpty should be(true)
       }
       "do Damage" in {
-        p.attack() should be(p.strength)
+        p.kritchance = 1
+        p.attack() should be(p.strength + 1)
       }
       "have a name" in {
         p.name should be("Franz")
@@ -95,6 +96,9 @@ class PlayerSpec extends WordSpec with Matchers {
     }
     "die" in {
       val p = Player(a, "")
+      p.actualField = a.line(3)(3)
+      p.actualField.chars.append(p)
+      p.actualField.players.append(p)
       p.die() should be("AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*")
     }
     "have some eq" should {

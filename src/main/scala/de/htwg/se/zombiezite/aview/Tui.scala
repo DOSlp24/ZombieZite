@@ -8,6 +8,8 @@ import scala.io.StdIn
 
 class Tui(controller: Controller) extends Observer {
 
+  var fieldlength = 0
+
   def init() {
     println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aufbau::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("Wieviele Spieler spielen mit? (2-4)")
@@ -16,6 +18,7 @@ class Tui(controller: Controller) extends Observer {
       case "2" | "3" | "4" => {
         println(playerCount + " Spieler starten.\nLos geht's!\n")
         controller.init(playerCount.toInt)
+        fieldlength = controller.fieldlength
         println("::::::::::::::::::::Spielfeld wird aufgebaut::::::::::::::::::::")
         print("  ")
         for (i <- 0 to controller.area.breite - 1) {
@@ -34,10 +37,10 @@ class Tui(controller: Controller) extends Observer {
   def round(runde: Int) {
     println("\n\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Runde " + runde + "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n")
     println("\n*******************************************************************************************")
-    println("::::::::::::::::::::::::::::::::::::::::::::::::Positionen der Spieler::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("::::::::::::::::::::::::::::::::::::::::::::::::Positionen der Spieler [" + controller.playerCount + "]::::::::::::::::::::::::::::::::::::::::::::::::")
     print(controller.playerPos())
     println("*******************************************************************************************")
-    println(":::::::::::::::::::::::::::::::::::::::::::::::Positionen der Zombies:::::::::::::::::::::::::::::::::::::::::::::::")
+    println(":::::::::::::::::::::::::::::::::::::::::::::::Positionen der Zombies [" + controller.zombieCount + "]:::::::::::::::::::::::::::::::::::::::::::::::")
     print(controller.zombiePos())
     println("*******************************************************************************************\n\n")
     for (i <- 0 to controller.player.length - 1) {
@@ -85,9 +88,33 @@ class Tui(controller: Controller) extends Observer {
             }
 
             case"an" => {
-              //TODO implement which Zombies can be attacked
               println("\nDiese Felder kannst du angreifen:")
-              attackableFields(p.actualField, p.equippedWeapon.range).foreach { x => println("[" + x.p.x / 2 + "," + x.p.y / 2 + "]") }
+              var i = 0
+              val af = attackableFields(p.actualField, p.equippedWeapon.range)
+              af.foreach { f =>
+                println("[" + i + "] " + charsOnField(f))
+                i += 1
+              }
+              println("\nIn welches Feld willst du angreifen? ([x] zum Abbrechen.)")
+              val act = StdIn.readLine()
+              if (act.forall { x => x.isDigit }) {
+                if (act.toInt < af.length) {
+                  if (p.equippedWeapon.aoe == 1) {
+                    controller.attackWholeFieldP(p, af(act.toInt))
+                    actionCounter -= 1
+                  } else {
+                    if (controller.attackField(p, af(act.toInt))) {
+                      actionCounter -= 1
+                    }
+                  }
+                } else {
+                  println("Falsche Eingabe: " + act + " ist zu gross!")
+                }
+              } else if (act == "x") {
+                println("Abgebrochen!\n")
+              } else {
+                println("Falsche Eingabe: " + act + " ist keine Zahl!")
+              }
             }
 
             case"w" => {
@@ -102,22 +129,43 @@ class Tui(controller: Controller) extends Observer {
     zombieTurn(controller.zombies)
   }
 
+  def charsOnField(f: Field): String = {
+    var s: StringBuilder = new StringBuilder
+    s.append("[" + f.p.x / fieldlength + "," + f.p.y / fieldlength + "]  | ")
+    if (f.chars.isEmpty) {
+      s.append(" Keine Charaktere auf diesem Feld |")
+      return s.toString()
+    }
+    if (f.players.isEmpty) {
+      s.append(" Keine Spieler auf diesem Feld | ")
+    } else {
+      f.players.foreach { p => s.append("| " + p.name + " | ") }
+      s.append(" -- ")
+    }
+    if (f.zombies.isEmpty) {
+      s.append("| Keine Zombies auf diesem Feld |")
+    } else {
+      f.zombies.foreach { z => s.append("| " + z.typ + " | ") }
+    }
+    return s.toString()
+  }
+
   def attackableFields(actualField: Field, range: Int): Array[Field] = {
     var attackableFields = ArrayBuffer[Field]()
     for (r <- 0 to range) {
-      if (actualField.p.x / 2 + r < controller.area.laenge) {
-        attackableFields.append(controller.area.line(actualField.p.x / 2 + r)(actualField.p.y / 2))
+      if (actualField.p.x / fieldlength + r < controller.area.laenge) {
+        attackableFields.append(controller.area.line(actualField.p.x / fieldlength + r)(actualField.p.y / fieldlength))
       }
-      if (actualField.p.x / 2 - r >= 0) {
-        attackableFields.append(controller.area.line(actualField.p.x / 2 - r)(actualField.p.y / 2))
+      if (actualField.p.x / fieldlength - r >= 0) {
+        attackableFields.append(controller.area.line(actualField.p.x / fieldlength - r)(actualField.p.y / fieldlength))
       }
     }
     for (r <- 0 to range) {
-      if (actualField.p.y / 2 + r < controller.area.laenge) {
-        attackableFields.append(controller.area.line(actualField.p.x / 2)(actualField.p.y / 2 + r))
+      if (actualField.p.y / fieldlength + r < controller.area.laenge) {
+        attackableFields.append(controller.area.line(actualField.p.x / fieldlength)(actualField.p.y / fieldlength + r))
       }
-      if (actualField.p.y / 2 - r >= 0) {
-        attackableFields.append(controller.area.line(actualField.p.x / 2)(actualField.p.y / 2 - r))
+      if (actualField.p.y / fieldlength - r >= 0) {
+        attackableFields.append(controller.area.line(actualField.p.x / fieldlength)(actualField.p.y / fieldlength - r))
       }
     }
     return attackableFields.distinct.toArray

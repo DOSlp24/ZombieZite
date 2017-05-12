@@ -10,11 +10,14 @@ class ZombieSpec extends WordSpec with Matchers {
   "A Zombie" can {
     val a = Area(10, 10)
     val z = Zombie(a, "zombie", 1, 1, 100)
+    z.actualField = a.line(3)(3)
+    z.actualField.chars.append(z)
+    z.actualField.zombies.append(z)
     "die" in {
       z.die() should be("Ein zombie weniger")
     }
     "stay on a Field" in {
-      z.actualField should be(null)
+      z.actualField should be(a.line(3)(3))
     }
     "exists init" should {
       "have Lifepoints" in {
@@ -31,7 +34,8 @@ class ZombieSpec extends WordSpec with Matchers {
         z.range should be(1)
       }
       "do Damage" in {
-        z.attack() should be(z.strength)
+        z.kritchance = 1
+        z.attack() should be(z.strength + 1)
       }
       "have strength" in {
         z.strength should be(1)
@@ -40,7 +44,7 @@ class ZombieSpec extends WordSpec with Matchers {
         z.typ should be("zombie")
       }
       "have a target" in {
-        z.targetField should be(z.actualField)
+        z.targetField should be(null)
       }
       "change target Field" in {
         z.targetField = a.line(0)(0)

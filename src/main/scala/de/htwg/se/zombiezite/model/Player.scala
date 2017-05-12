@@ -10,12 +10,15 @@ case class Player(area: Area, name: String) extends Character {
   var equipment = ArrayBuffer[Item]()
 
   def die(): String = {
+    leaveField()
     return"AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*"
   }
 
   def leaveField() {
-    actualField.players.remove(actualField.players.indexOf(this))
-    actualField.chars.remove(actualField.chars.indexOf(this))
+    if (!actualField.players.isEmpty && !actualField.chars.isEmpty) {
+      actualField.players.remove(actualField.players.indexOf(this))
+      actualField.chars.remove(actualField.chars.indexOf(this))
+    }
   }
 
   def enterField() {
@@ -34,27 +37,27 @@ case class Player(area: Area, name: String) extends Character {
   def drop(item: Item): Item = {
     for (i <- 0 to equipment.length - 1) {
       if (equipment(i).name == item.name) {
-        val tmp =  equipment(i)
+        val tmp = equipment(i)
         equipment.remove(i)
         return tmp
       }
     }
     return null
   }
-  
+
   def printEq(): Boolean = {
-     println(printEqR())
-     return true
+    println(printEqR())
+    return true
   }
-  
+
   def printEqR(): String = {
     var s = ""
-    if(equipment.isEmpty){
+    if (equipment.isEmpty) {
       return "--Du hast leider nichts in deinem Rucksack--"
     }
     for (i <- 0 to equipment.length - 1) {
-       s += "["+i+"] " + equipment(i).name + "\n"
-     }
+      s += "[" + i + "] " + equipment(i).name + "\n"
+    }
     return s
   }
 }

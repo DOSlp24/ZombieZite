@@ -11,10 +11,15 @@ class Controller() extends Observable {
   var itemDeck: Deck[Item] = new ItemDeck()
   var zombieDeck: Deck[Array[Zombie]] = null
   val playerNamer: Array[String] = Array("Franz Maiar", "Kohsuke Kawaguchi", "Hasso Kaiba", "Petal Blossom Rainbow")
+  var fieldlength = 0
+  var zombieCount = 0
+  var playerCount = 0
 
-  def init(playerCount: Int) {
-    player = new Array[Player](playerCount)
+  def init(playerCounter: Int) {
+    this.playerCount = playerCounter
+    player = new Array[Player](playerCounter)
     area = new Area(10, 10)
+    fieldlength = area.line(0)(0).length
     zombieDeck = new ZombieDeck(area)
     val startField = area.line(0)(0)
     for (i <- 0 to player.length - 1) {
@@ -35,6 +40,7 @@ class Controller() extends Observable {
       for (i <- 0 to tempZombie.length - 1) {
         println("Zombie gezogen: " + tempZombie(i).typ)
         zombies.append(tempZombie(i))
+        zombieCount += 1
       }
     }
     return tempZombie
@@ -42,7 +48,7 @@ class Controller() extends Observable {
 
   def playerPos(): String = {
     var s = ""
-    player.foreach { p => s += p.name + "(" + p.actualField.p.x / 2 + "," + p.actualField.p.y / 2 + ")" + " [" + p.lifePoints + " LP]\n" }
+    player.foreach { p => s += p.name + "(" + p.actualField.p.x / fieldlength + "," + p.actualField.p.y / fieldlength + ")" + " [" + p.lifePoints + " LP]\n" }
     s += "\n"
     return s
   }
@@ -54,7 +60,7 @@ class Controller() extends Observable {
       return s
     }
     for (z <- 0 to zombies.length - 1) {
-      s += zombies(z).typ + "(" + zombies(z).actualField.p.x / 2 + "," + zombies(z).actualField.p.y / 2 + ")" + " [" + zombies(z).lifePoints + " LP]\n"
+      s += zombies(z).typ + "(" + zombies(z).actualField.p.x / fieldlength + "," + zombies(z).actualField.p.y / fieldlength + ")" + " [" + zombies(z).lifePoints + " LP]\n"
     }
     s += "\n"
     return s
@@ -69,33 +75,33 @@ class Controller() extends Observable {
           return attackPlayer(player(j), z)
         } else if (z.actualField.p.y < player(j).actualField.p.y) {
           z.walk(0, 1)
-          println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+          println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
           return true
         } else if (z.actualField.p.y > player(j).actualField.p.y) {
           z.walk(0, -1)
-          println("Ein " + z.typ + " ist ein Feld nach unten gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+          println("Ein " + z.typ + " ist ein Feld nach unten gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
           return true
         }
       } else if (z.actualField.p.y == player(j).actualField.p.y) {
         if (z.actualField.p.x < player(j).actualField.p.x) {
           z.walk(1, 0)
-          println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+          println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
           return true
         } else if (z.actualField.p.x > player(j).actualField.p.x) {
           z.walk(-1, 0)
-          println("Ein " + z.typ + " ist ein Feld nach links gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+          println("Ein " + z.typ + " ist ein Feld nach links gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
           return true
         }
       }
     }
     if (z.walk(-1, 0)) {
-      println("Ein " + z.typ + " ist ein Feld nach links gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+      println("Ein " + z.typ + " ist ein Feld nach links gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
       return true
     } else if (z.walk(0, 1)) {
-      println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+      println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
       return true
     } else if (z.walk(1, 0)) {
-      println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.       Auf Feld(" + z.actualField.p.x / 2 + ", " + z.actualField.p.y / 2 + ")")
+      println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.       Auf Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
     }
     return true
   }
@@ -154,6 +160,7 @@ class Controller() extends Observable {
       z.lifePoints = 0
       println(z.die())
       zombies.remove(zombies.indexOf(z))
+      zombieCount -= 1
     } else {
       z.lifePoints -= dmg
     }
@@ -170,6 +177,7 @@ class Controller() extends Observable {
       var playerBuf = player.toBuffer
       playerBuf.remove(idx)
       player = playerBuf.toArray
+      playerCount -= 1
       if (player.isEmpty) {
         println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
         println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
@@ -183,8 +191,74 @@ class Controller() extends Observable {
     }
     return true
   }
+  
+  def attackPlayerPlayer(atk: Player, opf: Player): Boolean = {
+    val dmg = atk.attack()
+    println(opf.name + " erlitt [" + dmg + "] Schaden von " + atk.name + "!")
+      if (opf.lifePoints - dmg <= 0) {
+        opf.lifePoints = 0
+        println(opf.die())
+        val idx = player.indexOf(opf)
+        var playerBuf = player.toBuffer
+        playerBuf.remove(idx)
+        player = playerBuf.toArray
+        playerCount -= 1
+        if (player.isEmpty) {
+        println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
+        println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+        println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::Game Over:::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
+        println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+        println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
+        return false
+      }
+      } else {
+        opf.lifePoints -= dmg
+      }
+    return true
+  }
 
-  def attackField(char: Character, f: Field) {
-    //TODO implement how a character attacks a whole field
+  def attackField(p: Player, f: Field): Boolean = {
+    if (!f.players.isEmpty && p.actualField != f) {
+      return attackPlayerPlayer(p, f.players(0))
+    } else if (!f.zombies.isEmpty) {
+      var az = f.zombies.find { z => z.typ == "Spitter" }
+      if (az != None) {
+        attackZombie(p, az.get)
+      } else {
+        az = f.zombies.find { z => z.typ == "Schlurfer" }
+        if (az != None) {
+          attackZombie(p, az.get)
+        } else {
+          az = f.zombies.find { z => z.typ == "Fatti" }
+          if (az != None) {
+            attackZombie(p, az.get)
+          } else {
+            az = f.zombies.find { z => z.typ == "Tank" }
+            if (az != None) {
+              attackZombie(p, az.get)
+            } else {
+              attackZombie(p, f.zombies(0))
+            }
+          }
+        }
+      }
+      return true
+    } else {
+      return false
+    }
+  }
+  
+  def attackWholeFieldP(p: Player, f: Field): Boolean = {
+    var pCount = f.players.length - 1
+    var zCount = f.zombies.length - 1
+    while(pCount >= 0){
+      attackPlayerPlayer(p, f.players(pCount))
+      pCount -= 1
+    }
+    while(zCount >= 0){
+      attackZombie(p, f.zombies(zCount))
+      zCount -= 1
+    }
+    return true
   }
 }

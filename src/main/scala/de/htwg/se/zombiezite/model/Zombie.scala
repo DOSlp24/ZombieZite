@@ -9,12 +9,15 @@ case class Zombie(area: Area, typ: String, str: Int, ran: Int, lp: Int) extends 
   var distanceToTargetField = 1000
 
   def die(): String = {
+    leaveField()
     return "Ein " + typ + " weniger"
   }
 
   def leaveField() {
-    actualField.zombies.remove(actualField.zombies.indexOf(this))
-    actualField.chars.remove(actualField.chars.indexOf(this))
+    if (!actualField.zombies.isEmpty && !actualField.chars.isEmpty) {
+      actualField.zombies.remove(actualField.zombies.indexOf(this))
+      actualField.chars.remove(actualField.chars.indexOf(this))
+    }
   }
 
   def enterField() {
