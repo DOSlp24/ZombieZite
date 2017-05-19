@@ -102,6 +102,14 @@ class ZombieSpec extends WordSpec with Matchers {
         z.walk(1, 0) should be(false)
         z.actualField should be(Field(Position(18, 18)))
       }
+      "not leave Field twice" in{
+        z.leaveField()
+        z.leaveField()
+      }
+      "not leave Field twice again" in{
+        z.actualField.zombies.append(z)
+        z.leaveField()
+      }
     }
   }
 }

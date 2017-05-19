@@ -95,6 +95,14 @@ class PlayerSpec extends WordSpec with Matchers {
         p.walk(1, 0) should be(false)
         p.actualField should be(Field(Position(18, 18)))
       }
+      "not leave Field twice" in {
+        p.leaveField()
+        p.leaveField()
+      }
+      "not leave Field twice again" in {
+        p.actualField.players.append(p)
+        p.leaveField()
+      }
     }
     "die" in {
       val p = Player(a, "")
@@ -110,9 +118,11 @@ class PlayerSpec extends WordSpec with Matchers {
       }
       "remove an Item when dropped" in {
         p.equipment.clear()
+        p.equipment.append(Armor("Armor", 10))
         p.equipment.append(Trash(" "))
-        p.drop(Trash(" "))
-        p.equipment.length should be(0)
+        p.equipment.append(Armor("Armor2", 10))
+        p.drop(Trash(" ")) should be(Trash(" "))
+
       }
       "cannot pick up too much" in {
         p.equipment.clear()
