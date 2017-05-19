@@ -15,7 +15,7 @@ case class Player(area: Area, name: String) extends Character {
   }
 
   def leaveField() {
-    if (!actualField.players.isEmpty && !actualField.chars.isEmpty) {
+    if (actualField.players.contains(this) && actualField.chars.contains(this)) {
       actualField.players.remove(actualField.players.indexOf(this))
       actualField.chars.remove(actualField.chars.indexOf(this))
     }
@@ -33,6 +33,17 @@ case class Player(area: Area, name: String) extends Character {
     }
     return false
   }
+  
+  def useArmor(a: Item): Boolean = {
+    a.name match {
+      case "Healkit" => {
+        lifePoints = 100
+        armor += 10
+      }
+      case _ => armor += a.protection
+    }
+    return true
+  }
 
   def drop(item: Item): Item = {
     for (i <- 0 to equipment.length - 1) {
@@ -43,21 +54,5 @@ case class Player(area: Area, name: String) extends Character {
       }
     }
     return null
-  }
-
-  def printEq(): Boolean = {
-    println(printEqR())
-    return true
-  }
-
-  def printEqR(): String = {
-    var s = ""
-    if (equipment.isEmpty) {
-      return "--Du hast leider nichts in deinem Rucksack--"
-    }
-    for (i <- 0 to equipment.length - 1) {
-      s += "[" + i + "] " + equipment(i).name + "\n"
-    }
-    return s
   }
 }

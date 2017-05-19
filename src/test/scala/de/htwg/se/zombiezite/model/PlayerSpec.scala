@@ -21,8 +21,10 @@ class PlayerSpec extends WordSpec with Matchers {
         p.equipment.isEmpty should be(true)
       }
       "do Damage" in {
-        p.kritchance = 1
-        p.attack() should be(p.strength + 1)
+        p.attack(3) should be(p.strength + 1)
+      }
+      "do critical Damage" in {
+        p.attack(1) should be((p.strength + 1) * 2)
       }
       "have a name" in {
         p.name should be("Franz")
@@ -36,10 +38,10 @@ class PlayerSpec extends WordSpec with Matchers {
         p.lifePoints should be(2000)
       }
       "do some more Damage" in {
-        assert(p.attack() > p.strength)
+        assert(p.attack(3) > p.strength)
       }
       "do Damage + Weapondmg" in {
-        p.attack() should be(p.strength + p.equippedWeapon.strength)
+        p.attack(3) should be(p.strength + p.equippedWeapon.strength)
       }
       "have a Weapon with a name" in {
         p.equippedWeapon.name should be("Weapon")
@@ -125,16 +127,11 @@ class PlayerSpec extends WordSpec with Matchers {
       "cant drop an Item wich ist not in inv" in {
         p.drop(Trash("Not in my Inventory")) should be(null)
       }
-      "print a message if no EQ" in {
-        p.equipment.clear()
-        p.printEqR() should be("--Du hast leider nichts in deinem Rucksack--")
+      "use Armor" in {
+        p.useArmor(Armor("Shield", 10)) should be(true)
       }
-      "print his Equipment" in {
-        p.equipment.append(Trash(" "))
-        p.printEqR() should be("[0]  \n")
-      }
-      "use printEq" in {
-        p.printEq() should be(true)
+      "use Healkit" in {
+        p.useArmor(Armor("Healkit", 10)) should be(true)
       }
     }
   }

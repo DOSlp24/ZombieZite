@@ -34,8 +34,10 @@ class ZombieSpec extends WordSpec with Matchers {
         z.range should be(1)
       }
       "do Damage" in {
-        z.kritchance = 1
-        z.attack() should be(z.strength + 1)
+        z.attack(3) should be(z.strength + 1)
+      }
+      "do critical Damage" in {
+        z.attack(1) should be((z.strength + 1)*2)
       }
       "have strength" in {
         z.strength should be(1)

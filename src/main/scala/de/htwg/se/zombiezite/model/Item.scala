@@ -5,4 +5,5 @@ trait Item {
   var strength: Int = 0
   var range: Int = 0
   var aoe = 0
+  var protection = 0
 }

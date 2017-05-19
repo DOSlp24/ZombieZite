@@ -14,7 +14,7 @@ case class Zombie(area: Area, typ: String, str: Int, ran: Int, lp: Int) extends 
   }
 
   def leaveField() {
-    if (!actualField.zombies.isEmpty && !actualField.chars.isEmpty) {
+    if (actualField.zombies.contains(this) && actualField.chars.contains(this)) {
       actualField.zombies.remove(actualField.zombies.indexOf(this))
       actualField.chars.remove(actualField.chars.indexOf(this))
     }

@@ -4,11 +4,26 @@ import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import de.htwg.se.zombiezite.model._
+import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JUnitRunner])
 class ControllerSpec extends WordSpec with Matchers {
 
   "A Controller" can {
+    "show available Weapons" in {
+      val c = new Controller()
+      c.init(1)
+      c.player(0).equip(Weapon("Axe", 0, 0))
+      c.player(0).equip(Weapon("Katana", 0, 0))
+      c.availableWeapon(c.player(0)) should not be(null)
+    }
+    "show attackable Fields" in {
+      val c = new Controller()
+      c.init(1)
+      c.player(0).actualField = c.area.line(5)(5)
+      c.player(0).equip(Weapon("Axe", 1, 1))
+      c.attackableFields(c.player(0).actualField, 1) should not be(null)
+    }
     "exist" should {
       val c = new Controller()
       "have no area" in {
@@ -47,76 +62,68 @@ class ControllerSpec extends WordSpec with Matchers {
       "draw an Item" in {
         c.drawItem() should not be (null)
       }
+      "draw Trash if empty" in {
+        c.itemDeck.deck = ArrayBuffer[Item]()
+        c.drawItem() should be(Trash("Trash"))
+      }
       "draw a Zombie" in {
         c.drawZombie().getClass should be(Array[Zombie]().getClass)
-      }
-      "print playerPos" in {
-        c.playerPos() should not be (null)
-      }
-      "print zombiePos" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
-        c.zombies(c.zombies.length - 1).actualField = Field(Position(10, 0))
-        c.zombiePos() should not be (null)
-      }
-      "print zombiePos without zombies" in {
-        c2.zombies.clear()
-        c2.zombiePos() should be("*Keine Zombies auf dem Spielfeld!*\n\n")
       }
       "have a Zombie walk left" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(14, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_LEFT)
       }
       "have a Zombie walk right" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(8, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_RIGHT)
       }
       "have a Zombie walk up" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(10, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_UP)
       }
       "have a Zombie walk down" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(10, 14))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_DOWN)
       }
       "have a Zombie attack a Player" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(10, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_ATTACK)
       }
       "have a Zombie walk left wihout seeing" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(8, 8))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_LEFT)
       }
       "have a Zombie walk up without seeing" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_UP)
       }
       "have a Zombie walk right without seeing" in {
         c.zombies.append(Zombie(c.area, "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(0, 18))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.zombieTurn(c.zombies.last) should be(true)
+        c.zombieTurn(c.zombies.last) should be(c.ZOMBIE_WENT_RIGHT)
       }
       "move a Character" in {
         c.zombies.append(Zombie(c.area, "", 1, 1, 1))
@@ -127,19 +134,15 @@ class ControllerSpec extends WordSpec with Matchers {
       }
       "search as Player with full inv" in {
         c.player(0).equipment.appendAll(Array(Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" ")))
-        c.search(c.player(0)) should be(false)
+        c.search(c.player(0)) should be(null)
       }
       "search as Player" in {
         c.player(0).equipment.clear()
-        c.search(c.player(0)) should be(true)
+        c.search(c.player(0)) should not be(null)
       }
       "drop as Player" in {
-        c.drop(c.player(0), c.player(0).equipment(0))
-        c.player(0).equipment.isEmpty should be(true)
-      }
-      "print Equipment" in {
-        c.equip(c.player(0))
-        c.player(0).equipment.isEmpty should be(true)
+        val i: Item = c.player(0).equipment(0)
+        c.drop(c.player(0), i) should be(i)
       }
       "beweapon a Player" should {
         val p = Player(null, "Name")
@@ -167,20 +170,51 @@ class ControllerSpec extends WordSpec with Matchers {
         }
       }
       "attack Zombie" in {
-        c.attackZombie(c.player(0), c.zombies.last) should be(1)
+        c.zombies.last.lifePoints = 100
+        c.attackZombie(c.player(0), c.zombies.last) should be(c.PLAYER_ATTACK)
       }
       "attack low Zombie" in {
         c.zombies.last.lifePoints = 1
         c.player(0).equippedWeapon = Weapon("Axe", 10, 10)
         c.attackZombie(c.player(0), c.zombies.last)
       }
-
-      "attack low Player" in {
-        c.player(0).lifePoints = 1
-        c.player(0).actualField.players.append(c.player(0))
-        c.player(0).actualField.chars.append(c.player(0))
+      "attack low Zombie and win" in {
+        c.zombiesKilled = c.winCount - 1
+        c.zombies.last.lifePoints = 1
+        c.player(0).equippedWeapon = Weapon("Axe", 10, 10)
+        c.attackZombie(c.player(0), c.zombies.last) should be(c.GAME_OVER_WON)
+      }
+      "Zombie attack Armor" in {
+        c.player(0).armor = 1000
         c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
-        c.attackPlayer(c.player(0), c.zombies.last)
+        c.attackPlayer(c.player(0), c.zombies.last) should be(c.ARMOR_DAMAGED)
+      }
+      "Zombie breaks Armor" in {
+        c.player(0).armor = 1
+        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.attackPlayer(c.player(0), c.zombies.last) should be(c.ARMOR_DESTROYED)
+      }
+      "attack low Player" in {
+        val p: Player = Player(c.area, "Fritz")
+        p.actualField = c.area.line(1)(1)
+        p.lifePoints = 1
+        p.armor = 0
+        p.actualField.players.append(p)
+        p.actualField.chars.append(p)
+        c.player = Array(c.player(0), p)
+        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.attackPlayer(p, c.zombies.last) should be(c.DEAD)
+      }
+      "attack last low Player" in {
+        val p2: Player = Player(c.area, "Fritz")
+        p2.actualField = c.area.line(1)(1)
+        p2.lifePoints = 1
+        p2.armor = 0
+        p2.actualField.players.append(p2)
+        p2.actualField.chars.append(p2)
+        c.player = Array(p2)
+        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.attackPlayer(p2, c.zombies.last) should be(c.GAME_OVER_LOST)
       }
     }
     "attackField" should {
@@ -193,15 +227,23 @@ class ControllerSpec extends WordSpec with Matchers {
       c.player(1).actualField.chars.append(c.player(1))
       c.player(0).actualField.chars.append(c.player(0))
       val pf = c.player(0).actualField
+      "Player attack Armor" in {
+        c.player(1).armor = 1000
+        c.attackPlayerPlayer(c.player(0), c.player(1)) should be(c.ARMOR_DAMAGED)
+      }
+      "Player breaks Armor" in {
+        c.player(1).armor = 1
+        c.attackPlayerPlayer(c.player(0), c.player(1)) should be(c.ARMOR_DESTROYED)
+      }
       "attack on an empty Field" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 1)) should be(false)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 1)) should be(c.FAIL)
       }
       "attack on an non empty Field Player" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1)) should be(true)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1)) should be(c.PLAYER_ATTACK_PLAYER)
       }
       "attack on an non empty Field killing Player" in {
         c.player(1).lifePoints = 1
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1)) should be(true)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1)) should be(c.DEAD)
       }
       val z1 = Zombie(c.area, "Spitter", 1, 1, 100)
       val z2 = Zombie(c.area, "Schlurfer", 1, 1, 100)
@@ -219,46 +261,30 @@ class ControllerSpec extends WordSpec with Matchers {
       c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2).zombies.append(z5)
       c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2).chars.append(z5)
       "attack a Spitter" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 4)) should be(true)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 4)) should be(c.PLAYER_ATTACK)
       }
       "attack a Schlurfer" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 3)) should be(true)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 3)) should be(c.PLAYER_ATTACK)
       }
       "attack a Fatti" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 2)) should be(true) 
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 2)) should be(c.PLAYER_ATTACK) 
       }
       "attack a Tank" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 3)) should be(true)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 3)) should be(c.PLAYER_ATTACK)
       }
       "attack an other Type" in {
-        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2)) should be(true)
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2)) should be(c.PLAYER_ATTACK)
       }
-    }
-    "attack a whole Field" should {
-      val c = new Controller()
-      c.init(2)
-      c.player(0).actualField = c.area.line(5)(5)
-      c.player(1).actualField = c.area.line(5)(6)
-      c.player(1).actualField.players.append(c.player(1))
-      c.player(0).actualField.players.append(c.player(0))
-      c.player(1).actualField.chars.append(c.player(1))
-      c.player(0).actualField.chars.append(c.player(0))
-      val pf = c.player(0).actualField
-      val z1 = Zombie(c.area, "Spitter", 1, 1, 100)
-      c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1).zombies.append(z1)
-      c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1).chars.append(z1)
-      
-      "attack whole Field empty" in {
-        c.attackWholeFieldP(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 1)) should be(true)
-      }
-      "attack whole Field" in {
-        c.attackWholeFieldP(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1)) should be(true)
-      }
-      "kill yourself" in {
-        c.player(0).walk(0, 1)
-        c.player(1).lifePoints = 1
-        c.player(0).lifePoints = 1
-        c.attackWholeFieldP(c.player(0), c.player(0).actualField) should be(true)
+      "attack killing himself" in {
+        val p2: Player = Player(c.area, "Fritz")
+        p2.actualField = c.area.line(1)(1)
+        p2.lifePoints = 1
+        p2.armor = 0
+        p2.actualField.players.append(p2)
+        p2.actualField.chars.append(p2)
+        c.player = Array(p2)
+        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.attackPlayerPlayer(p2, p2) should be(c.GAME_OVER_LOST)
       }
     }
   }
