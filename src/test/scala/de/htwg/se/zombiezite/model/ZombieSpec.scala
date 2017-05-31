@@ -43,7 +43,7 @@ class ZombieSpec extends WordSpec with Matchers {
         z.strength should be(1)
       }
       "have a name" in {
-        z.typ should be("zombie")
+        z.name should be("zombie")
       }
       "have a target" in {
         z.targetField should be(null)

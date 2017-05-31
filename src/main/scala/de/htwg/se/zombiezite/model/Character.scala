@@ -9,6 +9,8 @@ trait Character {
   var kritchance = 20
   var armor = 0
   val area: Area
+  var actionCounter = 0
+  val name: String
   
   def walk(x: Int, y: Int): Boolean = {
     if (actualField.p.x / actualField.length + x < 0 || actualField.p.x / actualField.length + x > area.breite - 1) {

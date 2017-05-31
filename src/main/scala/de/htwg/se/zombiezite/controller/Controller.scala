@@ -2,8 +2,42 @@ package de.htwg.se.zombiezite.controller
 import de.htwg.se.zombiezite.model._
 import de.htwg.se.zombiezite.util.Observable
 import scala.collection.mutable.ArrayBuffer
+import scala.swing.event.Event
+import scala.swing.Publisher
 
-class Controller() extends Observable {
+case class GameOverLost() extends Event
+case class GameOverWon() extends Event
+case class Fail() extends Event
+case class ZombieWentUp(typ: String, x: Int, y: Int) extends Event
+case class ZombieWentDown(typ: String, x: Int, y: Int) extends Event
+case class ZombieWentLeft(typ: String, x: Int, y: Int) extends Event
+case class ZombieWentRight(typ: String, x: Int, y: Int) extends Event
+case class ZombieAttack(name: String, typ: String, dmg: Int) extends Event
+case class DeadPlayer(name: String, murderer: String) extends Event
+case class DeadZombie(typ: String, name: String) extends Event
+case class DiscardWeapon(w: Item) extends Event
+case class CantDiscardFists() extends Event
+case class CantDiscardFullInv() extends Event
+case class SwappedWeapon() extends Event
+case class EquipedWeapon(w: Item) extends Event
+case class ArmorDamaged(name: String, typ: String, dmg: Int) extends Event
+case class ArmorDestroyed(name: String, typ: String) extends Event
+case class PlayerAttack(name: String, typ: String, dmg: Int) extends Event
+case class PlayerAttackPlayer(atk: String, opf: String, dmg: Int) extends Event
+case class ZombieDraw(z: Array[Zombie]) extends Event
+case class Wait(p: Player) extends Event
+case class AktivierungZombies() extends Event
+case class AktivierungRunner() extends Event
+case class DrawZombie() extends Event
+case class NewRound(round: Int) extends Event
+case class StartSpieler() extends Event
+case class StartSchwierig() extends Event
+case class Start() extends Event
+case class PlayerMove(x: Int, y: Int) extends Event
+case class Search(i: Item) extends Event
+case class WaitInput() extends Event
+
+class Controller() extends Publisher {
 
   var area: Area = null
   var player: Array[Player] = null
@@ -15,36 +49,18 @@ class Controller() extends Observable {
   var zombieCount = 0
   var playerCount = 0
   var zombiesKilled = 0
-  var dmg = 0
-  var lastAttackedPlayer: Player = Player(area, "Fritz")
-  var lastAttackedZombie: Zombie = Zombie(area, "", 0, 0, 0)
   var winCount = 50
+  var round = 1
+  var actualPlayer = Player(area, "Default")
 
-  val GAME_OVER_LOST = -2
-  val GAME_OVER_WON = -1
-
-  val SUCCES = 0
-  val FAIL = 1
-
-  val ZOMBIE_WENT_UP = 2
-  val ZOMBIE_WENT_DOWN = 3
-  val ZOMBIE_WENT_RIGHT = 4
-  val ZOMBIE_WENT_LEFT = 5
-  val ZOMBIE_ATTACK = 6
-
-  val DEAD = 7
-
-  val DISCARD_WEAPON = 8
-  val CANT_DISCARD_FISTS = 9
-  val CANT_DISCARD_FULL_INV = 10
-  val SWAPED_WEAPON = 11
-  val EQUIPED_WEAPON = 12
-
-  val ARMOR_DAMAGED = 13
-  val ARMOR_DESTROYED = 14
-
-  val PLAYER_ATTACK = 15
-  val PLAYER_ATTACK_PLAYER = 16
+  def setDifficulty(dif: Int) {
+    winCount = dif * playerCount.toInt * 15
+    publish(new Start)
+  }
+  
+  def waitInput() {
+    publish(new WaitInput)
+  }
 
   def init(playerCounter: Int) {
     this.playerCount = playerCounter
@@ -59,6 +75,31 @@ class Controller() extends Observable {
       player(i).actualField.players.append(player(i))
       player(i).actualField.chars.append(player(i))
     }
+    publish(new StartSchwierig)
+    roundReset()
+  }
+
+  def newRound {
+    round += 1
+    publish(new NewRound(round))
+  }
+
+  def wait(p: Player) {
+    p.actionCounter = 0
+    publish(Wait(p))
+    if(actualPlayer != player.last){
+      actualPlayer = player(player.indexOf(actualPlayer) + 1)
+      return
+    } else {
+      fullZombieTurn
+      roundReset
+      newRound
+    }
+  }
+
+  def roundReset() {
+    player.foreach { p => p.actionCounter = 3 }
+    actualPlayer = player(0)
   }
 
   def drawItem(): Item = {
@@ -108,113 +149,158 @@ class Controller() extends Observable {
         zombieCount += 1
       }
     }
+    publish(ZombieDraw(tempZombie))
     return tempZombie
   }
 
-  def zombieTurn(z: Zombie): Int = {
-    for (j <- 0 to player.length - 1) {
+  def fullZombieTurn {
+    zombies.foreach { z => zombieTurn(z) }
+    publish(new AktivierungZombies)
+    zombies.foreach { z => if (z.name == "Runner") { zombieTurn(z) } }
+    publish(new AktivierungRunner)
+    drawZombie()
+    publish(new DrawZombie)
+  }
 
-      if (z.actualField.p.x == player(j).actualField.p.x) {
-
-        if (z.actualField.p.y == player(j).actualField.p.y) {
-          return attackPlayer(player(j), z)
-        } else if (z.actualField.p.y < player(j).actualField.p.y) {
+  def zombieTurn(z: Zombie) {
+    player.foreach { j =>
+      if (z.actualField.p.x == j.actualField.p.x) {
+        if (math.abs(z.actualField.p.y - j.actualField.p.y) <= z.range) {
+          attackPlayer(j, z)
+          return
+        } else if (z.actualField.p.y < j.actualField.p.y) {
           z.walk(0, 1)
-          return ZOMBIE_WENT_UP
-        } else if (z.actualField.p.y > player(j).actualField.p.y) {
+          publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+          return
+          //return ZOMBIE_WENT_UP
+        } else if (z.actualField.p.y > j.actualField.p.y) {
           z.walk(0, -1)
-          return ZOMBIE_WENT_DOWN
+          publish(new ZombieWentDown(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+          return
+          //return ZOMBIE_WENT_DOWN
         }
-      } else if (z.actualField.p.y == player(j).actualField.p.y) {
-        if (z.actualField.p.x < player(j).actualField.p.x) {
+      } else if (z.actualField.p.y == j.actualField.p.y) {
+        if (math.abs(z.actualField.p.x - j.actualField.p.x) <= z.range) {
+          attackPlayer(j, z)
+          return
+        } else if (z.actualField.p.x < j.actualField.p.x) {
           z.walk(1, 0)
-          return ZOMBIE_WENT_RIGHT
-        } else if (z.actualField.p.x > player(j).actualField.p.x) {
+          publish(new ZombieWentRight(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+          return
+          //return ZOMBIE_WENT_RIGHT
+        } else if (z.actualField.p.x > j.actualField.p.x) {
           z.walk(-1, 0)
-          return ZOMBIE_WENT_LEFT
+          publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+          return
+          //return ZOMBIE_WENT_LEFT
         }
       }
     }
     if (z.walk(-1, 0)) {
-      return ZOMBIE_WENT_LEFT
+      publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+      return
+      //return ZOMBIE_WENT_LEFT
     } else if (z.walk(0, 1)) {
-      return ZOMBIE_WENT_UP
-    } else{
-      return ZOMBIE_WENT_RIGHT
+      publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+      return
+      //return ZOMBIE_WENT_UP
+    } else {
+      publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+      return
+      //return ZOMBIE_WENT_RIGHT
     }
   }
 
   def move(char: Character, x: Int, y: Int): Boolean = {
-    return char.walk(x, y)
+    if (char.walk(x, y)) {
+      char.actionCounter -= 1
+      publish(new PlayerMove(char.actualField.p.x / fieldlength, char.actualField.p.y / fieldlength))
+      return true
+    } else {
+      return false
+    }
   }
 
-  def search(p: Player): Item = {
+  def search(p: Player){
     if (p.equipment.length >= p.EQMAX) {
-      return null
+      publish(new Search(null))
+      return
     }
     var tmpItem = drawItem()
     p.equip(tmpItem)
-    return tmpItem
+    p.actionCounter -= 1
+    publish(new Search(tmpItem))
+    return
   }
 
   def drop(pl: Player, item: Item): Item = {
     return pl.drop(item)
   }
 
-  def beweapon(char: Player, item: Item): Int = {
+  def beweapon(char: Player, item: Item) = {
     if (item == null && char.equipment.length < char.EQMAX) {
       if (char.equippedWeapon.name != "Fist") {
-        char.equip(char.equippedWeapon)
+        val tmp = char.equippedWeapon
+        char.equip(tmp)
         char.equippedWeapon = Weapon("Fist", 0, 1)
-        return DISCARD_WEAPON
+        publish(new DiscardWeapon(tmp))
+        //return DISCARD_WEAPON
       } else {
-        return CANT_DISCARD_FISTS
+        publish(new CantDiscardFists)
+        //return CANT_DISCARD_FISTS
       }
     } else if (item == null && char.equippedWeapon.name != "Fist" && char.equipment.length >= char.EQMAX) {
-      return CANT_DISCARD_FULL_INV
+      publish(new CantDiscardFullInv)
+      //return CANT_DISCARD_FULL_INV
     } else if (char.equippedWeapon.name != "Fist") {
       char.equipment.append(char.equippedWeapon)
       char.equippedWeapon = item
       char.drop(item)
-      return SWAPED_WEAPON
+      publish(new SwappedWeapon)
+      //return SWAPED_WEAPON
     } else {
       char.equippedWeapon = item
       char.drop(item)
-      return EQUIPED_WEAPON
+      publish(new EquipedWeapon(char.equippedWeapon))
+      //return EQUIPED_WEAPON
     }
   }
 
-  def attackZombie(pl: Player, z: Zombie): Int = {
+  def attackZombie(pl: Player, z: Zombie) = {
+    pl.actionCounter -= 1
     val critRand = util.Random.nextInt(pl.kritchance)
-    dmg = pl.attack(critRand)
-    lastAttackedZombie = z
+    val dmg = pl.attack(critRand)
     if (z.lifePoints - dmg <= 0) {
       z.lifePoints = 0
       zombies.remove(zombies.indexOf(z))
       zombiesKilled += 1
       if (zombiesKilled >= winCount) {
-        return GAME_OVER_WON
+        publish(new GameOverWon)
+        //return GAME_OVER_WON
       }
       zombieCount -= 1
       z.die()
-      return DEAD
+      publish(new DeadZombie(z.name, pl.name))
+      //return DEAD
     } else {
       z.lifePoints -= dmg
     }
-    return PLAYER_ATTACK
+    publish(new PlayerAttack(pl.name, z.name, dmg))
+    //return PLAYER_ATTACK
   }
 
-  def attackPlayer(pl: Player, z: Zombie): Int = {
+  def attackPlayer(pl: Player, z: Zombie) = {
     val critRand = util.Random.nextInt(pl.kritchance)
-    dmg = z.attack(critRand)
-    lastAttackedPlayer = pl
+    val dmg = z.attack(critRand)
     if (pl.armor != 0) {
       if (pl.armor - dmg <= 0) {
         pl.armor = 0
-        return ARMOR_DESTROYED
+        publish(new ArmorDestroyed(pl.name, z.name))
+        //return ARMOR_DESTROYED
       } else {
         pl.armor -= dmg
-        return ARMOR_DAMAGED
+        publish(new ArmorDamaged(pl.name, z.name, dmg))
+        //return ARMOR_DAMAGED
       }
     } else if (pl.lifePoints - dmg <= 0) {
       pl.lifePoints = 0
@@ -224,27 +310,33 @@ class Controller() extends Observable {
       player = playerBuf.toArray
       playerCount -= 1
       if (player.isEmpty) {
-        return GAME_OVER_LOST
+        publish(new DeadPlayer(pl.name, z.name))
+        publish(new GameOverLost)
+        //return GAME_OVER_LOST
       }
       pl.die()
-      return DEAD
+      publish(new DeadPlayer(pl.name, z.name))
+      //return DEAD
     } else {
       pl.lifePoints -= dmg
     }
-    return ZOMBIE_ATTACK
+    publish(new ZombieAttack(pl.name, z.name, dmg))
+    //return ZOMBIE_ATTACK
   }
 
-  def attackPlayerPlayer(atk: Player, opf: Player): Int = {
+  def attackPlayerPlayer(atk: Player, opf: Player) = {
+    atk.actionCounter -= 1
     val critRand = util.Random.nextInt(atk.kritchance)
-    dmg = atk.attack(critRand)
-    lastAttackedPlayer = opf
+    val dmg = atk.attack(critRand)
     if (opf.armor != 0) {
       if (opf.armor - dmg <= 0) {
         opf.armor = 0
-        return ARMOR_DESTROYED
+        publish(new ArmorDestroyed(opf.name, atk.name))
+        //return ARMOR_DESTROYED
       } else {
         opf.armor -= dmg
-        return ARMOR_DAMAGED
+        publish(new ArmorDamaged(opf.name, atk.name, dmg))
+        //return ARMOR_DAMAGED
       }
     } else if (opf.lifePoints - dmg <= 0) {
       opf.lifePoints = 0
@@ -254,43 +346,55 @@ class Controller() extends Observable {
       player = playerBuf.toArray
       playerCount -= 1
       if (player.isEmpty) {
-        return GAME_OVER_LOST
+        publish(new DeadPlayer(atk.name, opf.name))
+        publish(new GameOverLost)
+        //return GAME_OVER_LOST
       }
       opf.die()
-      return DEAD
+      publish(new DeadPlayer(opf.name, atk.name))
+      //return DEAD
     } else {
       opf.lifePoints -= dmg
     }
-    return PLAYER_ATTACK_PLAYER
+    publish(new PlayerAttackPlayer(atk.name, opf.name, dmg))
+    //return PLAYER_ATTACK_PLAYER
   }
 
-  def attackField(p: Player, f: Field): Int = {
+  def attackField(p: Player, f: Field) = {
+    p.actionCounter -= 1
     if (!f.players.isEmpty && p.actualField != f) {
-      return attackPlayerPlayer(p, f.players(0))
+      p.actionCounter += 1
+      attackPlayerPlayer(p, f.players(0))
     } else if (!f.zombies.isEmpty) {
-      var az = f.zombies.find { z => z.typ == "Spitter" }
+      var az = f.zombies.find { z => z.name == "Spitter" }
       if (az != None) {
-        return attackZombie(p, az.get)
+        p.actionCounter += 1
+        attackZombie(p, az.get)
       } else {
-        az = f.zombies.find { z => z.typ == "Schlurfer" }
+        az = f.zombies.find { z => z.name == "Schlurfer" }
         if (az != None) {
-          return attackZombie(p, az.get)
+          p.actionCounter += 1
+          attackZombie(p, az.get)
         } else {
-          az = f.zombies.find { z => z.typ == "Fatti" }
+          az = f.zombies.find { z => z.name == "Fatti" }
           if (az != None) {
-            return attackZombie(p, az.get)
+            p.actionCounter += 1
+            attackZombie(p, az.get)
           } else {
-            az = f.zombies.find { z => z.typ == "Tank" }
+            az = f.zombies.find { z => z.name == "Tank" }
             if (az != None) {
-              return attackZombie(p, az.get)
+              p.actionCounter += 1
+              attackZombie(p, az.get)
             } else {
-              return attackZombie(p, f.zombies(0))
+              p.actionCounter += 1
+              attackZombie(p, f.zombies(0))
             }
           }
         }
       }
     } else {
-      return FAIL
+      publish(new Fail)
+      //return FAIL
     }
   }
 }

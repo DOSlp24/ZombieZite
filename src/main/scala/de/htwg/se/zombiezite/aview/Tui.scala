@@ -3,15 +3,119 @@ package de.htwg.se.zombiezite.aview
 import de.htwg.se.zombiezite.util.Observer
 import scala.collection.mutable.ArrayBuffer
 import de.htwg.se.zombiezite.model._
-import de.htwg.se.zombiezite.controller.Controller
+import de.htwg.se.zombiezite.controller._
 import scala.io.StdIn
+import swing._
 import com.sun.org.apache.xalan.internal.xsltc.compiler.ForEach
 
-class Tui(controller: Controller) extends Observer {
+class Tui(controller: Controller) extends Reactor {
+  listenTo(controller)
 
-  var fieldlength = 0
+  reactions += {
+    case e: GameOverLost => lost
+    case e: GameOverWon => won
+    case e: Fail => {
+      println("Angriff fehlgeschlagen!")
+    }
+    case e: ZombieWentUp => {
+      println("Ein " + e.typ + " ist ein Feld nach oben gelaufen. Aktuelles Feld: (" + e.x + ", " + e.y + ")")
+    }
+    case e: ZombieWentDown => {
+      println("Ein " + e.typ + " ist ein Feld runter gelaufen. Aktuelles Feld: (" + e.x + ", " + e.y + ")")
+    }
+    case e: ZombieWentRight => {
+      println("Ein " + e.typ + " ist ein Feld nach rechts gelaufen. Aktuelles Feld: (" + e.x + ", " + e.y + ")")
+    }
+    case e: ZombieWentLeft => {
+      println("Ein " + e.typ + " ist ein Feld nach links gelaufen. Aktuelles Feld: (" + e.x + ", " + e.y + ")")
+    }
+    case e: ZombieAttack => {
+      println("Ein " + e.typ + " fügte " + e.name + " [" + e.dmg + "] Schaden zu!")
+    }
+    case e: DeadPlayer => {
+      println("AAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHH!!!!\nIch sterbe!!!\n\n")
+      println(e.name + " wurde von " + e.murderer + " brutal zerrissen und getötet!")
+    }
+    case e: DeadZombie => {
+      println(e.name + " erledigte einen " + e.typ)
+      println("Ein " + e.typ + " weniger")
+    }
+    case e: DiscardWeapon => {
+      println("Du hast {" + e.w.name + "|" + e.w.range + " R|" + e.w.strength + " S" + "} abgelegt.\nDu kämpfst ab jetzt mit bloßen Fäusten!")
+    }
+    case e: CantDiscardFists => {
+      println("Du kannst deine Fäuste nicht ablegen - Du bist kein Zombie!")
+    }
+    case e: CantDiscardFullInv => {
+      println("Dein Inventar ist voll!\nIn diesen Rucksack bekommst du deine Waffe nicht mehr rein.")
+    }
+    case e: SwappedWeapon => {
+      println("Waffen erfolgreich gewechselt!")
+    }
+    case e: EquipedWeapon => {
+      println("Du hast {" + e.w.name + "|" + e.w.range + " R|" + e.w.strength + " S" + "} ausgerüstet.\nHervorragende Wahl!")
+    }
+    case e: ArmorDamaged => {
+      println(e.name + "'s Rüstung wurde von einem " + e.typ + " um <" + e.dmg + "> Punkte reduziert!")
+    }
+    case e: ArmorDestroyed => {
+      println(e.name + "'s Rüstung wurde von einem " + e.typ + " komplett zerfetzt!")
+    }
+    case e: PlayerAttack => {
+      println(e.name + " traf einen " + e.typ + " für [" + e.dmg + "] Schaden!")
+    }
+    case e: PlayerAttackPlayer => {
+      println(e.atk + " fügte seinem VERBÜNDETEN " + e.opf + " [" + e.dmg + "] Schaden zu!")
+    }
+    case e: Wait => {
+      println(e.p.name + " setzt sich auf den Boden und wartet darauf was passiert.")
+    }
+    case e: NewRound => gameStatus
+    case e: StartSpieler => {
+      playerCount
+    }
+    case e: StartSchwierig => {
+      this.fieldlength = controller.fieldlength
+      difficulty
+    }
+    case e: Start => {
+      init
+    }
+    case e: Search => {
+      println("\n********Suche********\n")
+      search(e.i)
+      printEq
+    }
+    case e: WaitInput => {
+      round(controller.actualPlayer)
+    }
+    case e: AktivierungZombies => {
+      println("\n\n*********************Aktivierung Zombies abgeschlossen*********************\n")
+    }
+    case e: AktivierungRunner => {
+      println("\n*********************Zusatzaktivierung Runner abgeschlossen*********************\n")
+    }
+  }
 
-  def init() {
+  def won = {
+    println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
+    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::  SIEG  :::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
+    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
+    System.exit(0)
+  }
+
+  def lost = {
+    println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
+    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::Game Over:::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
+    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
+    System.exit(0)
+  }
+
+  def playerCount {
     println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aufbau::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("Wieviele Spieler spielen mit? (2-4)")
     val playerCount = StdIn.readLine()
@@ -19,27 +123,6 @@ class Tui(controller: Controller) extends Observer {
       case "2" | "3" | "4" => {
         println(playerCount + " Spieler starten.\nLos geht's!\n")
         controller.init(playerCount.toInt)
-        fieldlength = controller.fieldlength
-        println("Wie lange soll das Spiel gehen?\n[0] Kurz\n[1] Mittel\n[2] Lang")
-        val act = StdIn.readLine()
-        act match {
-          case "0" | "1" | "2" => {
-            controller.winCount = (act.toInt + 1) * playerCount.toInt * 15
-          }
-          case _ => {
-
-          }
-        }
-        println("::::::::::::::::::::Spielfeld wird aufgebaut::::::::::::::::::::")
-        print("  ")
-        for (i <- 0 to controller.area.breite - 1) {
-          print(" ___ " + i)
-        }
-        for (i <- 0 to controller.area.laenge - 1) {
-          println("|\n" + i)
-        }
-        println("\nAufbau abgeschlossen\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-        println("\n:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-: Spielbegin :-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
       }
       case _ => {
         println("Falsche Eingabe : *" + playerCount + "*!")
@@ -48,9 +131,38 @@ class Tui(controller: Controller) extends Observer {
     }
   }
 
-  def round(runde: Int) {
+  def difficulty {
+    println("Wie lange soll das Spiel gehen?\n[0] Kurz\n[1] Mittel\n[2] Lang")
+    val act = StdIn.readLine()
+    act match {
+      case "0" | "1" | "2" => {
+        controller.setDifficulty(act.toInt + 1)
+      }
+      case _ => {
+        controller.setDifficulty(1)
+      }
+    }
+  }
+
+  var fieldlength = 0
+
+  def init() {
+    println("::::::::::::::::::::Spielfeld wird aufgebaut::::::::::::::::::::")
+    print("  ")
+    for (i <- 0 to controller.area.breite - 1) {
+      print(" ___ " + i)
+    }
+    for (i <- 0 to controller.area.laenge - 1) {
+      println("|\n" + i)
+    }
+    println("\nAufbau abgeschlossen\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("\n:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-: Spielbegin :-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
+
+  }
+
+  def gameStatus {
     println("\n\n°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°")
-    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Runde " + runde + "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Runde " + controller.round + "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°~...~°~°\n")
     println("                                                        Zombies getötet: [" + controller.zombiesKilled + "/" + controller.winCount + "]                                                        ")
     println("\n*******************************************************************************************")
@@ -60,183 +172,107 @@ class Tui(controller: Controller) extends Observer {
     println(":::::::::::::::::::::::::::::::::::::::::::::::Positionen der Zombies [" + controller.zombieCount + "]:::::::::::::::::::::::::::::::::::::::::::::::")
     zombiePos()
     println("*******************************************************************************************\n\n")
-    for (i <- 0 to controller.player.length - 1) {
-      var p = controller.player(i)
-      var eq = p.equipment
-      var actionCounter = 3
+  }
 
-      while (actionCounter > 0) {
+  def round(p: Player) {
+    var eq = p.equipment
 
-        println("\n\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" + p.name + " ist dran - Aktionen übrig [" + actionCounter + "]:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-        println("Was willst du tun " + p.name + "? (b (Bewegung), s (Suche), a (Ausrüstung), an(Angriff), w(Warten))")
+    println("\n\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" + p.name + " ist dran - Aktionen übrig [" + p.actionCounter + "]:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("Was willst du tun " + p.name + "? (b (Bewegung), s (Suche), a (Ausrüstung), an(Angriff), w(Warten))")
+    val act = StdIn.readLine()
+    act match {
+
+      case "b" => {
+
+        println("\n********Bewegung********\n")
+
+        println("In welche Richtung willst du? *ho(hoch), ru(runter), li(links), re(rechts)*")
         val act = StdIn.readLine()
-        act match {
-
-          case "b" => {
-
-            println("\n********Bewegung********\n")
-
-            println("In welche Richtung willst du? *ho(hoch), ru(runter), li(links), re(rechts)*")
-            val act = StdIn.readLine()
-            actionCounter -= move(act, p)
-          }
-
-          case "s" =>
-            {
-
-              println("\n********Suche********\n")
-
-              actionCounter -= search(p)
-            }
-
-            case"a" => {
-
-              println("\n\n\n\n********Deine Ausrüstung********")
-
-              printEq(p)
-              if (!eq.isEmpty) {
-                println("\n\nWas willst du damit tun? (w (Waffe wechseln), f (Item fallen lassen), a (Ausrüstung benutzen), x (nichts tun))")
-                val act = StdIn.readLine()
-                equip(act, p, eq)
-              } else {
-                println()
-              }
-            }
-
-            case"an" => {
-              println("\nDiese Felder kannst du angreifen:")
-              var i = 0
-              val af = controller.attackableFields(p.actualField, p.equippedWeapon.range)
-              af.foreach { f =>
-                println("[" + i + "] " + charsOnField(f))
-                i += 1
-              }
-              println("\n\nIn welches Feld willst du angreifen? ([x] zum Abbrechen.)")
-              val act = StdIn.readLine()
-              if (act.forall { x => x.isDigit }) {
-                if (act.toInt < af.length) {
-                  if (p.equippedWeapon.aoe == 1) {
-                    if (attackWholeField(p, af(act.toInt))) {
-                      actionCounter -= 1
-                    } else {
-                      System.exit(0)
-                    }
-                  } else {
-                    controller.attackField(p, af(act.toInt)) match {
-                      case controller.PLAYER_ATTACK => {
-                        println(p.name + " fügte einem " + controller.lastAttackedZombie.typ + " [" + controller.dmg + "] Schaden zu.")
-                      }
-                      case controller.DEAD => {
-                        println(p.name + " tötete einen " + controller.lastAttackedZombie.typ + ".")
-                      }
-                      case controller.GAME_OVER_WON => {
-                        println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
-                        println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-                        println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::  SIEG  :::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
-                        println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-                        println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
-                        System.exit(0)
-                      }
-                      case controller.FAIL => {
-                        actionCounter += 1
-                      }
-                    }
-                    actionCounter -= 1
-
-                  }
-                } else {
-                  println("Falsche Eingabe: " + act + " ist zu gross!")
-                }
-              } else if (act == "x") {
-                println("Abgebrochen!\n")
-              } else {
-                println("Falsche Eingabe: " + act + " ist keine Zahl!")
-              }
-            }
-
-            case"w" => {
-              println("\n" + p.name + " setzt sich hin und wartet darauf was passiert.")
-              actionCounter = 0
-            }
-            case _ => println("Absolut falsche Eingabe!")
-        }
-        println()
+        move(act, p)
       }
+
+      case "s" =>
+        {
+          controller.search(p)
+        }
+
+        case"a" => {
+
+          println("\n\n\n\n********Deine Ausrüstung********")
+
+          printEq()
+          if (!eq.isEmpty) {
+            println("\n\nWas willst du damit tun? (w (Waffe wechseln), f (Item fallen lassen), a (Ausrüstung benutzen), x (nichts tun))")
+            val act = StdIn.readLine()
+            equip(act, p, eq)
+          } else {
+            println()
+          }
+        }
+
+        case"an" => {
+          println("\nDiese Felder kannst du angreifen:")
+          var i = 0
+          val af = controller.attackableFields(p.actualField, p.equippedWeapon.range)
+          af.foreach { f =>
+            println("[" + i + "] " + charsOnField(f))
+            i += 1
+          }
+          println("\n\nIn welches Feld willst du angreifen? ([x] zum Abbrechen.)")
+          val act = StdIn.readLine()
+          if (act.forall { x => x.isDigit }) {
+            if (act.toInt < af.length) {
+              if (p.equippedWeapon.aoe == 1) {
+                attackWholeField(p, af(act.toInt))
+              } else {
+                controller.attackField(p, af(act.toInt))
+              }
+            } else {
+              println("Falsche Eingabe: " + act + " ist zu gross!")
+            }
+          } else if (act == "x") {
+            println("Abgebrochen!\n")
+          } else {
+            println("Falsche Eingabe: " + act + " ist keine Zahl!")
+          }
+        }
+        case"w" => {
+          controller.wait(p)
+        }
+        case _ => println("Absolut falsche Eingabe!")
     }
-    zombieTurn(controller.zombies)
   }
 
   def attackWholeField(p: Player, f: Field): Boolean = {
     var pCount = f.players.length - 1
     var zCount = f.zombies.length - 1
     while (pCount >= 0) {
-      controller.attackPlayerPlayer(p, f.players(pCount)) match {
-        case controller.PLAYER_ATTACK_PLAYER => {
-          println(p.name + " fügte seinem Verbündeten " + f.players(pCount).name + " [" + controller.dmg + "] Schaden zu!")
-        }
-        case controller.DEAD => {
-          println("AAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHH!!!!\nIch sterbe!!!\n\n")
-          println(p.name + " tötete seinen Verbündeten " + controller.lastAttackedPlayer.name + "!")
-        }
-        case controller.FAIL => {
-          println("Angriff auf Verbündeten scheiterte!")
-        }
-        case controller.GAME_OVER_LOST => {
-          println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
-          println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-          println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::SELFKILL:::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
-          println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-          println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
-          System.exit(0)
-        }
-        case controller.ARMOR_DESTROYED => {
-          println(p.name + " zerstörte " + f.players(pCount).name + "'s Rüstung!")
-        }
-        case controller.ARMOR_DAMAGED => {
-          println(p.name + " fügte der Rüstung seines Verbündeten " + f.players(pCount).name + " [" + controller.dmg + "] Schaden zu!")
-        }
-      }
+      controller.attackPlayerPlayer(p, f.players(pCount))
       pCount -= 1
     }
     while (zCount >= 0) {
-      controller.attackZombie(p, f.zombies(zCount)) match {
-        case controller.DEAD => {
-          println("Ein " + controller.lastAttackedZombie.typ + " weniger!")
-        }
-        case controller.PLAYER_ATTACK => {
-          println(p.name + " fügte " + f.zombies(zCount).typ + " [" + controller.dmg + "] Schaden zu!")
-        }
-        case controller.FAIL => {
-          println("Angriff scheiterte!")
-        }
-        case controller.GAME_OVER_WON => {
-          println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
-          println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-          println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::  SIEG  :::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
-          println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-          println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
-          System.exit(0)
-        }
-      }
+      controller.attackZombie(p, f.zombies(zCount))
       zCount -= 1
     }
     return true
   }
 
   def charsOnField(f: Field): String = {
-    f.chars.foreach { c =>
-      if (c.lifePoints == 0) {
-        c.die()
+    if (!f.chars.isEmpty) {
+      f.chars.foreach { c =>
+        if (c.lifePoints == 0) {
+          c.die()
+        }
       }
-    }
-    f.zombies.foreach { z =>
-      if (z.lifePoints == 0) {
-        z.die()
+      f.zombies.foreach { z =>
+        if (z.lifePoints == 0) {
+          z.die()
+        }
       }
-    }
-    f.players.foreach { p =>
-      if (p.lifePoints == 0) {
-        p.die()
+      f.players.foreach { p =>
+        if (p.lifePoints == 0) {
+          p.die()
+        }
       }
     }
     var s: StringBuilder = new StringBuilder
@@ -254,7 +290,7 @@ class Tui(controller: Controller) extends Observer {
     if (f.zombies.isEmpty) {
       s.append("| Keine Zombies auf diesem Feld |")
     } else {
-      f.zombies.foreach { z => s.append("| " + z.typ + " [" + z.lifePoints + " LP] | ") }
+      f.zombies.foreach { z => s.append("| " + z.name + " [" + z.lifePoints + " LP] | ") }
     }
     s.append("]")
     return s.toString()
@@ -307,19 +343,16 @@ class Tui(controller: Controller) extends Observer {
     return 1
   }
 
-  def search(p: Player): Int = {
-    val tmp = controller.search(p)
-    if (tmp != null) {
+  def search(i: Item): Int = {
+    if (i != null) {
       println("\n\nDu suchst auf dem aktuellen Feld nach etwas Nützlichem.")
-      println("Du hast " + tmp + " gefunden und in deinen Rucksack gepackt")
+      println("Du hast " + i + " gefunden und in deinen Rucksack gepackt")
       println("\n\n***********Deine aktuelle Ausrüstung***********")
-      printEq(p)
       println("******************************************")
       println()
       return 1
     } else {
       println("*********Du kannst nicht suchen. Dein Rucksack ist voll*********\n")
-      printEq(p)
       return 0
     }
   }
@@ -339,7 +372,6 @@ class Tui(controller: Controller) extends Observer {
       case "f" => {
 
         println("\n********Drop********\n")
-        printEq(p)
         println("Welches Item willst du fallen lassen?")
         val act = StdIn.readLine()
         if (canDrop(act, eq)) {
@@ -424,7 +456,8 @@ class Tui(controller: Controller) extends Observer {
         val waffen = controller.availableWeapon(p)
         if (!waffen.isEmpty) {
           for (waffenliste <- 0 to waffen.length - 1) {
-            println("[" + waffenliste + "] - " + eq(waffen(waffenliste)))
+            val w = eq(waffen(waffenliste))
+            println("[" + waffenliste + "] - {" + w.name + "|" + w.range + " R|" + w.strength + " S" + "}")
           }
           println("Was davon willst du ausrüsten?")
           val act = StdIn.readLine()
@@ -433,7 +466,7 @@ class Tui(controller: Controller) extends Observer {
               if (act.toInt < waffen.length) {
                 val selected = eq(waffen(act.toInt))
                 if (selected.isInstanceOf[Weapon]) {
-                  printBeweapon(controller.beweapon(p, selected), p)
+                  controller.beweapon(p, selected)
                 }
               } else {
                 println("Du hast eine falsche Zahl eingegeben.")
@@ -450,7 +483,7 @@ class Tui(controller: Controller) extends Observer {
 
         println("\n********Waffe ablegen********\n")
 
-        printBeweapon(controller.beweapon(p, null), p)
+        controller.beweapon(p, null)
       }
       case _ => {
         println("Falsche Eingabe!")
@@ -458,88 +491,27 @@ class Tui(controller: Controller) extends Observer {
     }
   }
 
-  def printBeweapon(b: Int, p: Player) {
-    b match {
-      case controller.DISCARD_WEAPON => {
-        println("Ab jetzt kämpft " + p.name + " mit bloßen Fäusten!")
-      }
-      case controller.CANT_DISCARD_FISTS => {
-        println("Du kannst deine Fäuste nicht ablegen!")
-      }
-      case controller.CANT_DISCARD_FULL_INV => {
-        println("Dein Rucksack ist voll. [" + p.equippedWeapon.name + "] passt nicht mehr hinein!")
-      }
-      case controller.SWAPED_WEAPON => {
-        println("Du hast die Waffen getauscht!")
-      }
-      case controller.EQUIPED_WEAPON => {
-        println("Gute Wahl.")
-        println("Du hast " + p.equippedWeapon + " ausgerüstet!")
-      }
-    }
-  }
-
   def zombieTurn(z: ArrayBuffer[Zombie]) {
     println("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aktivierung Zombies:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     for (i <- 0 to z.length - 1) {
-      printZombieTurn(controller.zombieTurn(z(i)), z(i))
+      controller.zombieTurn(z(i))
       println()
     }
     println("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Zusatzaktivierung Runner:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     for (i <- 0 to z.length - 1) {
-      if (z(i).typ == "Runner") {
-        printZombieTurn(controller.zombieTurn(z(i)), z(i))
+      if (z(i).name == "Runner") {
+        controller.zombieTurn(z(i))
         println()
       }
     }
     println("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Zombiekarten werden gezogen:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n")
     val newZombies = controller.drawZombie()
-    newZombies.foreach { z => println("Zombie gezogen: " + z.typ) }
+    newZombies.foreach { z => println("Zombie gezogen: " + z.name) }
     println()
   }
 
-  def printZombieTurn(zt: Int, z: Zombie) {
-    zt match {
-      case controller.DEAD => {
-        println("AAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHH!\nEin markerschütternder Schrei!\n")
-        println("Ein " + z.typ + " hat " + controller.lastAttackedPlayer.name + " getötet!")
-      }
-      case controller.ZOMBIE_WENT_UP => {
-        println("Ein " + z.typ + " ist ein Feld nach oben gelaufen.\tNeues Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
-      }
-      case controller.ZOMBIE_WENT_DOWN => {
-        println("Ein " + z.typ + " ist ein Feld nach unten gelaufen.\tNeues Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
-      }
-      case controller.ZOMBIE_WENT_LEFT => {
-        println("Ein " + z.typ + " ist ein Feld nach links gelaufen.\tNeues Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
-      }
-      case controller.ZOMBIE_WENT_RIGHT => {
-        println("Ein " + z.typ + " ist ein Feld nach rechts gelaufen.\tNeues Feld(" + z.actualField.p.x / fieldlength + ", " + z.actualField.p.y / fieldlength + ")")
-      }
-      case controller.ZOMBIE_ATTACK => {
-        println("Ein " + z.typ + " verursachte [" + controller.dmg + "] Schaden an " + controller.lastAttackedPlayer.name + "!")
-      }
-      case controller.ARMOR_DAMAGED => {
-        println("Ein " + z.typ + " schredderte " + controller.lastAttackedPlayer.name + "s Rüstung für [" + controller.dmg + "] Schaden!")
-      }
-      case controller.ARMOR_DESTROYED => {
-        println("Ein " + z.typ + " zerstörte " + controller.lastAttackedPlayer.name + "s Rüstung!")
-      }
-      case controller.GAME_OVER_LOST => {
-        println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
-        println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-        println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::Game Over:::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
-        println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-        println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
-        System.exit(0)
-      }
-      case controller.FAIL => {
-        println("Etwas in der Zombie Runde lief schief!")
-      }
-    }
-  }
-
-  def printEq(p: Player) {
+  def printEq() {
+    val p = controller.actualPlayer
     println("\n\n-----------------------Rucksack-----------------------")
     if (p.equipment.isEmpty) {
       println("   Dein Rucksack ist leer! ")
@@ -551,7 +523,8 @@ class Tui(controller: Controller) extends Observer {
     println("\n------------------------Rüstung------------------------\n")
     println("Du hast <" + p.armor + "> Rüstung")
     println("\n------------------ausgerüstete Waffe------------------\n")
-    println("Deine ausgerüstete Waffe ist [" + p.equippedWeapon + "]\n")
+    val w = p.equippedWeapon
+    println("Deine ausgerüstete Waffe ist {" + w.name + "|" + w.range + " R|" + w.strength + " S" + "}\n")
   }
 
   def playerPos() {
@@ -562,10 +535,9 @@ class Tui(controller: Controller) extends Observer {
     if (controller.zombies.isEmpty) {
       println("Es befinden sich keine Zombies auf dem Spielfeld!")
     } else {
-      controller.zombies.foreach { z => println("Pos (" + z.actualField.p.x / controller.fieldlength + "," + z.actualField.p.y / controller.fieldlength + ")" + " [" + z.lifePoints + " LP]\t" + z.typ) }
+      controller.zombies.foreach { z => println("Pos (" + z.actualField.p.x / controller.fieldlength + "," + z.actualField.p.y / controller.fieldlength + ")" + " [" + z.lifePoints + " LP]\t" + z.name) }
     }
     println()
   }
 
-  override def update: Unit = playerPos()
 }

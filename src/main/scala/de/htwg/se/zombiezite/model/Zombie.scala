@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.model
 
-case class Zombie(area: Area, typ: String, str: Int, ran: Int, lp: Int) extends Character {
+case class Zombie(area: Area, name: String, str: Int, ran: Int, lp: Int) extends Character {
   var lifePoints: Int = lp
   val strength: Int = str
   val range: Int = ran
@@ -10,7 +10,7 @@ case class Zombie(area: Area, typ: String, str: Int, ran: Int, lp: Int) extends 
 
   def die(): String = {
     leaveField()
-    return "Ein " + typ + " weniger"
+    return "Ein " + name + " weniger"
   }
 
   def leaveField() {
