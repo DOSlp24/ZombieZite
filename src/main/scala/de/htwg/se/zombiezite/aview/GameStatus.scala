@@ -10,14 +10,13 @@ import scala.swing.event._
 import scala.io.Source._
 import javax.swing._
 
-class GameStatus(killed: Int, round: Int) extends GridPanel(2, 1){
-  contents += new TextField{
-    text = "Runde " + round
-    editable_=(false)
+class GameStatus(c: Controller, log: Frame) extends GridPanel(3, 1) {
+
+  contents += new Label("Runde " + c.round) {
+    font = new Font("Arial", java.awt.Font.HANGING_BASELINE , 15)
   }
-  contents += new TextField{
-    text = "Zombies getötet: <" + killed + ">"
-    rows_=(5)
-    editable_=(false)
+  contents += new Label("Zombies getötet: <" + c.zombiesKilled + "/" + c.winCount + ">") {
+    font = new Font("Arial", java.awt.Font.HANGING_BASELINE , 15)
   }
+  contents += new DPad(c, log)
 }

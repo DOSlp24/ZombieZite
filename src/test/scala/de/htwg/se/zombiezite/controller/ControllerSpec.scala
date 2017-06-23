@@ -22,7 +22,7 @@ class ControllerSpec extends WordSpec with Matchers {
       c.init(1)
       c.player(0).actualField = c.area.line(5)(5)
       c.player(0).equip(Weapon("Axe", 1, 1))
-      c.attackableFields(c.player(0).actualField, 1) should not be(null)
+      c.attackableFields(c.player(0)) should not be(null)
     }
     "exist" should {
       val c = new Controller()
@@ -137,14 +137,14 @@ class ControllerSpec extends WordSpec with Matchers {
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.move(c.zombies.last, 1, 0) should be(true)
+        c.move(c.zombies.last, 1, 0)
       }
       "not move a Character at edge" in {
         c.zombies.append(Zombie(c.area, "", 1, 1, 1))
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
-        c.move(c.zombies.last, -1, 0) should be(false)
+        c.move(c.zombies.last, -1, 0)
       }
       "search as Player with full inv" in {
         c.player(0).equipment.appendAll(Array(Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" "), Trash(" ")))
@@ -156,7 +156,7 @@ class ControllerSpec extends WordSpec with Matchers {
       }
       "drop as Player" in {
         val i: Item = c.player(0).equipment(0)
-        c.drop(c.player(0), i) should be(i)
+        c.drop(c.player(0), i)
       }
       "beweapon a Player" should {
         val p = Player(null, "Name")

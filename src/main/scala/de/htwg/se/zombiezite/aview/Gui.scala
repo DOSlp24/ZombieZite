@@ -16,90 +16,80 @@ class Gui(c: Controller) extends Frame {
   reactions += {
     case e: GameOverLost => lost
     case e: GameOverWon => won
-    case e: Fail => {
-    }
-    case e: ZombieWentUp => {
-      update
-    }
-    case e: ZombieWentDown => {
-      update
-    }
-    case e: ZombieWentRight => {
-      update
-    }
-    case e: ZombieWentLeft => {
-      update
-    }
-    case e: ZombieAttack => {
-    }
-    case e: DeadPlayer => {
-    }
+    case e: Fail =>
+    case e: ZombieWentUp => update
+    case e: ZombieWentDown => update
+    case e: ZombieWentRight => update
+    case e: ZombieWentLeft => update
+    case e: ZombieAttack =>
+    case e: DeadPlayer => log.update(e.name + " ist verschieden. " + e.murderer + " hat ihn getötet!\n")
     case e: DeadZombie => {
+      log.update(e.name + " hat einen " + e.typ + " erledigt. - Herrlich!\n")
       update
     }
-    case e: DiscardWeapon => {
-    }
-    case e: CantDiscardFists => {
-    }
-    case e: CantDiscardFullInv => {
-    }
-    case e: SwappedWeapon => {
-    }
-    case e: EquipedWeapon => {
-    }
-    case e: ArmorDamaged => {
-    }
-    case e: ArmorDestroyed => {
-    }
-    case e: PlayerAttack => {
-    }
-    case e: PlayerAttackPlayer => {
-    }
-    case e: PlayerMove => {
-      update
-    }
-    case e: ZombieDraw => {
-      update
-    }
-    case e: Wait => {
-      update
-    }
-    case e: StartSpieler => {
-
-    }
-    case e: StartSchwierig => {
-
-    }
-    case e: Start => {
-      init
-    }
-    case e: WaitInput => {
-
-    }
+    case e: ItemDropped => update
+    case e: Consumed => update
+    case e: DiscardWeapon =>
+    case e: CantDiscardFists => log.update("Du kannst Fäuste nicht ablegen! - Du bist noch kein Zombie!\n")
+    case e: CantDiscardFullInv =>
+    case e: SwappedWeapon =>
+    case e: EquipedWeapon =>
+    case e: ArmorDamaged =>
+    case e: ArmorDestroyed =>
+    case e: PlayerAttack =>log.update(e.name + " hat einem " + e.typ + " [" + e.dmg + "] Schaden zugefügt. - Großartig!\n")
+    case e: PlayerAttackPlayer => log.update(e.atk + " hat " + e.opf + " [" + e.dmg + "] Schaden zugefügt. - Wieso auch immer..\n")
+    case e: PlayerMove => update
+    case e: ZombieDraw => update
+    case e: Wait => update
+    case e: StartSpieler => startSpieler
+    case e: StartSchwierig => startSchwer
+    case e: Start => init
+    case e: WaitInput => update
+    case e: NewRound => update
+    case e: NewAction => update
+    case e: Search => update
   }
 
   def lost = {
-    //System.exit(0)
+    contents_=(Button("LOST"){System.exit(0)})
   }
 
   def won = {
-    //System.exit(0)
+    contents_=(Button("Congratulations! :)\nYou won!"){System.exit(0)})
   }
 
-  title = "Zombie Zite"
   var aLaenge = 0
   var aBreite = 0
   var fields = Array.ofDim[FieldGraphic](aLaenge, aBreite)
   var s = 1000
   var s2 = s / 10
   var grid: GridPanel = null
-  val button = new Button("Warten")
+  val log = new Log()
 
-  listenTo(button)
-  reactions += {
-    case ButtonClicked(button) => {
-      c.wait(c.actualPlayer)
+  def startSpieler {
+    val anzahlSpieler = new ComboBox(2 to 4)
+    val startGrid = new GridPanel(3, 1) {
+      contents += new Label("Wieviele Spieler?")
+      contents += anzahlSpieler
+      contents += Button("OK") {
+        c.init(anzahlSpieler.selection.item)
+      }
     }
+    contents_=(startGrid)
+    visible = true
+  }
+
+  def startSchwer {
+    val schwierigkeit = new ComboBox(0 to 2)
+    val startGrid = new GridPanel(3, 1) {
+      contents += new Label("Wie lange soll das Spiel gehen?")
+      contents += schwierigkeit
+      contents += Button("OK") {
+        c.setDifficulty(schwierigkeit.selection.item)
+      }
+    }
+    contents_=(startGrid)
+    visible = true
   }
 
   def areaGraphic() {
@@ -133,31 +123,27 @@ class Gui(c: Controller) extends Frame {
         c
       }
       //Player status panel
-      add(new Label("Label @ (0,0)") { border = Swing.EtchedBorder(Swing.Lowered) },
-        constraints(0, 0, gridheight = 2, fill = GridBagPanel.Fill.Both))
+      add(new PlayerStat(c),
+        constraints(0, 0, fill = GridBagPanel.Fill.Vertical))
       //Game status
-      add((new GameStatus(c.zombiesKilled, c.round)),
+      add((new GameStatus(c, log)),
         constraints(2, 0))
-      add(button,
-        constraints(2, 1))
-      add(new Button("Button @ (2,2)"),
-        constraints(2, 2))
-      add(new CheckBox("Check me!"),
+      add(new Button("Katsching (0, 2)"),
         constraints(0, 2))
       //Log
-      add(grid ,
+      add(grid,
         constraints(1, 0, weightx = 1.0, fill = GridBagPanel.Fill.Horizontal))
       //Field
       add(new Label,
-        constraints(1, 1, gridheight = 2, weighty = 1.0,
+        constraints(1, 1, gridheight = 2, gridwidth = 2,
           fill = GridBagPanel.Fill.Both))
-      add(Button("Close") { sys.exit(0) },
-        constraints(0, 4, gridwidth = 3, fill = GridBagPanel.Fill.Horizontal))
     }
     contents_=(gridBag)
   }
 
   def init {
+    title = "Zombie Zite"
+    log.update("************************GAME START************************\n\n\n")
     aLaenge = c.area.line.length
     aBreite = c.area.line(0).length
     fields = Array.ofDim[FieldGraphic](aLaenge, aBreite)
@@ -170,6 +156,7 @@ class Gui(c: Controller) extends Frame {
       }
     }
     areaGraphic()
+    peer.setLocationRelativeTo(null)
     visible = true
   }
 

@@ -1,5 +1,5 @@
 package de.htwg.se.zombiezite.controller
-import de.htwg.se.zombiezite.model._
+import de.htwg.se.zombiezite.model.{Item, Zombie, Player, Area, ItemDeck, ZombieDeck, Field, Deck, Character, Trash, Weapon, Armor}
 import de.htwg.se.zombiezite.util.Observable
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.event.Event
@@ -18,6 +18,8 @@ case class DeadZombie(typ: String, name: String) extends Event
 case class DiscardWeapon(w: Item) extends Event
 case class CantDiscardFists() extends Event
 case class CantDiscardFullInv() extends Event
+case class ItemDropped(i: Item) extends Event
+case class Consumed(i: Item) extends Event
 case class SwappedWeapon() extends Event
 case class EquipedWeapon(w: Item) extends Event
 case class ArmorDamaged(name: String, typ: String, dmg: Int) extends Event
@@ -36,6 +38,8 @@ case class Start() extends Event
 case class PlayerMove(x: Int, y: Int) extends Event
 case class Search(i: Item) extends Event
 case class WaitInput() extends Event
+case class NewAction() extends Event
+case class StartZombieTurn() extends Event
 
 class Controller() extends Publisher {
 
@@ -53,11 +57,27 @@ class Controller() extends Publisher {
   var round = 1
   var actualPlayer = Player(area, "Default")
 
+  def checkOrder {
+    if (actualPlayer.actionCounter <= 0) {
+      if (actualPlayer == player.last) {
+        publish(new StartZombieTurn())
+        fullZombieTurn
+        newRound
+        roundReset()
+      } else {
+        actualPlayer = player(player.indexOf(actualPlayer) + 1)
+      }
+      publish(new NewAction())
+    } else {
+      waitInput
+    }
+  }
+
   def setDifficulty(dif: Int) {
-    winCount = dif * playerCount.toInt * 15
+    winCount = (dif + 1) * playerCount.toInt * 15
     publish(new Start)
   }
-  
+
   def waitInput() {
     publish(new WaitInput)
   }
@@ -75,8 +95,8 @@ class Controller() extends Publisher {
       player(i).actualField.players.append(player(i))
       player(i).actualField.chars.append(player(i))
     }
-    publish(new StartSchwierig)
     roundReset()
+    publish(new StartSchwierig)
   }
 
   def newRound {
@@ -87,14 +107,7 @@ class Controller() extends Publisher {
   def wait(p: Player) {
     p.actionCounter = 0
     publish(Wait(p))
-    if(actualPlayer != player.last){
-      actualPlayer = player(player.indexOf(actualPlayer) + 1)
-      return
-    } else {
-      fullZombieTurn
-      roundReset
-      newRound
-    }
+    checkOrder
   }
 
   def roundReset() {
@@ -109,7 +122,9 @@ class Controller() extends Publisher {
     return itemDeck.draw()
   }
 
-  def attackableFields(actualField: Field, range: Int): Array[Field] = {
+  def attackableFields(char: Character): Array[Field] = {
+    val actualField = char.actualField
+    val range = char.range + char.equippedWeapon.range
     var attackableFields = ArrayBuffer[Field]()
     for (r <- 0 to range) {
       if (actualField.p.x / fieldlength + r < area.laenge) {
@@ -172,12 +187,10 @@ class Controller() extends Publisher {
           z.walk(0, 1)
           publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
           return
-          //return ZOMBIE_WENT_UP
         } else if (z.actualField.p.y > j.actualField.p.y) {
           z.walk(0, -1)
           publish(new ZombieWentDown(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
           return
-          //return ZOMBIE_WENT_DOWN
         }
       } else if (z.actualField.p.y == j.actualField.p.y) {
         if (math.abs(z.actualField.p.x - j.actualField.p.x) <= z.range) {
@@ -187,42 +200,35 @@ class Controller() extends Publisher {
           z.walk(1, 0)
           publish(new ZombieWentRight(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
           return
-          //return ZOMBIE_WENT_RIGHT
         } else if (z.actualField.p.x > j.actualField.p.x) {
           z.walk(-1, 0)
           publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
           return
-          //return ZOMBIE_WENT_LEFT
         }
       }
     }
     if (z.walk(-1, 0)) {
       publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
       return
-      //return ZOMBIE_WENT_LEFT
     } else if (z.walk(0, 1)) {
       publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
       return
-      //return ZOMBIE_WENT_UP
     } else {
       publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
       return
-      //return ZOMBIE_WENT_RIGHT
     }
   }
 
-  def move(char: Character, x: Int, y: Int): Boolean = {
+  def move(char: Character, x: Int, y: Int) {
     if (char.walk(x, y)) {
       char.actionCounter -= 1
       publish(new PlayerMove(char.actualField.p.x / fieldlength, char.actualField.p.y / fieldlength))
-      return true
-    } else {
-      return false
+      checkOrder
     }
   }
 
-  def search(p: Player){
-    if (p.equipment.length >= p.EQMAX) {
+  def search(p: Player) {
+    if (p.equipment.length > p.EQMAX) {
       publish(new Search(null))
       return
     }
@@ -230,11 +236,18 @@ class Controller() extends Publisher {
     p.equip(tmpItem)
     p.actionCounter -= 1
     publish(new Search(tmpItem))
-    return
+    checkOrder
   }
 
-  def drop(pl: Player, item: Item): Item = {
-    return pl.drop(item)
+  def drop(pl: Player, item: Item) {
+    publish(new ItemDropped(pl.drop(item)))
+    checkOrder
+  }
+
+  def equipArmor(char: Player, i: Item) {
+    char.useArmor(i)
+    char.drop(i)
+    publish(new Consumed(i))
   }
 
   def beweapon(char: Player, item: Item) = {
@@ -244,30 +257,25 @@ class Controller() extends Publisher {
         char.equip(tmp)
         char.equippedWeapon = Weapon("Fist", 0, 1)
         publish(new DiscardWeapon(tmp))
-        //return DISCARD_WEAPON
       } else {
         publish(new CantDiscardFists)
-        //return CANT_DISCARD_FISTS
       }
     } else if (item == null && char.equippedWeapon.name != "Fist" && char.equipment.length >= char.EQMAX) {
       publish(new CantDiscardFullInv)
-      //return CANT_DISCARD_FULL_INV
     } else if (char.equippedWeapon.name != "Fist") {
       char.equipment.append(char.equippedWeapon)
       char.equippedWeapon = item
       char.drop(item)
       publish(new SwappedWeapon)
-      //return SWAPED_WEAPON
     } else {
       char.equippedWeapon = item
       char.drop(item)
       publish(new EquipedWeapon(char.equippedWeapon))
-      //return EQUIPED_WEAPON
     }
+    checkOrder
   }
 
   def attackZombie(pl: Player, z: Zombie) = {
-    pl.actionCounter -= 1
     val critRand = util.Random.nextInt(pl.kritchance)
     val dmg = pl.attack(critRand)
     if (z.lifePoints - dmg <= 0) {
@@ -276,17 +284,15 @@ class Controller() extends Publisher {
       zombiesKilled += 1
       if (zombiesKilled >= winCount) {
         publish(new GameOverWon)
-        //return GAME_OVER_WON
       }
       zombieCount -= 1
       z.die()
       publish(new DeadZombie(z.name, pl.name))
-      //return DEAD
     } else {
       z.lifePoints -= dmg
     }
     publish(new PlayerAttack(pl.name, z.name, dmg))
-    //return PLAYER_ATTACK
+    checkOrder
   }
 
   def attackPlayer(pl: Player, z: Zombie) = {
@@ -296,11 +302,9 @@ class Controller() extends Publisher {
       if (pl.armor - dmg <= 0) {
         pl.armor = 0
         publish(new ArmorDestroyed(pl.name, z.name))
-        //return ARMOR_DESTROYED
       } else {
         pl.armor -= dmg
         publish(new ArmorDamaged(pl.name, z.name, dmg))
-        //return ARMOR_DAMAGED
       }
     } else if (pl.lifePoints - dmg <= 0) {
       pl.lifePoints = 0
@@ -312,31 +316,25 @@ class Controller() extends Publisher {
       if (player.isEmpty) {
         publish(new DeadPlayer(pl.name, z.name))
         publish(new GameOverLost)
-        //return GAME_OVER_LOST
       }
       pl.die()
       publish(new DeadPlayer(pl.name, z.name))
-      //return DEAD
     } else {
       pl.lifePoints -= dmg
     }
     publish(new ZombieAttack(pl.name, z.name, dmg))
-    //return ZOMBIE_ATTACK
   }
 
   def attackPlayerPlayer(atk: Player, opf: Player) = {
-    atk.actionCounter -= 1
     val critRand = util.Random.nextInt(atk.kritchance)
     val dmg = atk.attack(critRand)
     if (opf.armor != 0) {
       if (opf.armor - dmg <= 0) {
         opf.armor = 0
         publish(new ArmorDestroyed(opf.name, atk.name))
-        //return ARMOR_DESTROYED
       } else {
         opf.armor -= dmg
         publish(new ArmorDamaged(opf.name, atk.name, dmg))
-        //return ARMOR_DAMAGED
       }
     } else if (opf.lifePoints - dmg <= 0) {
       opf.lifePoints = 0
@@ -348,53 +346,64 @@ class Controller() extends Publisher {
       if (player.isEmpty) {
         publish(new DeadPlayer(atk.name, opf.name))
         publish(new GameOverLost)
-        //return GAME_OVER_LOST
       }
       opf.die()
       publish(new DeadPlayer(opf.name, atk.name))
-      //return DEAD
     } else {
       opf.lifePoints -= dmg
     }
     publish(new PlayerAttackPlayer(atk.name, opf.name, dmg))
-    //return PLAYER_ATTACK_PLAYER
+    checkOrder
   }
 
   def attackField(p: Player, f: Field) = {
-    p.actionCounter -= 1
-    if (!f.players.isEmpty && p.actualField != f) {
-      p.actionCounter += 1
-      attackPlayerPlayer(p, f.players(0))
-    } else if (!f.zombies.isEmpty) {
-      var az = f.zombies.find { z => z.name == "Spitter" }
-      if (az != None) {
-        p.actionCounter += 1
-        attackZombie(p, az.get)
-      } else {
-        az = f.zombies.find { z => z.name == "Schlurfer" }
+    if (p.equippedWeapon.aoe == 1) {
+      attackWholeField(p, f)
+      p.actionCounter -= 1
+    } else {
+      if (!f.players.isEmpty && p.actualField != f) {
+        attackPlayerPlayer(p, f.players(0))
+      } else if (!f.zombies.isEmpty) {
+        var az = f.zombies.find { z => z.name == "Spitter" }
         if (az != None) {
-          p.actionCounter += 1
           attackZombie(p, az.get)
         } else {
-          az = f.zombies.find { z => z.name == "Fatti" }
+          az = f.zombies.find { z => z.name == "Schlurfer" }
           if (az != None) {
-            p.actionCounter += 1
             attackZombie(p, az.get)
           } else {
-            az = f.zombies.find { z => z.name == "Tank" }
+            az = f.zombies.find { z => z.name == "Fatti" }
             if (az != None) {
-              p.actionCounter += 1
               attackZombie(p, az.get)
             } else {
-              p.actionCounter += 1
-              attackZombie(p, f.zombies(0))
+              az = f.zombies.find { z => z.name == "Tank" }
+              if (az != None) {
+                attackZombie(p, az.get)
+              } else {
+                attackZombie(p, f.zombies(0))
+              }
             }
           }
         }
+        p.actionCounter -= 1
+      } else {
+        publish(new Fail)
       }
-    } else {
-      publish(new Fail)
-      //return FAIL
     }
+    checkOrder
+  }
+
+  def attackWholeField(p: Player, f: Field): Boolean = {
+    var pCount = f.players.length - 1
+    var zCount = f.zombies.length - 1
+    while (pCount >= 0) {
+      attackPlayerPlayer(p, f.players(pCount))
+      pCount -= 1
+    }
+    while (zCount >= 0) {
+      attackZombie(p, f.zombies(zCount))
+      zCount -= 1
+    }
+    return true
   }
 }

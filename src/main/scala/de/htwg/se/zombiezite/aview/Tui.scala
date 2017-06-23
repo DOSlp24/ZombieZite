@@ -9,6 +9,8 @@ import swing._
 import com.sun.org.apache.xalan.internal.xsltc.compiler.ForEach
 
 class Tui(controller: Controller) extends Reactor {
+  var status = "roundStart"
+
   listenTo(controller)
 
   reactions += {
@@ -67,19 +69,34 @@ class Tui(controller: Controller) extends Reactor {
     case e: PlayerAttackPlayer => {
       println(e.atk + " fügte seinem VERBÜNDETEN " + e.opf + " [" + e.dmg + "] Schaden zu!")
     }
+    case e: PlayerMove => {
+      println(controller.actualPlayer.name + " Ist gelaufen. Neues Feld (" + e.x + ", " + e.y + ")")
+      status = "roundStart"
+    }
     case e: Wait => {
       println(e.p.name + " setzt sich auf den Boden und wartet darauf was passiert.")
+      status = "roundStart"
+      printRoundStart
     }
-    case e: NewRound => gameStatus
+    case e: NewRound => {
+      gameStatus
+      printRoundStart
+      status = "roundStart"
+    }
     case e: StartSpieler => {
-      playerCount
+      println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aufbau::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+      println("Wieviele Spieler spielen mit? (2-4)")
+      status = "playerCount"
     }
     case e: StartSchwierig => {
+      println("Wie lange soll das Spiel gehen?\n[0] Kurz\n[1] Mittel\n[2] Lang")
       this.fieldlength = controller.fieldlength
-      difficulty
+      status = "dif"
     }
     case e: Start => {
       init
+      printRoundStart
+      status = "roundStart"
     }
     case e: Search => {
       println("\n********Suche********\n")
@@ -87,14 +104,72 @@ class Tui(controller: Controller) extends Reactor {
       printEq
     }
     case e: WaitInput => {
-      round(controller.actualPlayer)
+      if (controller.actualPlayer.actionCounter != 0) {
+        printRoundStart
+      }
+      status = "roundStart"
     }
     case e: AktivierungZombies => {
-      println("\n\n*********************Aktivierung Zombies abgeschlossen*********************\n")
+      println("*********************Aktivierung Zombies abgeschlossen*********************\n\n")
     }
     case e: AktivierungRunner => {
-      println("\n*********************Zusatzaktivierung Runner abgeschlossen*********************\n")
+      println("*********************Zusatzaktivierung Runner abgeschlossen*********************\n")
     }
+    case e: NewAction => {
+      if (controller.actualPlayer.actionCounter != 0) {
+        printRoundStart
+      }
+      status = "roundStart"
+    }
+    case e: StartZombieTurn => {
+      println("\n")
+    }
+    case e: ItemDropped => {
+      println(controller.actualPlayer.name + " hat " + e.i.name + " fallen gelassen!")
+    }
+    case e: Consumed => {
+      println(e.i.name + " wurde verbraucht!")
+    }
+  }
+
+  def compute(act: String) {
+    status match {
+      case "roundStart" => {
+        round(controller.actualPlayer, act)
+      }
+      case "playerCount" => {
+        playerCount(act)
+      }
+      case "dif" => {
+        difficulty(act)
+      }
+      case "equip" => {
+        equip(act, controller.actualPlayer, controller.actualPlayer.equipment)
+      }
+      case "attack" => {
+        attack(act, controller.actualPlayer)
+      }
+      case "move" => {
+        move(act, controller.actualPlayer)
+      }
+      case "beweapon" => {
+        beweapon(act, controller.actualPlayer, controller.actualPlayer.equipment)
+      }
+      case "manageWeapon" => {
+        manageWeapon(act, controller.actualPlayer.equipment, controller.actualPlayer)
+      }
+      case "drop" => {
+        drop(act, controller.actualPlayer)
+      }
+      case "armor" => {
+        armor(act, controller.actualPlayer, controller.actualPlayer.equipment)
+      }
+    }
+  }
+
+  def printRoundStart {
+    println("\n\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" + controller.actualPlayer.name + " ist dran - Aktionen übrig [" + controller.actualPlayer.actionCounter + "]:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+    println("Was willst du tun " + controller.actualPlayer.name + "? (b (Bewegung), s (Suche), a (Ausrüstung), an(Angriff), w(Warten))")
   }
 
   def won = {
@@ -103,7 +178,6 @@ class Tui(controller: Controller) extends Reactor {
     println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::  SIEG  :::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
     println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
-    System.exit(0)
   }
 
   def lost = {
@@ -112,13 +186,9 @@ class Tui(controller: Controller) extends Reactor {
     println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::Game Over:::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
     println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`|_|´`")
-    System.exit(0)
   }
 
-  def playerCount {
-    println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aufbau::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-    println("Wieviele Spieler spielen mit? (2-4)")
-    val playerCount = StdIn.readLine()
+  def playerCount(playerCount: String) {
     playerCount match {
       case "2" | "3" | "4" => {
         println(playerCount + " Spieler starten.\nLos geht's!\n")
@@ -126,19 +196,17 @@ class Tui(controller: Controller) extends Reactor {
       }
       case _ => {
         println("Falsche Eingabe : *" + playerCount + "*!")
-        System.exit(0)
       }
     }
   }
 
-  def difficulty {
-    println("Wie lange soll das Spiel gehen?\n[0] Kurz\n[1] Mittel\n[2] Lang")
-    val act = StdIn.readLine()
+  def difficulty(act: String) {
     act match {
       case "0" | "1" | "2" => {
         controller.setDifficulty(act.toInt + 1)
       }
       case _ => {
+        println("Falsche Eingabe - Die Schwierigkeit wird auf *1* gesetzt.")
         controller.setDifficulty(1)
       }
     }
@@ -157,7 +225,6 @@ class Tui(controller: Controller) extends Reactor {
     }
     println("\nAufbau abgeschlossen\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("\n:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-: Spielbegin :-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
-
   }
 
   def gameStatus {
@@ -174,12 +241,8 @@ class Tui(controller: Controller) extends Reactor {
     println("*******************************************************************************************\n\n")
   }
 
-  def round(p: Player) {
+  def round(p: Player, act: String) {
     var eq = p.equipment
-
-    println("\n\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::" + p.name + " ist dran - Aktionen übrig [" + p.actionCounter + "]:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-    println("Was willst du tun " + p.name + "? (b (Bewegung), s (Suche), a (Ausrüstung), an(Angriff), w(Warten))")
-    val act = StdIn.readLine()
     act match {
 
       case "b" => {
@@ -187,14 +250,11 @@ class Tui(controller: Controller) extends Reactor {
         println("\n********Bewegung********\n")
 
         println("In welche Richtung willst du? *ho(hoch), ru(runter), li(links), re(rechts)*")
-        val act = StdIn.readLine()
-        move(act, p)
+        status = "move"
       }
 
       case "s" =>
-        {
-          controller.search(p)
-        }
+        controller.search(p)
 
         case"a" => {
 
@@ -203,8 +263,7 @@ class Tui(controller: Controller) extends Reactor {
           printEq()
           if (!eq.isEmpty) {
             println("\n\nWas willst du damit tun? (w (Waffe wechseln), f (Item fallen lassen), a (Ausrüstung benutzen), x (nichts tun))")
-            val act = StdIn.readLine()
-            equip(act, p, eq)
+            status = "equip"
           } else {
             println()
           }
@@ -213,28 +272,13 @@ class Tui(controller: Controller) extends Reactor {
         case"an" => {
           println("\nDiese Felder kannst du angreifen:")
           var i = 0
-          val af = controller.attackableFields(p.actualField, p.equippedWeapon.range)
+          val af = controller.attackableFields(p)
           af.foreach { f =>
             println("[" + i + "] " + charsOnField(f))
             i += 1
           }
           println("\n\nIn welches Feld willst du angreifen? ([x] zum Abbrechen.)")
-          val act = StdIn.readLine()
-          if (act.forall { x => x.isDigit }) {
-            if (act.toInt < af.length) {
-              if (p.equippedWeapon.aoe == 1) {
-                attackWholeField(p, af(act.toInt))
-              } else {
-                controller.attackField(p, af(act.toInt))
-              }
-            } else {
-              println("Falsche Eingabe: " + act + " ist zu gross!")
-            }
-          } else if (act == "x") {
-            println("Abgebrochen!\n")
-          } else {
-            println("Falsche Eingabe: " + act + " ist keine Zahl!")
-          }
+          status = "attack"
         }
         case"w" => {
           controller.wait(p)
@@ -243,18 +287,37 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def attackWholeField(p: Player, f: Field): Boolean = {
-    var pCount = f.players.length - 1
-    var zCount = f.zombies.length - 1
-    while (pCount >= 0) {
-      controller.attackPlayerPlayer(p, f.players(pCount))
-      pCount -= 1
+  def attack(act: String, p: Player) {
+    var i = 0
+    val af = controller.attackableFields(p)
+    af.foreach { f =>
+      println("[" + i + "] " + charsOnField(f))
+      i += 1
     }
-    while (zCount >= 0) {
-      controller.attackZombie(p, f.zombies(zCount))
-      zCount -= 1
+    if (act != "") {
+      if (act.forall { x => x.isDigit }) {
+        if (act.toInt < af.length) {
+            controller.attackField(p, af(act.toInt))
+          
+        } else {
+          println("Falsche Eingabe: " + act + " ist zu gross!")
+          status = "roundStart"
+          printRoundStart
+        }
+      } else if (act == "x") {
+        println("Abgebrochen!\n")
+        status = "roundStart"
+        printRoundStart
+      } else {
+        println("Falsche Eingabe: " + act + " ist keine Zahl!")
+        status = "roundStart"
+        printRoundStart
+      }
+    } else {
+      println("Falsche Eingabe - Nichts zählt nicht!")
+      status = "roundStart"
+      printRoundStart
     }
-    return true
   }
 
   def charsOnField(f: Field): String = {
@@ -300,46 +363,30 @@ class Tui(controller: Controller) extends Reactor {
     act match {
 
       case "ho" => {
-        if (controller.move(p, 0, 1)) {
-          println(p.name + " ist ein Feld nach oben gelaufen. Neues Feld (" + p.actualField.p.x / fieldlength + ", " + p.actualField.p.y / fieldlength + ")")
-        } else {
-          println("Das geht nicht. Nach oben geht es nicht weiter!")
-          return 0
-        }
+        controller.move(p, 0, 1)
       }
 
       case "ru" => {
-        if (controller.move(p, 0, -1)) {
-          println(p.name + " ist ein Feld nach unten gelaufen. Neues Feld (" + p.actualField.p.x / fieldlength + ", " + p.actualField.p.y / fieldlength + ")")
-        } else {
-          println("Das geht nicht. Weiter runter geht es nicht!")
-          return 0
-        }
+        controller.move(p, 0, -1)
       }
 
       case "li" => {
-        if (controller.move(p, -1, 0)) {
-          println(p.name + " ist ein Feld nach links gelaufen. Neues Feld (" + p.actualField.p.x / fieldlength + ", " + p.actualField.p.y / fieldlength + ")")
-        } else {
-          println("Das geht nicht. Nach links ist der Weg blockiert!")
-          return 0
-        }
+        controller.move(p, -1, 0)
       }
 
       case "re" => {
-        if (controller.move(p, 1, 0)) {
-          println(p.name + " ist ein Feld nach rechts gelaufen. Neues Feld (" + p.actualField.p.x / fieldlength + ", " + p.actualField.p.y / fieldlength + ")")
-        } else {
-          println("Das geht nicht. Keine Chance nach rechts zu gehen!")
-          return 0
-        }
+        controller.move(p, 1, 0)
       }
 
       case _ => {
         println("Falsche Eingabe! Das ist keine Richtung.")
+        status = "roundStart"
+        printRoundStart
         return 0
       }
     }
+    status = "roundStart"
+    printRoundStart
     return 1
   }
 
@@ -350,9 +397,13 @@ class Tui(controller: Controller) extends Reactor {
       println("\n\n***********Deine aktuelle Ausrüstung***********")
       println("******************************************")
       println()
+      status = "roundStart"
+      printRoundStart
       return 1
     } else {
       println("*********Du kannst nicht suchen. Dein Rucksack ist voll*********\n")
+      status = "roundStart"
+      printRoundStart
       return 0
     }
   }
@@ -365,18 +416,14 @@ class Tui(controller: Controller) extends Reactor {
         println("\n********Waffen********\n")
 
         println("Willst du eine Waffe aus deinem Rucksack ausrüsten (au) oder deine aktuelle ablegen (ab)?")
-        val act = StdIn.readLine()
-        manageWeapon(act, eq, p)
+        status = "manageWeapon"
       }
 
       case "f" => {
 
         println("\n********Drop********\n")
         println("Welches Item willst du fallen lassen?")
-        val act = StdIn.readLine()
-        if (canDrop(act, eq)) {
-          controller.drop(p, eq(act.toInt))
-        }
+        status = "drop"
       }
 
       case "a" => {
@@ -385,52 +432,86 @@ class Tui(controller: Controller) extends Reactor {
         manageArmor(eq, p)
       }
 
-      case "x" => println("Selber Schuld.")
+      case "x" => {
+        println("Selber Schuld.")
+        status = "roundStart"
+        printRoundStart
+      }
       case _ => {
         println("Einfach nö!")
+        status = "roundStart"
+        printRoundStart
       }
     }
+  }
+
+  def drop(act: String, p: Player) {
+    val eq = p.equipment
+    if (canDrop(act, eq)) {
+      controller.drop(p, eq(act.toInt))
+    }
+    status = "roundStart"
+    printRoundStart
   }
 
   def canDrop(act: String, eq: ArrayBuffer[Item]): Boolean = {
-    act.forall { x => x.isDigit } match {
-      case true => {
-        val actInt = act.toInt
-        if (actInt > eq.length - 1) {
-          println("Du musst eine Zahl zwischen [0] und [" + (eq.length - 1) + "] eingeben")
+    if (act != "") {
+      act.forall { x => x.isDigit } match {
+        case true => {
+          val actInt = act.toInt
+          if (actInt > eq.length - 1) {
+            println("Du musst eine Zahl zwischen [0] und [" + (eq.length - 1) + "] eingeben")
+            return false
+          } else {
+            println(eq(actInt).name + " wurde aus deinem Rucksack geworfen")
+            return true
+          }
+        }
+        case false => {
+          println("Du musst eine Zahl eingeben.\n")
           return false
-        } else {
-          println(eq(actInt).name + " wurde aus deinem Rucksack geworfen")
-          return true
         }
       }
-      case false => {
-        println("Du musst eine Zahl eingeben.\n")
-        return false
-      }
+    } else {
+      return false
     }
   }
 
-  def manageArmor(eq: ArrayBuffer[Item], p: Player) {
+  def manageArmor(equ: ArrayBuffer[Item], p: Player) {
+
     var armor = ArrayBuffer[Int]()
-    for (ws <- 0 to eq.length - 1) {
-      if (eq(ws).isInstanceOf[Armor]) {
+    for (ws <- 0 to equ.length - 1) {
+      if (equ(ws).isInstanceOf[Armor]) {
         armor.append(ws)
       }
     }
     if (!armor.isEmpty) {
       for (armorlist <- 0 to armor.length - 1) {
-        println("[" + armorlist + "] - " + eq(armor(armorlist)))
+        println("[" + armorlist + "] - " + equ(armor(armorlist)))
       }
       println("Was davon willst du ausrüsten?")
-      val act = StdIn.readLine()
+      status = "armor"
+
+    } else {
+      println("Du hast leider keine Rüstung zum Ausrüsten!")
+    }
+    controller.waitInput()
+  }
+
+  def armor(act: String, p: Player, equ: ArrayBuffer[Item]) {
+    var armor = ArrayBuffer[Int]()
+    for (ws <- 0 to equ.length - 1) {
+      if (equ(ws).isInstanceOf[Armor]) {
+        armor.append(ws)
+      }
+    }
+    if (act != "") {
       act.forall { x => x.isDigit } match {
         case true => {
           if (act.toInt < armor.length) {
-            val selected = eq(armor(act.toInt))
+            val selected = equ(armor(act.toInt))
             if (selected.isInstanceOf[Armor]) {
-              p.useArmor(selected)
-              p.drop(selected)
+              controller.equipArmor(controller.actualPlayer, selected)
             }
             println("Rüstung erfolgreich angelegt!")
             println(p.name + "[" + p.lifePoints + " LP] <" + p.armor + " Rüstung>\n")
@@ -440,9 +521,9 @@ class Tui(controller: Controller) extends Reactor {
         }
         case false => println("Du kannst nur eine Zahl eingeben.")
       }
-    } else {
-      println("Du hast leider keine Rüstung zum Ausrüsten!")
     }
+    status = "roundStart"
+    printRoundStart
   }
 
   def manageWeapon(act: String, eq: ArrayBuffer[Item], p: Player) {
@@ -460,22 +541,12 @@ class Tui(controller: Controller) extends Reactor {
             println("[" + waffenliste + "] - {" + w.name + "|" + w.range + " R|" + w.strength + " S" + "}")
           }
           println("Was davon willst du ausrüsten?")
-          val act = StdIn.readLine()
-          act.forall { x => x.isDigit } match {
-            case true => {
-              if (act.toInt < waffen.length) {
-                val selected = eq(waffen(act.toInt))
-                if (selected.isInstanceOf[Weapon]) {
-                  controller.beweapon(p, selected)
-                }
-              } else {
-                println("Du hast eine falsche Zahl eingegeben.")
-              }
-            }
-            case false => println("Du kannst nur eine Zahl eingeben.")
-          }
+
+          status = "beweapon"
         } else {
           println("Du hast leider keine Waffen zum Ausrüsten!")
+          status = "roundStart"
+          printRoundStart
         }
       }
 
@@ -487,6 +558,32 @@ class Tui(controller: Controller) extends Reactor {
       }
       case _ => {
         println("Falsche Eingabe!")
+        status = "roundStart"
+        printRoundStart
+      }
+    }
+  }
+
+  def beweapon(act: String, p: Player, eq: ArrayBuffer[Item]) {
+    val waffen = controller.availableWeapon(p)
+    if (act != "") {
+      act.forall { x => x.isDigit } match {
+        case true => {
+          if (act.toInt < waffen.length) {
+            val selected = eq(waffen(act.toInt))
+            if (selected.isInstanceOf[Weapon]) {
+              controller.beweapon(p, selected)
+            }
+          } else {
+            println("Du hast eine falsche Zahl eingegeben.")
+            status = "roundStart"
+            printRoundStart
+          }
+        }
+        case false =>
+          println("Du kannst nur eine Zahl eingeben.")
+          status = "roundStart"
+          printRoundStart
       }
     }
   }

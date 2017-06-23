@@ -12,25 +12,13 @@ class FieldGraphic(s: Dimension) extends GridPanel(1, 1) {
   var zombies: Array[Zombie] = new Array(0)
   var players: Array[Player] = new Array(0)
   var attackMode = false
-  //  val schlurfi = "Z:\\SWT\\workspace\\media\\zombies\\Schlurfer.png"
-  //  val tank = "Z:\\SWT\\workspace\\media\\zombies\\Tank.png"
-  //  val test = "Z:\\SWT\\workspace\\media\\zombies\\test.png"
-  //  val test2 = "Z:\\SWT\\workspace\\media\\zombies\\test2.png"
-  //  val test3 = "Z:\\SWT\\workspace\\media\\zombies\\test3.png"
-  //  val fatti = "Z:\\SWT\\workspace\\media\\zombies\\Fattie.png"
-  //  val runner = "Z:\\SWT\\workspace\\media\\zombies\\Runner.png"
-  val schlurfi = "Z:/SWT/workspace/media/zombies/Schlurfer.png"
-  val tank = "Z:/SWT/workspace/media/zombies/Tank.png"
-  val test = "Z:/SWT/workspace/media/zombies/test.png"
-  val test2 = "Z:/SWT/workspace/media/zombies/test2.png"
-  val test3 = "Z:/SWT/workspace/media/zombies/test3.png"
-  val fatti = "Z:/SWT/workspace/media/zombies/Fatti.png"
-  val runner = "Z:/SWT/workspace/media/zombies/Runner.png"
   preferredSize = s
   def update {
     this.contents.clear()
     if (zombies.isEmpty && players.isEmpty) {
-      contents += new Label
+      contents += new TextField {
+        editable_=(false)
+      }
     } else {
       if (zombies.length <= 4 && players.isEmpty) {
         val field = new GridPanel(2, 2) {

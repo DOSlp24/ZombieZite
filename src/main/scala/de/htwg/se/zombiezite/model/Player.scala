@@ -1,8 +1,8 @@
 package de.htwg.se.zombiezite.model
 import scala.collection.mutable.ArrayBuffer
 
-case class Player(area: Area, name: String) extends Character {
-  val EQMAX = 6
+case class Player(area: Area, name: String) extends PlayerInterface {
+  val EQMAX = 5
   var lifePoints: Int = 100
   val strength: Int = 0
   val range: Int = 0
