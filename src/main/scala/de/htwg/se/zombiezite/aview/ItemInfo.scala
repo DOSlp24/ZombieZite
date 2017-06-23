@@ -17,12 +17,12 @@ class ItemInfo(i: Item, mode: String) extends Frame {
       font = new Font("Arial", java.awt.Font.TRUETYPE_FONT, 20)
     }
     if (mode == "Weapon") {
-      contents += new Label("Schaden: <" + i.strength.toString() + "> Reichweite: <" + i.range.toString() + ">") {
+      contents += new Label("Schaden: <" + i.asInstanceOf[WeaponInterface].strength.toString() + "> Reichweite: <" + i.asInstanceOf[WeaponInterface].range.toString() + ">") {
         font = new Font("Arial", java.awt.Font.HANGING_BASELINE, 15)
       }
     }
     if (mode == "Armor") {
-      contents += new Label("Rüstung: <" + i.protection.toString() + ">") {
+      contents += new Label("Rüstung: <" + i.asInstanceOf[ArmorInterface].protection.toString() + ">") {
         font = new Font("Arial", java.awt.Font.HANGING_BASELINE, 15)
       }
     }

@@ -1,13 +1,13 @@
-package de.htwg.se.zombiezite.model
-import scala.collection.mutable.ArrayBuffer
+package de.htwg.se.zombiezite.model.baseImpl
 
-case class Player(area: Area, name: String) extends PlayerInterface {
-  val EQMAX = 5
+import scala.collection.mutable.ArrayBuffer
+import de.htwg.se.zombiezite.model.{ PlayerInterface, Item, Character, FieldInterface, AreaInterface, ArmorInterface}
+
+case class Player(area: AreaInterface, name: String) extends PlayerInterface {
   var lifePoints: Int = 100
   val strength: Int = 0
   val range: Int = 0
-  var actualField: Field = null
-  var equipment = ArrayBuffer[Item]()
+  equipment = ArrayBuffer[Item]()
 
   def die(): String = {
     leaveField()
@@ -33,8 +33,8 @@ case class Player(area: Area, name: String) extends PlayerInterface {
     }
     return false
   }
-  
-  def useArmor(a: Item): Boolean = {
+
+  def useArmor(a: ArmorInterface): Boolean = {
     a.name match {
       case "Healkit" => {
         lifePoints = 100

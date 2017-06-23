@@ -6,7 +6,7 @@ import de.htwg.se.zombiezite.aview.Gui
 import scala.io.StdIn._
 import scala.io.StdIn
 
-object ZombieZite {
+object ZombieZiteApp {
 
   def main(args: Array[String]): Unit = {
     val c = new Controller()

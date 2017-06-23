@@ -1,14 +1,16 @@
 package de.htwg.se.zombiezite.model
 
+import de.htwg.se.zombiezite.model.baseImpl.Weapon
+
 trait Character {
   var lifePoints: Int
   val strength: Int
   val range: Int
-  var actualField: Field
-  var equippedWeapon: Item= Weapon("Fist", 1, 0)
+  var actualField: FieldInterface = null
+  var equippedWeapon: WeaponInterface = new Weapon("Fist", 1, 0)
   var kritchance = 20
   var armor = 0
-  val area: Area
+  val area: AreaInterface
   var actionCounter = 0
   val name: String
   

@@ -1,5 +1,6 @@
 package de.htwg.se.zombiezite.controller
-import de.htwg.se.zombiezite.model.{Item, Zombie, Player, Area, ItemDeck, ZombieDeck, Field, Deck, Character, Trash, Weapon, Armor}
+import de.htwg.se.zombiezite.model.baseImpl.{ Zombie, Player, Area, ItemDeck, ZombieDeck, Field, Trash, Weapon, Armor }
+import de.htwg.se.zombiezite.model.{ Item, Character, FieldInterface, PlayerInterface, ZombieInterface, Deck, ArmorInterface, WeaponInterface }
 import de.htwg.se.zombiezite.util.Observable
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.event.Event
@@ -15,19 +16,19 @@ case class ZombieWentRight(typ: String, x: Int, y: Int) extends Event
 case class ZombieAttack(name: String, typ: String, dmg: Int) extends Event
 case class DeadPlayer(name: String, murderer: String) extends Event
 case class DeadZombie(typ: String, name: String) extends Event
-case class DiscardWeapon(w: Item) extends Event
+case class DiscardWeapon(w: WeaponInterface) extends Event
 case class CantDiscardFists() extends Event
 case class CantDiscardFullInv() extends Event
 case class ItemDropped(i: Item) extends Event
-case class Consumed(i: Item) extends Event
+case class Consumed(i: ArmorInterface) extends Event
 case class SwappedWeapon() extends Event
-case class EquipedWeapon(w: Item) extends Event
+case class EquipedWeapon(w: WeaponInterface) extends Event
 case class ArmorDamaged(name: String, typ: String, dmg: Int) extends Event
 case class ArmorDestroyed(name: String, typ: String) extends Event
 case class PlayerAttack(name: String, typ: String, dmg: Int) extends Event
 case class PlayerAttackPlayer(atk: String, opf: String, dmg: Int) extends Event
-case class ZombieDraw(z: Array[Zombie]) extends Event
-case class Wait(p: Player) extends Event
+case class ZombieDraw(z: Array[ZombieInterface]) extends Event
+case class Wait(p: PlayerInterface) extends Event
 case class AktivierungZombies() extends Event
 case class AktivierungRunner() extends Event
 case class DrawZombie() extends Event
@@ -41,13 +42,13 @@ case class WaitInput() extends Event
 case class NewAction() extends Event
 case class StartZombieTurn() extends Event
 
-class Controller() extends Publisher {
+class Controller() extends Publisher with ControllerInterface {
 
   var area: Area = null
   var player: Array[Player] = null
-  var zombies: ArrayBuffer[Zombie] = ArrayBuffer[Zombie]()
+  var zombies: ArrayBuffer[ZombieInterface] = ArrayBuffer[ZombieInterface]()
   var itemDeck = new ItemDeck()
-  var zombieDeck: Deck[Array[Zombie]] = null
+  var zombieDeck: Deck[Array[ZombieInterface]] = null
   val playerNamer: Array[String] = Array("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow")
   var fieldlength = 0
   var zombieCount = 0
@@ -62,8 +63,10 @@ class Controller() extends Publisher {
       if (actualPlayer == player.last) {
         publish(new StartZombieTurn())
         fullZombieTurn
-        newRound
-        roundReset()
+        if (!player.isEmpty) {
+          newRound
+          roundReset()
+        }
       } else {
         actualPlayer = player(player.indexOf(actualPlayer) + 1)
       }
@@ -104,7 +107,7 @@ class Controller() extends Publisher {
     publish(new NewRound(round))
   }
 
-  def wait(p: Player) {
+  def wait(p: PlayerInterface) {
     p.actionCounter = 0
     publish(Wait(p))
     checkOrder
@@ -122,10 +125,10 @@ class Controller() extends Publisher {
     return itemDeck.draw()
   }
 
-  def attackableFields(char: Character): Array[Field] = {
+  def attackableFields(char: Character): Array[FieldInterface] = {
     val actualField = char.actualField
     val range = char.range + char.equippedWeapon.range
-    var attackableFields = ArrayBuffer[Field]()
+    var attackableFields = ArrayBuffer[FieldInterface]()
     for (r <- 0 to range) {
       if (actualField.p.x / fieldlength + r < area.laenge) {
         attackableFields.append(area.line(actualField.p.x / fieldlength + r)(actualField.p.y / fieldlength))
@@ -145,7 +148,7 @@ class Controller() extends Publisher {
     return attackableFields.distinct.toArray
   }
 
-  def availableWeapon(p: Player): Array[Int] = {
+  def availableWeapon(p: PlayerInterface): Array[Int] = {
     var waffen = ArrayBuffer[Int]()
     for (ws <- 0 to p.equipment.length - 1) {
       if (p.equipment(ws).isInstanceOf[Weapon]) {
@@ -156,7 +159,7 @@ class Controller() extends Publisher {
     return waffen.toArray
   }
 
-  def drawZombie(): Array[Zombie] = {
+  def drawZombie(): Array[ZombieInterface] = {
     var tempZombie = zombieDeck.draw()
     if (!tempZombie.isEmpty) {
       for (i <- 0 to tempZombie.length - 1) {
@@ -177,7 +180,7 @@ class Controller() extends Publisher {
     publish(new DrawZombie)
   }
 
-  def zombieTurn(z: Zombie) {
+  def zombieTurn(z: ZombieInterface) {
     player.foreach { j =>
       if (z.actualField.p.x == j.actualField.p.x) {
         if (math.abs(z.actualField.p.y - j.actualField.p.y) <= z.range) {
@@ -227,7 +230,7 @@ class Controller() extends Publisher {
     }
   }
 
-  def search(p: Player) {
+  def search(p: PlayerInterface) {
     if (p.equipment.length > p.EQMAX) {
       publish(new Search(null))
       return
@@ -239,18 +242,18 @@ class Controller() extends Publisher {
     checkOrder
   }
 
-  def drop(pl: Player, item: Item) {
+  def drop(pl: PlayerInterface, item: Item) {
     publish(new ItemDropped(pl.drop(item)))
     checkOrder
   }
 
-  def equipArmor(char: Player, i: Item) {
+  def equipArmor(char: PlayerInterface, i: ArmorInterface) {
     char.useArmor(i)
     char.drop(i)
     publish(new Consumed(i))
   }
 
-  def beweapon(char: Player, item: Item) = {
+  def beweapon(char: PlayerInterface, item: WeaponInterface) {
     if (item == null && char.equipment.length < char.EQMAX) {
       if (char.equippedWeapon.name != "Fist") {
         val tmp = char.equippedWeapon
@@ -275,7 +278,7 @@ class Controller() extends Publisher {
     checkOrder
   }
 
-  def attackZombie(pl: Player, z: Zombie) = {
+  def attackZombie(pl: PlayerInterface, z: ZombieInterface) {
     val critRand = util.Random.nextInt(pl.kritchance)
     val dmg = pl.attack(critRand)
     if (z.lifePoints - dmg <= 0) {
@@ -295,7 +298,7 @@ class Controller() extends Publisher {
     checkOrder
   }
 
-  def attackPlayer(pl: Player, z: Zombie) = {
+  def attackPlayer(pl: PlayerInterface, z: ZombieInterface) {
     val critRand = util.Random.nextInt(pl.kritchance)
     val dmg = z.attack(critRand)
     if (pl.armor != 0) {
@@ -313,7 +316,7 @@ class Controller() extends Publisher {
       playerBuf.remove(idx)
       player = playerBuf.toArray
       playerCount -= 1
-      if (player.isEmpty) {
+      if (player.forall { p => p.lifePoints == 0 }) {
         publish(new DeadPlayer(pl.name, z.name))
         publish(new GameOverLost)
       }
@@ -325,7 +328,7 @@ class Controller() extends Publisher {
     publish(new ZombieAttack(pl.name, z.name, dmg))
   }
 
-  def attackPlayerPlayer(atk: Player, opf: Player) = {
+  def attackPlayerPlayer(atk: PlayerInterface, opf: PlayerInterface) {
     val critRand = util.Random.nextInt(atk.kritchance)
     val dmg = atk.attack(critRand)
     if (opf.armor != 0) {
@@ -356,7 +359,7 @@ class Controller() extends Publisher {
     checkOrder
   }
 
-  def attackField(p: Player, f: Field) = {
+  def attackField(p: PlayerInterface, f: FieldInterface) {
     if (p.equippedWeapon.aoe == 1) {
       attackWholeField(p, f)
       p.actionCounter -= 1
@@ -393,7 +396,7 @@ class Controller() extends Publisher {
     checkOrder
   }
 
-  def attackWholeField(p: Player, f: Field): Boolean = {
+  def attackWholeField(p: PlayerInterface, f: FieldInterface): Boolean = {
     var pCount = f.players.length - 1
     var zCount = f.zombies.length - 1
     while (pCount >= 0) {

@@ -9,8 +9,8 @@ import javax.swing._
 import de.htwg.se.zombiezite.model._
 
 class FieldGraphic(s: Dimension) extends GridPanel(1, 1) {
-  var zombies: Array[Zombie] = new Array(0)
-  var players: Array[Player] = new Array(0)
+  var zombies: Array[ZombieInterface] = new Array(0)
+  var players: Array[PlayerInterface] = new Array(0)
   var attackMode = false
   preferredSize = s
   def update {

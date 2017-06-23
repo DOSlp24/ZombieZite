@@ -21,11 +21,11 @@ class InventorySlot(c: Controller, i: Item, mode: String) extends Label {
 
   if (mode == "Weapon") {
     reactions += {
-      case MouseClicked(_, _, _, _, _) => c.beweapon(c.actualPlayer, i)
+      case MouseClicked(_, _, _, _, _) => c.beweapon(c.actualPlayer, i.asInstanceOf[WeaponInterface])
     }
   } else if (mode == "Armor") {
     reactions += {
-      case MouseClicked(_, _, _, _, _) => c.equipArmor(c.actualPlayer, i)
+      case MouseClicked(_, _, _, _, _) => c.equipArmor(c.actualPlayer, i.asInstanceOf[ArmorInterface])
     }
   }
 }

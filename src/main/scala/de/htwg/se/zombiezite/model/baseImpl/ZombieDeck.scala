@@ -1,21 +1,23 @@
-package de.htwg.se.zombiezite.model
+package de.htwg.se.zombiezite.model.baseImpl
 
-case class ZombieDeck(area: Area) extends Deck[Array[Zombie]] {
-  def draw(): Array[Zombie] = {
+import de.htwg.se.zombiezite.model.{Character, Deck, ZombieInterface}
+
+case class ZombieDeck(area: Area) extends Deck[Array[ZombieInterface]] {
+  def draw(): Array[ZombieInterface] = {
     val random: Integer = util.Random.nextInt(5)
-    var zombies = Array.ofDim[Zombie](random)
+    var zombies = Array.ofDim[ZombieInterface](random)
     for (i <- 0 to random - 1) {
       zombies(i) = getDrawnZombie()
     }
     return zombies
   }
 
-  def getDrawnZombie(): Zombie = {
+  def getDrawnZombie(): ZombieInterface = {
     val randomZombie = util.Random.nextInt(5)
     return getDrawnZombieR(randomZombie)
   }
-  
-  def getDrawnZombieR(randomZombie: Int): Zombie = {
+
+  def getDrawnZombieR(randomZombie: Int): ZombieInterface = {
     val zombie: Zombie = randomZombie match {
       case 0 => new Zombie(area, "Schlurfer", 19, 0, 100)
       case 1 => new Zombie(area, "Runner", 9, 0, 70)

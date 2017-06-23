@@ -1,11 +1,12 @@
-package de.htwg.se.zombiezite.model
+package de.htwg.se.zombiezite.model.baseImpl
 
-case class Zombie(area: Area, name: String, str: Int, ran: Int, lp: Int) extends Character {
+import de.htwg.se.zombiezite.model.{Character, Item, ZombieInterface, FieldInterface}
+
+case class Zombie(area: Area, name: String, str: Int, ran: Int, lp: Int) extends ZombieInterface {
   var lifePoints: Int = lp
   val strength: Int = str
   val range: Int = ran
-  var actualField: Field = null
-  var targetField: Field = actualField
+  var targetField: FieldInterface = actualField
   var distanceToTargetField = 1000
 
   def die(): String = {

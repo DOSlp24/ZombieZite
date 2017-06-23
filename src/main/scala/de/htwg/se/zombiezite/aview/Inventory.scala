@@ -10,7 +10,7 @@ import de.htwg.se.zombiezite.model._
 import de.htwg.se.zombiezite.controller._
 
 class Inventory(c: Controller) extends GridPanel(2, 3) {
-  val p = new Player(null, "default")
+  val p = c.actualPlayer
 
   val trash = "media/items/Trash.png"
   val bottle = "media/items/Bottle.png"
@@ -32,41 +32,42 @@ class Inventory(c: Controller) extends GridPanel(2, 3) {
 
   if (c.actualPlayer.equipment.length < p.EQMAX + 1) {
     for (i <- 1 to p.EQMAX + 1 - c.actualPlayer.equipment.length) {
-      addItem(Trash("Empty"))
+      addItem(null)
     }
   }
 
   def addItem(i: Item) {
-    i.name match {
-      case "EVIL SISTERS" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(sisters) }
-      case "Big Mama" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(mama) }
-      case "Knife" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(knife) }
-      case "Axe" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      case "Pistol" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      case "Mashine Gun" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      case "Sniper" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      case "Flame Thrower" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      case "Shotgun" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      case "Pan" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
-      
-      case "Healkit" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(healkit) }
-      case "Holy Armor" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
-      case "Chest" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
-      case "Boots" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
-      case "Swat-Shield" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
-      
+    if (i != null) {
+      i.name match {
+        case "EVIL SISTERS" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(sisters) }
+        case "Big Mama" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(mama) }
+        case "Knife" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(knife) }
+        case "Axe" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
+        case "Pistol" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
+        case "Mashine Gun" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
+        case "Sniper" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
+        case "Flame Thrower" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
+        case "Shotgun" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
+        case "Pan" => contents += new InventorySlot(c, i, "Weapon") { icon = new ImageIcon(default) }
 
-      case "Trash" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(trash) }
-      case "Rice" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(rice) }
-      case "Bottle" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(bottle) }
-      case "Water" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(water) }
-      case "Stone" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(stone) }
-      case "Canned Food" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(canned) }
-      case "Money" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(default) }
+        case "Healkit" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(healkit) }
+        case "Holy Armor" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
+        case "Chest" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
+        case "Boots" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
+        case "Swat-Shield" => contents += new InventorySlot(c, i, "Armor") { icon = new ImageIcon(default) }
 
-      case "Empty" => contents += new Label { icon = new ImageIcon(empty) }
+        case "Trash" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(trash) }
+        case "Rice" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(rice) }
+        case "Bottle" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(bottle) }
+        case "Water" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(water) }
+        case "Stone" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(stone) }
+        case "Canned Food" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(canned) }
+        case "Money" => contents += new InventorySlot(c, i, "Trash") { icon = new ImageIcon(default) }
 
-      case _ => contents += new InventorySlot(c, i, "") { icon = new ImageIcon(default) }
+        case _ => contents += new InventorySlot(c, i, "") { icon = new ImageIcon(default) }
+      }
+    } else {
+      contents += new Label { icon = new ImageIcon(empty) }
     }
   }
 }

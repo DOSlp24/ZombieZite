@@ -36,14 +36,17 @@ class Gui(c: Controller) extends Frame {
     case e: EquipedWeapon =>
     case e: ArmorDamaged =>
     case e: ArmorDestroyed =>
-    case e: PlayerAttack =>log.update(e.name + " hat einem " + e.typ + " [" + e.dmg + "] Schaden zugefügt. - Großartig!\n")
+    case e: PlayerAttack => log.update(e.name + " hat einem " + e.typ + " [" + e.dmg + "] Schaden zugefügt. - Großartig!\n")
     case e: PlayerAttackPlayer => log.update(e.atk + " hat " + e.opf + " [" + e.dmg + "] Schaden zugefügt. - Wieso auch immer..\n")
     case e: PlayerMove => update
     case e: ZombieDraw => update
     case e: Wait => update
     case e: StartSpieler => startSpieler
     case e: StartSchwierig => startSchwer
-    case e: Start => init
+    case e: Start => {
+      log.update("**************************************GAME START**************************************\n\n\n")
+      init
+    }
     case e: WaitInput => update
     case e: NewRound => update
     case e: NewAction => update
@@ -51,11 +54,15 @@ class Gui(c: Controller) extends Frame {
   }
 
   def lost = {
-    contents_=(Button("LOST"){System.exit(0)})
+    contents_=(Button("LOST") { System.exit(0) })
+    deafTo(c)
+    repaint
   }
 
   def won = {
-    contents_=(Button("Congratulations! :)\nYou won!"){System.exit(0)})
+    contents_=(Button("Congratulations! :)\nYou won!") { System.exit(0) })
+    deafTo(c)
+    repaint
   }
 
   var aLaenge = 0
@@ -143,7 +150,6 @@ class Gui(c: Controller) extends Frame {
 
   def init {
     title = "Zombie Zite"
-    log.update("************************GAME START************************\n\n\n")
     aLaenge = c.area.line.length
     aBreite = c.area.line(0).length
     fields = Array.ofDim[FieldGraphic](aLaenge, aBreite)

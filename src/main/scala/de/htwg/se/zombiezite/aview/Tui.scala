@@ -173,6 +173,7 @@ class Tui(controller: Controller) extends Reactor {
   }
 
   def won = {
+    deafTo(controller)
     println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
     println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::  SIEG  :::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
@@ -181,6 +182,7 @@ class Tui(controller: Controller) extends Reactor {
   }
 
   def lost = {
+    deafTo(controller)
     println("\n\n\n|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|-|v|")
     println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println(":_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:::::Game Over:::::-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
@@ -241,7 +243,7 @@ class Tui(controller: Controller) extends Reactor {
     println("*******************************************************************************************\n\n")
   }
 
-  def round(p: Player, act: String) {
+  def round(p: PlayerInterface, act: String) {
     var eq = p.equipment
     act match {
 
@@ -287,7 +289,7 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def attack(act: String, p: Player) {
+  def attack(act: String, p: PlayerInterface) {
     var i = 0
     val af = controller.attackableFields(p)
     af.foreach { f =>
@@ -320,7 +322,7 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def charsOnField(f: Field): String = {
+  def charsOnField(f: FieldInterface): String = {
     if (!f.chars.isEmpty) {
       f.chars.foreach { c =>
         if (c.lifePoints == 0) {
@@ -359,7 +361,7 @@ class Tui(controller: Controller) extends Reactor {
     return s.toString()
   }
 
-  def move(act: String, p: Player): Int = {
+  def move(act: String, p: PlayerInterface): Int = {
     act match {
 
       case "ho" => {
@@ -408,7 +410,7 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def equip(act: String, p: Player, eq: ArrayBuffer[Item]) {
+  def equip(act: String, p: PlayerInterface, eq: ArrayBuffer[Item]) {
     act match {
 
       case "w" => {
@@ -445,7 +447,7 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def drop(act: String, p: Player) {
+  def drop(act: String, p: PlayerInterface) {
     val eq = p.equipment
     if (canDrop(act, eq)) {
       controller.drop(p, eq(act.toInt))
@@ -477,11 +479,11 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def manageArmor(equ: ArrayBuffer[Item], p: Player) {
+  def manageArmor(equ: ArrayBuffer[Item], p: PlayerInterface) {
 
     var armor = ArrayBuffer[Int]()
     for (ws <- 0 to equ.length - 1) {
-      if (equ(ws).isInstanceOf[Armor]) {
+      if (equ(ws).isInstanceOf[ArmorInterface]) {
         armor.append(ws)
       }
     }
@@ -498,10 +500,10 @@ class Tui(controller: Controller) extends Reactor {
     controller.waitInput()
   }
 
-  def armor(act: String, p: Player, equ: ArrayBuffer[Item]) {
+  def armor(act: String, p: PlayerInterface, equ: ArrayBuffer[Item]) {
     var armor = ArrayBuffer[Int]()
     for (ws <- 0 to equ.length - 1) {
-      if (equ(ws).isInstanceOf[Armor]) {
+      if (equ(ws).isInstanceOf[ArmorInterface]) {
         armor.append(ws)
       }
     }
@@ -510,8 +512,8 @@ class Tui(controller: Controller) extends Reactor {
         case true => {
           if (act.toInt < armor.length) {
             val selected = equ(armor(act.toInt))
-            if (selected.isInstanceOf[Armor]) {
-              controller.equipArmor(controller.actualPlayer, selected)
+            if (selected.isInstanceOf[ArmorInterface]) {
+              controller.equipArmor(controller.actualPlayer, selected.asInstanceOf[ArmorInterface])
             }
             println("Rüstung erfolgreich angelegt!")
             println(p.name + "[" + p.lifePoints + " LP] <" + p.armor + " Rüstung>\n")
@@ -526,7 +528,7 @@ class Tui(controller: Controller) extends Reactor {
     printRoundStart
   }
 
-  def manageWeapon(act: String, eq: ArrayBuffer[Item], p: Player) {
+  def manageWeapon(act: String, eq: ArrayBuffer[Item], p: PlayerInterface) {
 
     act match {
 
@@ -537,7 +539,7 @@ class Tui(controller: Controller) extends Reactor {
         val waffen = controller.availableWeapon(p)
         if (!waffen.isEmpty) {
           for (waffenliste <- 0 to waffen.length - 1) {
-            val w = eq(waffen(waffenliste))
+            val w = eq(waffen(waffenliste)).asInstanceOf[WeaponInterface]
             println("[" + waffenliste + "] - {" + w.name + "|" + w.range + " R|" + w.strength + " S" + "}")
           }
           println("Was davon willst du ausrüsten?")
@@ -564,15 +566,15 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def beweapon(act: String, p: Player, eq: ArrayBuffer[Item]) {
+  def beweapon(act: String, p: PlayerInterface, eq: ArrayBuffer[Item]) {
     val waffen = controller.availableWeapon(p)
     if (act != "") {
       act.forall { x => x.isDigit } match {
         case true => {
           if (act.toInt < waffen.length) {
             val selected = eq(waffen(act.toInt))
-            if (selected.isInstanceOf[Weapon]) {
-              controller.beweapon(p, selected)
+            if (selected.isInstanceOf[WeaponInterface]) {
+              controller.beweapon(p, selected.asInstanceOf[WeaponInterface])
             }
           } else {
             println("Du hast eine falsche Zahl eingegeben.")
@@ -588,7 +590,7 @@ class Tui(controller: Controller) extends Reactor {
     }
   }
 
-  def zombieTurn(z: ArrayBuffer[Zombie]) {
+  def zombieTurn(z: ArrayBuffer[ZombieInterface]) {
     println("\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::Aktivierung Zombies:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     for (i <- 0 to z.length - 1) {
       controller.zombieTurn(z(i))

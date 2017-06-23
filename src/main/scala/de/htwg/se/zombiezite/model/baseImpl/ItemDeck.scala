@@ -1,5 +1,7 @@
-package de.htwg.se.zombiezite.model
+package de.htwg.se.zombiezite.model.baseImpl
+
 import scala.collection.mutable.ArrayBuffer
+import de.htwg.se.zombiezite.model.{Item, Deck}
 
 case class ItemDeck() extends Deck[Item] {
   var weapons = Array[Weapon](Weapon("Axe", 30, 1), Weapon("Pistol", 40, 3), Weapon("Mashine Gun", 70, 3),
