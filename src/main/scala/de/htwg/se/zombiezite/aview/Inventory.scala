@@ -17,15 +17,15 @@ class Inventory(c: Controller) extends GridPanel(2, 3) {
   val water = "media/items/Water.png"
   val stone = "media/items/Stone.png"
   val rice = "media/items/Rice.png"
-  val canned = "media/items/Canned_Food.png"
+  val canned = "media/items/Canned Food.png"
 
   val healkit = "media/items/Healkit.png"
 
   val empty = "media/items/Empty.png"
-  val default = "media/items/Items_Default.png"
+  val default = "media/items/Default.png"
 
-  val sisters = "media/items/Evil_Sisters.png"
-  val mama = "media/items/Big_Mama.png"
+  val sisters = "media/items/EVIL SISTERS.png"
+  val mama = "media/items/Big Mama.png"
   val knife = "media/items/Knife.png"
 
   c.actualPlayer.equipment.foreach { i => addItem(i) }

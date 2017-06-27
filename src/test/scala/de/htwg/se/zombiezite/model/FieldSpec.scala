@@ -8,27 +8,27 @@ import org.scalatest.junit.JUnitRunner
 class FieldSpec extends WordSpec with Matchers {
 
   "A Field" can {
-    val p = Position(0, 0)
-    val f = Field(p)
+    val p = baseImpl.Position(0, 0)
+    val f = baseImpl.Field(p)
     "have no chars" in {
       f.chars.isEmpty should be(true)
     }
     "have some chars" in {
-      f.chars.append(Player(null, " "))
+      f.chars.append(baseImpl.Player(null, " "))
       f.chars.isEmpty should be(false)
     }
     "have no zombies" in {
       f.zombies.isEmpty should be(true)
     }
     "have some zombies" in {
-      f.zombies.append(Zombie(null, " ", 0, 0, 0))
+      f.zombies.append(baseImpl.Zombie(null, " ", 0, 0, 0))
       f.zombies.isEmpty should be(false)
     }
     "have no players" in {
       f.players.isEmpty should be(true)
     }
     "have some players" in {
-      f.players.append(Player(null, " "))
+      f.players.append(baseImpl.Player(null, " "))
       f.players.isEmpty should be(false)
     }
     "have a charCount" in {
@@ -46,7 +46,7 @@ class FieldSpec extends WordSpec with Matchers {
       f.noiseCounter should be(1)
     }
     "have a Position" in {
-      f.p should be(Position(0, 0))
+      f.p should be(baseImpl.Position(0, 0))
     }
   }
 }

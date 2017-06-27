@@ -14,10 +14,10 @@ class PlayerStat(c: Controller) extends GridPanel(10, 1) {
   val axe = "media/weapons/Axe.png"
   val fists = "media/weapons/Fists.png"
 
-  val maiar = "media/players/Maiar_Por.png"
-  val kawaguchi = "media/players/Kawaguchi_Por.png"
+  val maiar = "media/players/F. Maiar Por.png"
+  val kawaguchi = "media/players/K. Kawaguchi Por.png"
 
-  val default = "media/weapons/Weapon_Default.png"
+  val default = "media/weapons/Default.png"
 
   contents += new Label {
     c.actualPlayer.name match {

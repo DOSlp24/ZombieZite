@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 class ItemDeckSpec extends WordSpec with Matchers {
 
   "An ItemDeck" can {
-    var deck = ItemDeck()
+    var deck = baseImpl.ItemDeck()
     "have at least one Weapon" in {
       deck.weapons.isEmpty should be(false)
     }
@@ -22,13 +22,13 @@ class ItemDeckSpec extends WordSpec with Matchers {
       deck.deck.isEmpty should be (false)
     }
     "have a first Item in Weapon" in {
-      deck.weapons(0) should be(Weapon("Axe", 30, 1))
+      deck.weapons(0) should be(baseImpl.Weapon("Axe", 30, 1))
     }
     "have a first Item in Armor" in {
-      deck.armors(0) should be(Armor("Holy Armor", 60))
+      deck.armors(0) should be(baseImpl.Armor("Holy Armor", 60))
     }
     "have a first Item in Trash" in {
-      deck.trash(0) should be(Trash("Rice"))
+      deck.trash(0) should be(baseImpl.Trash("Rice"))
     }
     "shuffle without harming the deck" in {
       val oldDeck = deck.deck

@@ -44,19 +44,18 @@ case class StartZombieTurn() extends Event
 
 class Controller() extends Publisher with ControllerInterface {
 
-  var area: Area = null
-  var player: Array[Player] = null
-  var zombies: ArrayBuffer[ZombieInterface] = ArrayBuffer[ZombieInterface]()
-  var itemDeck = new ItemDeck()
-  var zombieDeck: Deck[Array[ZombieInterface]] = null
-  val playerNamer: Array[String] = Array("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow")
-  var fieldlength = 0
-  var zombieCount = 0
-  var playerCount = 0
-  var zombiesKilled = 0
-  var winCount = 50
-  var round = 1
-  var actualPlayer = Player(area, "Default")
+  itemList = new ArrayBuffer()
+  zombies = ArrayBuffer[ZombieInterface]()
+  itemDeck = new ItemDeck()
+  actualPlayer = Player(area, "Default")
+
+  def getZombieList: Array[String] = {
+    return zombieList
+  }
+
+  def getItemList: Array[String] = {
+    return itemList.toArray
+  }
 
   def checkOrder {
     if (actualPlayer.actionCounter <= 0) {
@@ -87,10 +86,18 @@ class Controller() extends Publisher with ControllerInterface {
 
   def init(playerCounter: Int) {
     this.playerCount = playerCounter
-    player = new Array[Player](playerCounter)
+    player = new Array[PlayerInterface](playerCounter)
     area = new Area(10, 10)
     fieldlength = area.line(0)(0).length
-    zombieDeck = new ZombieDeck(area)
+    zombieDeck = new ZombieDeck(area.asInstanceOf[Area])
+    zombieList = zombieDeck.asInstanceOf[ZombieDeck].zombieList
+    if (!itemDeck.asInstanceOf[ItemDeck].deck.isEmpty) {
+      itemDeck.asInstanceOf[ItemDeck].deck.foreach { i =>
+        if (!itemList.contains(i.name)) {
+          itemList.append(i.name)
+        }
+      }
+    }
     val startField = area.line(0)(0)
     for (i <- 0 to player.length - 1) {
       player(i) = Player(area, playerNamer(i))
@@ -119,7 +126,7 @@ class Controller() extends Publisher with ControllerInterface {
   }
 
   def drawItem(): Item = {
-    if (itemDeck.deck.isEmpty) {
+    if (itemDeck.asInstanceOf[ItemDeck].deck.isEmpty) {
       return Trash("Trash")
     }
     return itemDeck.draw()

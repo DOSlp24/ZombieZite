@@ -18,8 +18,8 @@ class AtomicFieldGraphic(s: Dimension, c: Character) extends Label {
   val test3 = "media/zombies/test3.png"
   val fatti = "media/zombies/Fatti.png"
   val runner = "media/zombies/Runner.png"
-  val kawaguchi = "media/players/Kawaguchi.png"
-  val maiar = "media/players/Maiar.png"
+  val kawaguchi = "media/players/K. Kawaguchi.png"
+  val maiar = "media/players/F. Maiar.png"
 
   preferredSize = s
   if (c != null) {

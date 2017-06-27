@@ -1,8 +1,25 @@
 package de.htwg.se.zombiezite.controller
 
-import de.htwg.se.zombiezite.model.{ Item, Character, FieldInterface, PlayerInterface, ZombieInterface, Deck, ArmorInterface, WeaponInterface }
+import de.htwg.se.zombiezite.model.{ Item, Character, FieldInterface, PlayerInterface, ZombieInterface, Deck, ArmorInterface, WeaponInterface, AreaInterface }
+import scala.collection.mutable.ArrayBuffer
 
 trait ControllerInterface {
+  var actualPlayer: PlayerInterface = null
+  var zombieList: Array[String] = null
+  var itemList: ArrayBuffer[String] = null
+  var area: AreaInterface = null
+  var player: Array[PlayerInterface] = null
+  var zombies: ArrayBuffer[ZombieInterface] = null
+  var itemDeck: Deck[Item] = null
+  var zombieDeck: Deck[Array[ZombieInterface]] = null
+  val playerNamer: Array[String] = Array("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow")
+  var fieldlength = 0
+  var zombieCount = 0
+  var playerCount = 0
+  var zombiesKilled = 0
+  var winCount = 50
+  var round = 1
+  
   def checkOrder
   def setDifficulty(dif: Int)
   def waitInput()
@@ -26,4 +43,6 @@ trait ControllerInterface {
   def attackPlayerPlayer(atk: PlayerInterface, opf: PlayerInterface)
   def attackField(p: PlayerInterface, f: FieldInterface)
   def attackWholeField(p: PlayerInterface, f: FieldInterface): Boolean
+  def getZombieList: Array[String]
+  def getItemList: Array[String]
 }

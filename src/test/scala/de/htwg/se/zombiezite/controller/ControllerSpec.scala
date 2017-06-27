@@ -4,6 +4,7 @@ import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import de.htwg.se.zombiezite.model._
+import de.htwg.se.zombiezite.model.baseImpl._
 import scala.collection.mutable.ArrayBuffer
 
 @RunWith(classOf[JUnitRunner])
@@ -63,84 +64,84 @@ class ControllerSpec extends WordSpec with Matchers {
         c.drawItem() should not be (null)
       }
       "draw Trash if empty" in {
-        c.itemDeck.deck = ArrayBuffer[Item]()
+        c.itemDeck.asInstanceOf[ItemDeck].deck = ArrayBuffer[Item]()
         c.drawItem() should be(Trash("Trash"))
       }
       "draw a Zombie" in {
-        c.drawZombie().getClass should be(Array[Zombie]().getClass)
+        c.drawZombie().getClass should be(Array[ZombieInterface]().getClass)
       }
       "have a Zombie walk left" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(14, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie walk right" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(8, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie walk up" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(10, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie walk down" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(10, 14))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie attack a Player" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(10, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie attack a Player in Range" in {
-        c.zombies.append(Zombie(c.area, "", 0, 3, 10))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 3, 10))
         c.zombies.last.actualField = Field(Position(8, 10))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie walk left wihout seeing" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(8, 8))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie walk up without seeing" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "have a Zombie walk right without seeing" in {
-        c.zombies.append(Zombie(c.area, "", 0, 0, 0))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 0, 0, 0))
         c.zombies.last.actualField = Field(Position(0, 18))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.zombieTurn(c.zombies.last)
       }
       "move a Character" in {
-        c.zombies.append(Zombie(c.area, "", 1, 1, 1))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 1, 1, 1))
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
         c.move(c.zombies.last, 1, 0)
       }
       "not move a Character at edge" in {
-        c.zombies.append(Zombie(c.area, "", 1, 1, 1))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "", 1, 1, 1))
         c.zombies.last.actualField = Field(Position(0, 0))
         c.zombies.last.actualField.zombies.append(c.zombies.last)
         c.zombies.last.actualField.chars.append(c.zombies.last)
@@ -200,12 +201,12 @@ class ControllerSpec extends WordSpec with Matchers {
       }
       "Zombie attack Armor" in {
         c.player(0).armor = 1000
-        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "Arg", 10, 10, 100))
         c.attackPlayer(c.player(0), c.zombies.last)
       }
       "Zombie breaks Armor" in {
         c.player(0).armor = 1
-        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "Arg", 10, 10, 100))
         c.attackPlayer(c.player(0), c.zombies.last)
       }
       "attack low Player" in {
@@ -216,18 +217,18 @@ class ControllerSpec extends WordSpec with Matchers {
         p.actualField.players.append(p)
         p.actualField.chars.append(p)
         c.player = Array(c.player(0), p)
-        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "Arg", 10, 10, 100))
         c.attackPlayer(p, c.zombies.last)
       }
       "attack last low Player" in {
-        val p2: Player = Player(c.area, "Fritz")
+        val p2: Player = Player(c.area.asInstanceOf[Area], "Fritz")
         p2.actualField = c.area.line(1)(1)
         p2.lifePoints = 1
         p2.armor = 0
         p2.actualField.players.append(p2)
         p2.actualField.chars.append(p2)
         c.player = Array(p2)
-        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "Arg", 10, 10, 100))
         c.attackPlayer(p2, c.zombies.last)
       }
     }
@@ -259,11 +260,11 @@ class ControllerSpec extends WordSpec with Matchers {
         c.player(1).lifePoints = 1
         c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 1))
       }
-      val z1 = Zombie(c.area, "Spitter", 1, 1, 100)
-      val z2 = Zombie(c.area, "Schlurfer", 1, 1, 100)
-      val z3 = Zombie(c.area, "Fatti", 1, 1, 100)
-      val z4 = Zombie(c.area, "Tank", 1, 1, 100)
-      val z5 = Zombie(c.area, "MEGASUPERDUPERBOSS", 1, 1, 100)
+      val z1 = Zombie(c.area.asInstanceOf[Area], "Spitter", 1, 1, 100)
+      val z2 = Zombie(c.area.asInstanceOf[Area], "Schlurfer", 1, 1, 100)
+      val z3 = Zombie(c.area.asInstanceOf[Area], "Fatti", 1, 1, 100)
+      val z4 = Zombie(c.area.asInstanceOf[Area], "Tank", 1, 1, 100)
+      val z5 = Zombie(c.area.asInstanceOf[Area], "MEGASUPERDUPERBOSS", 1, 1, 100)
       c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 4).zombies.append(z1)
       c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength - 4).chars.append(z1)
       c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 3).zombies.append(z2)
@@ -297,9 +298,17 @@ class ControllerSpec extends WordSpec with Matchers {
         p2.actualField.players.append(p2)
         p2.actualField.chars.append(p2)
         c.player = Array(p2)
-        c.zombies.append(Zombie(c.area, "Arg", 10, 10, 100))
+        c.zombies.append(Zombie(c.area.asInstanceOf[Area], "Arg", 10, 10, 100))
         c.attackPlayerPlayer(p2, p2)
       }
+    }
+    "return a ZombieList" in {
+      val c = new Controller()
+      c.getZombieList
+    }
+    "return an ItemList" in {
+      val c = new Controller()
+      c.getItemList
     }
   }
 }

@@ -9,7 +9,7 @@ class WeaponSpec extends WordSpec with Matchers {
 
   "A Weapon" can {
     "exists" should {
-      val w = Weapon("Weapon", 20, 2)
+      val w = baseImpl.Weapon("Weapon", 20, 2)
       "have a name" in {
         w.name should be("Weapon")
       }
