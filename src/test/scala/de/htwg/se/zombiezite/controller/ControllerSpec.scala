@@ -234,7 +234,7 @@ class ControllerSpec extends WordSpec with Matchers {
     }
     "attackField" should {
       val c = new Controller()
-      c.init(2)
+      c.init(3)
       c.player(0).actualField = c.area.line(5)(5)
       c.player(1).actualField = c.area.line(5)(6)
       c.player(1).actualField.players.append(c.player(1))
@@ -290,6 +290,12 @@ class ControllerSpec extends WordSpec with Matchers {
       "attack an other Type" in {
         c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2))
       }
+      "attack a whole field" in {
+        c.player(0).equippedWeapon.aoe = 1
+        c.player(1).actualField = c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2)
+        c.player(1).actualField.players.append(c.player(1))
+        c.attackField(c.player(0), c.area.line(pf.p.x / c.fieldlength)(pf.p.y / c.fieldlength + 2))
+      }
       "attack killing himself" in {
         val p2: Player = Player(c.area, "Fritz")
         p2.actualField = c.area.line(1)(1)
@@ -309,6 +315,36 @@ class ControllerSpec extends WordSpec with Matchers {
     "return an ItemList" in {
       val c = new Controller()
       c.getItemList
+    }
+    "have a Player wait" in {
+      val c = new Controller()
+      c.init(2)
+      c.wait(c.actualPlayer)
+    }
+    "set next Player" in {
+      val c = new Controller()
+      c.init(2)
+      c.wait(c.actualPlayer)
+      c.actualPlayer should be(c.player(1))
+    }
+    "set difficulty" in {
+      val c = new Controller()
+      c.setDifficulty(2)
+    }
+    "equip an armor" in {
+      val p = new Player(null, "Spieler")
+      val a = new Armor("Rüstung", 10)
+      val c = new Controller()
+      c.equipArmor(p, a)
+    }
+    "do a full ZombieTurn" in {
+      val c = new Controller()
+      c.init(1)
+      c.wait(c.actualPlayer)
+    }
+    "publish a StartSpieler" in {
+      val c = new Controller()
+      c.publish(new StartSpieler)
     }
   }
 }
