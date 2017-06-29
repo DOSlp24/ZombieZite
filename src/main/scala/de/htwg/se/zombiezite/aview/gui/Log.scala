@@ -16,6 +16,6 @@ class Log() extends Frame {
       peer.setLocationRelativeTo(null)
       visible = true
     }
-    title = "Log"
+    title = "Log - ZombieZite"
   }
 }
