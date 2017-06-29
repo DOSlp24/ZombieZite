@@ -16,6 +16,8 @@ class PlayerStat(c: Controller) extends GridPanel(10, 1) {
 
   val maiar = "media/players/F. Maiar Por.png"
   val kawaguchi = "media/players/K. Kawaguchi Por.png"
+  val kaiba = "media/players/H. Kaiba Por.png"
+  val rainbow = "media/players/P. B. Rainbow Por.png"
 
   val default = "media/weapons/Default.png"
 
@@ -28,10 +30,10 @@ class PlayerStat(c: Controller) extends GridPanel(10, 1) {
         icon = new ImageIcon(kawaguchi)
       }
       case "H. Kaiba" => {
-        icon = new ImageIcon(default)
+        icon = new ImageIcon(kaiba)
       }
       case "P. B. Rainbow" => {
-        icon = new ImageIcon(default)
+        icon = new ImageIcon(rainbow)
       }
       case _ => {
         icon = new ImageIcon(default)

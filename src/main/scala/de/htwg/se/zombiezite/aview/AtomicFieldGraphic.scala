@@ -20,6 +20,8 @@ class AtomicFieldGraphic(s: Dimension, c: Character) extends Label {
   val runner = "media/zombies/Runner.png"
   val kawaguchi = "media/players/K. Kawaguchi.png"
   val maiar = "media/players/F. Maiar.png"
+  val kaiba = "media/players/H. Kaiba.png"
+  val rainbow = "media/players/P. B. Rainbow.png"
 
   preferredSize = s
   if (c != null) {
@@ -46,10 +48,10 @@ class AtomicFieldGraphic(s: Dimension, c: Character) extends Label {
         icon = new ImageIcon(kawaguchi)
       }
       case "H. Kaiba" => {
-        icon = new ImageIcon(test2)
+        icon = new ImageIcon(kaiba)
       }
       case "P. B. Rainbow" => {
-        icon = new ImageIcon(test2)
+        icon = new ImageIcon(rainbow)
       }
       case _ => {
         icon = new ImageIcon(test3)
