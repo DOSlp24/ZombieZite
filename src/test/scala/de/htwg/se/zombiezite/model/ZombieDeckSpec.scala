@@ -14,16 +14,16 @@ class ZombieDeckSpec extends WordSpec with Matchers {
       zd.getDrawnZombie().getClass.toString() should be("class de.htwg.se.zombiezite.model.baseImpl.Zombie")
     }
     "return a Schlürfi" in {
-      zd.getDrawnZombieR(0) should be(baseImpl.Zombie(a, "Schlurfer", 19, 0, 100))
+      zd.getDrawnZombieR(0) should be(baseImpl.Zombie(a, "Schlurfer", 19, 0, 150))
     }
     "return a Runner" in {
-      zd.getDrawnZombieR(1) should be(baseImpl.Zombie(a, "Runner", 9, 0, 70))
+      zd.getDrawnZombieR(1) should be(baseImpl.Zombie(a, "Runner", 9, 0, 100))
     }
     "return a Fatti" in {
-      zd.getDrawnZombieR(2) should be(baseImpl.Zombie(a, "Fatti", 39, 0, 250))
+      zd.getDrawnZombieR(2) should be(baseImpl.Zombie(a, "Fatti", 39, 1, 250))
     }
     "return a Tank" in {
-      zd.getDrawnZombieR(3) should be(baseImpl.Zombie(a, "Tank", 49, 1, 500))
+      zd.getDrawnZombieR(3) should be(baseImpl.Zombie(a, "Tank", 49, 2, 500))
     }
     "return a Spitter" in {
       zd.getDrawnZombieR(4) should be(baseImpl.Zombie(a, "Spitter", 9, 3, 70))
