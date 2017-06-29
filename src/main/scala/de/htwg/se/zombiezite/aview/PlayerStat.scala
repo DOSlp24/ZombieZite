@@ -13,6 +13,15 @@ import javax.swing._
 class PlayerStat(c: Controller) extends GridPanel(10, 1) {
   val axe = "media/weapons/Axe.png"
   val fists = "media/weapons/Fists.png"
+  val pistol = "media/weapons/Pistol.png"
+  val pan = "media/weapons/Pan.png"
+  val shotgun = "media/weapons/Shotgun.png"
+  val sniper = "media/weapons/Sniper.png"
+  val flame = "media/weapons/Flame Thrower.png"
+  val mama = "media/weapons/Big Mama.png"
+  val sisters = "media/weapons/EVIL SISTERS.png"
+  val gun = "media/weapons/Mashine Gun.png"
+  val knife = "media/weapons/Knife.png"
 
   val maiar = "media/players/F. Maiar Por.png"
   val kawaguchi = "media/players/K. Kawaguchi Por.png"
@@ -53,6 +62,15 @@ class PlayerStat(c: Controller) extends GridPanel(10, 1) {
     c.actualPlayer.equippedWeapon.name match {
       case "Axe" => icon = new ImageIcon(axe)
       case "Fist" => icon = new ImageIcon(fists)
+      case "Pan" => icon = new ImageIcon(pan)
+      case "Flame Thrower" => icon = new ImageIcon(flame)
+      case "EVIL SISTERS" => icon = new ImageIcon(sisters)
+      case "Big Mama" => icon = new ImageIcon(mama)
+      case "Mashine Gun" => icon = new ImageIcon(gun)
+      case "Sniper" => icon = new ImageIcon(sniper)
+      case "Shotgun" => icon = new ImageIcon(shotgun)
+      case "Pistol" => icon = new ImageIcon(pistol)
+      case "Knife" => icon = new ImageIcon(knife)
       case _ => icon = new ImageIcon(default)
     }
   }
