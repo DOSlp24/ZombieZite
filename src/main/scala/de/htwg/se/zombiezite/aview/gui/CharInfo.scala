@@ -1,14 +1,9 @@
-package de.htwg.se.zombiezite.aview
+package de.htwg.se.zombiezite.aview.gui
 
-import de.htwg.se.zombiezite.util.Observer
-import de.htwg.se.zombiezite.model._
+import de.htwg.se.zombiezite.model.Character
 import de.htwg.se.zombiezite.controller._
-import swing._
 import scala.swing._
-import scala.swing.Swing.LineBorder
-import scala.swing.event._
-import scala.io.Source._
-import javax.swing._
+import javax.swing.ImageIcon
 
 class CharInfo(c: Character, iconPath: String, mode: String) extends Frame {
 

@@ -1,10 +1,7 @@
-package de.htwg.se.zombiezite.aview
+package de.htwg.se.zombiezite.aview.gui
 
-import swing._
 import scala.swing._
-import scala.swing.Swing.LineBorder
 import scala.swing.event._
-import scala.io.Source._
 import javax.swing._
 import de.htwg.se.zombiezite.model._
 import de.htwg.se.zombiezite.controller._
@@ -38,7 +35,7 @@ class Inventory(c: Controller) extends GridPanel(2, 3) {
   val flame = "media/items/Flame Thrower.png"
   val shotgun = "media/items/Shotgun.png"
   val sniper = "media/items/Sniper.png"
-  val gun = "media/items/Machine Gun.png"
+  val gun = "media/items/Mashine Gun.png"
 
   c.actualPlayer.equipment.foreach { i => addItem(i) }
 

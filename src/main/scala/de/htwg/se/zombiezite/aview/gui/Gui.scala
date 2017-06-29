@@ -1,14 +1,9 @@
-package de.htwg.se.zombiezite.aview
+package de.htwg.se.zombiezite.aview.gui
 
 import de.htwg.se.zombiezite.util.Observer
 import de.htwg.se.zombiezite.model._
 import de.htwg.se.zombiezite.controller._
-import swing._
 import scala.swing._
-import scala.swing.Swing.LineBorder
-import scala.swing.event._
-import scala.io.Source._
-import javax.swing._
 
 class Gui(c: Controller) extends Frame {
 
@@ -135,8 +130,6 @@ class Gui(c: Controller) extends Frame {
       //Game status
       add((new GameStatus(c, log)),
         constraints(2, 0))
-      add(new Button("Katsching (0, 2)"),
-        constraints(0, 2))
       //Log
       add(grid,
         constraints(1, 0, weightx = 1.0, fill = GridBagPanel.Fill.Horizontal))

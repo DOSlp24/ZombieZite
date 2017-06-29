@@ -1,8 +1,8 @@
 package de.htwg.se.zombiezite
 
 import de.htwg.se.zombiezite.controller._
-import de.htwg.se.zombiezite.aview.Tui
-import de.htwg.se.zombiezite.aview.Gui
+import de.htwg.se.zombiezite.aview.tui.Tui
+import de.htwg.se.zombiezite.aview.gui.Gui
 import scala.io.StdIn._
 import scala.io.StdIn
 

@@ -1,12 +1,9 @@
-package de.htwg.se.zombiezite.aview
+package de.htwg.se.zombiezite.aview.tui
 
-import de.htwg.se.zombiezite.util.Observer
 import scala.collection.mutable.ArrayBuffer
 import de.htwg.se.zombiezite.model._
 import de.htwg.se.zombiezite.controller._
-import scala.io.StdIn
 import swing._
-import com.sun.org.apache.xalan.internal.xsltc.compiler.ForEach
 
 class Tui(controller: Controller) extends Reactor {
   var status = "roundStart"
