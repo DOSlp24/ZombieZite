@@ -20,10 +20,10 @@ case class ZombieDeck(area: Area) extends Deck[Array[ZombieInterface]] {
 
   def getDrawnZombieR(randomZombie: Int): ZombieInterface = {
     val zombie: Zombie = randomZombie match {
-      case 0 => new Zombie(area, zombieList(0), 19, 0, 100)
-      case 1 => new Zombie(area, zombieList(1), 9, 0, 70)
-      case 2 => new Zombie(area, zombieList(2), 39, 0, 250)
-      case 3 => new Zombie(area, zombieList(3), 49, 1, 500)
+      case 0 => new Zombie(area, zombieList(0), 19, 0, 150)
+      case 1 => new Zombie(area, zombieList(1), 9, 0, 100)
+      case 2 => new Zombie(area, zombieList(2), 39, 1, 250)
+      case 3 => new Zombie(area, zombieList(3), 49, 2, 500)
       case 4 => new Zombie(area, zombieList(4), 9, 3, 70)
       case _ => return null
     }
