@@ -155,14 +155,10 @@ class Controller() extends Publisher with ControllerInterface {
     return attackableFields.distinct.toArray
   }
 
-  def availableWeapon(p: PlayerInterface): Array[Int] = {
-    var waffen = ArrayBuffer[Int]()
-    for (ws <- 0 to p.equipment.length - 1) {
-      if (p.equipment(ws).isInstanceOf[Weapon]) {
-        waffen.append(ws)
-      }
-    }
-
+  def availableWeapon(p: PlayerInterface): Array[Item] = {
+    val waffen = ArrayBuffer[Item]()
+    val tempEq = p.equipment
+    tempEq.filter(_.isInstanceOf[Weapon]).foreach(x => waffen.append(x))
     return waffen.toArray
   }
 

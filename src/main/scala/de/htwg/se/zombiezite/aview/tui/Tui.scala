@@ -536,7 +536,7 @@ class Tui(controller: Controller) extends Reactor {
         val waffen = controller.availableWeapon(p)
         if (!waffen.isEmpty) {
           for (waffenliste <- 0 to waffen.length - 1) {
-            val w = eq(waffen(waffenliste)).asInstanceOf[WeaponInterface]
+            val w = waffen(waffenliste).asInstanceOf[WeaponInterface]
             println("[" + waffenliste + "] - {" + w.name + "|" + w.range + " R|" + w.strength + " S" + "}")
           }
           println("Was davon willst du ausrüsten?")
@@ -569,7 +569,7 @@ class Tui(controller: Controller) extends Reactor {
       act.forall { x => x.isDigit } match {
         case true => {
           if (act.toInt < waffen.length) {
-            val selected = eq(waffen(act.toInt))
+            val selected = waffen(act.toInt)
             if (selected.isInstanceOf[WeaponInterface]) {
               controller.beweapon(p, selected.asInstanceOf[WeaponInterface])
             }
