@@ -574,7 +574,7 @@ class Tui(controller: Controller) extends Reactor {
               controller.beweapon(p, selected.asInstanceOf[WeaponInterface])
             }
           } else {
-            println("Du hast eine falsche Zahl eingegeben.")
+            println("Du hast eine unzulässige Zahl eingegeben.")
             status = "roundStart"
             printRoundStart
           }
