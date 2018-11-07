@@ -220,7 +220,11 @@ class Tui(controller: Controller) extends Reactor {
       print(" ___ " + i)
     }
     for (i <- 0 to controller.area.laenge - 1) {
-      println("|\n" + i)
+      if (i == 0) {
+        println("\n" + i)
+      } else {
+        println("|\n" + i)
+      }
     }
     println("\nAufbau abgeschlossen\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
     println("\n:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-: Spielbegin :-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:-:*:-:_:")
@@ -255,34 +259,35 @@ class Tui(controller: Controller) extends Reactor {
       case "s" =>
         controller.search(p)
 
-        case"a" => {
+      case "a" => {
 
-          println("\n\n\n\n********Deine Ausrüstung********")
+        println("\n\n\n\n********Deine Ausrüstung********")
 
-          printEq()
-          if (!eq.isEmpty) {
-            println("\n\nWas willst du damit tun? (w (Waffe wechseln), f (Item fallen lassen), a (Ausrüstung benutzen), x (nichts tun))")
-            status = "equip"
-          } else {
-            println()
-          }
+        printEq()
+        if (!eq.isEmpty) {
+          println("\n\nWas willst du damit tun? (w (Waffe wechseln), f (Item fallen lassen), a (Ausrüstung benutzen), x (nichts tun))")
+          status = "equip"
+        } else {
+          println()
         }
+      }
 
-        case"an" => {
-          println("\nDiese Felder kannst du angreifen:")
-          var i = 0
-          val af = controller.attackableFields(p)
-          af.foreach { f =>
+      case "an" => {
+        println("\nDiese Felder kannst du angreifen:")
+        var i = 0
+        val af = controller.attackableFields(p)
+        af.foreach {
+          f =>
             println("[" + i + "] " + charsOnField(f))
             i += 1
-          }
-          println("\n\nIn welches Feld willst du angreifen? ([x] zum Abbrechen.)")
-          status = "attack"
         }
-        case"w" => {
-          controller.wait(p)
-        }
-        case _ => println("Absolut falsche Eingabe!")
+        println("\n\nIn welches Feld willst du angreifen? ([x] zum Abbrechen.)")
+        status = "attack"
+      }
+      case "w" => {
+        controller.wait(p)
+      }
+      case _ => println("Absolut falsche Eingabe!")
     }
   }
 
@@ -296,8 +301,8 @@ class Tui(controller: Controller) extends Reactor {
     if (act != "") {
       if (act.forall { x => x.isDigit }) {
         if (act.toInt < af.length) {
-            controller.attackField(p, af(act.toInt))
-          
+          controller.attackField(p, af(act.toInt))
+
         } else {
           println("Falsche Eingabe: " + act + " ist zu gross!")
           status = "roundStart"

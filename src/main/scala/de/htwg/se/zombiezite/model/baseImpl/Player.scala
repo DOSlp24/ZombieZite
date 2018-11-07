@@ -1,7 +1,7 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
 import scala.collection.mutable.ArrayBuffer
-import de.htwg.se.zombiezite.model.{ PlayerInterface, Item, Character, FieldInterface, AreaInterface, ArmorInterface}
+import de.htwg.se.zombiezite.model.{PlayerInterface, Item, Character, FieldInterface, AreaInterface, ArmorInterface}
 
 case class Player(area: AreaInterface, name: String) extends PlayerInterface {
   var lifePoints: Int = 100
@@ -11,7 +11,7 @@ case class Player(area: AreaInterface, name: String) extends PlayerInterface {
 
   def die(): String = {
     leaveField()
-    return"AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*"
+    return "AAAAAAAAAAAAAHHHHHHHHHHHHHH!!! ICH STERBE!!!!! \n*Er ist jetzt tot*"
   }
 
   def leaveField() {

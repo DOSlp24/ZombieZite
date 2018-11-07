@@ -1,45 +1,80 @@
 package de.htwg.se.zombiezite.controller
-import de.htwg.se.zombiezite.model.baseImpl.{ Zombie, Player, Area, ItemDeck, ZombieDeck, Field, Trash, Weapon, Armor }
-import de.htwg.se.zombiezite.model.{ Item, Character, FieldInterface, PlayerInterface, ZombieInterface, Deck, ArmorInterface, WeaponInterface }
-import de.htwg.se.zombiezite.util.Observable
+
+import de.htwg.se.zombiezite.model._
+import de.htwg.se.zombiezite.model.baseImpl._
+
 import scala.collection.mutable.ArrayBuffer
-import scala.swing.event.Event
 import scala.swing.Publisher
+import scala.swing.event.Event
 
 case class GameOverLost() extends Event
+
 case class GameOverWon() extends Event
+
 case class Fail() extends Event
+
 case class ZombieWentUp(typ: String, x: Int, y: Int) extends Event
+
 case class ZombieWentDown(typ: String, x: Int, y: Int) extends Event
+
 case class ZombieWentLeft(typ: String, x: Int, y: Int) extends Event
+
 case class ZombieWentRight(typ: String, x: Int, y: Int) extends Event
+
 case class ZombieAttack(name: String, typ: String, dmg: Int) extends Event
+
 case class DeadPlayer(name: String, murderer: String) extends Event
+
 case class DeadZombie(typ: String, name: String) extends Event
+
 case class DiscardWeapon(w: WeaponInterface) extends Event
+
 case class CantDiscardFists() extends Event
+
 case class CantDiscardFullInv() extends Event
+
 case class ItemDropped(i: Item) extends Event
+
 case class Consumed(i: ArmorInterface) extends Event
+
 case class SwappedWeapon() extends Event
+
 case class EquipedWeapon(w: WeaponInterface) extends Event
+
 case class ArmorDamaged(name: String, typ: String, dmg: Int) extends Event
+
 case class ArmorDestroyed(name: String, typ: String) extends Event
+
 case class PlayerAttack(name: String, typ: String, dmg: Int) extends Event
+
 case class PlayerAttackPlayer(atk: String, opf: String, dmg: Int) extends Event
+
 case class ZombieDraw(z: Array[ZombieInterface]) extends Event
+
 case class Wait(p: PlayerInterface) extends Event
+
 case class AktivierungZombies() extends Event
+
 case class AktivierungRunner() extends Event
+
 case class DrawZombie() extends Event
+
 case class NewRound(round: Int) extends Event
+
 case class StartSpieler() extends Event
+
 case class StartSchwierig() extends Event
+
 case class Start() extends Event
+
 case class PlayerMove(x: Int, y: Int) extends Event
+
 case class Search(i: Item) extends Event
+
 case class WaitInput() extends Event
+
 case class NewAction() extends Event
+
 case class StartZombieTurn() extends Event
 
 class Controller() extends Publisher with ControllerInterface {
@@ -89,6 +124,12 @@ class Controller() extends Publisher with ControllerInterface {
     player = new Array[PlayerInterface](playerCounter)
     area = new Area(10, 10)
     fieldlength = area.line(0)(0).length
+
+    if (zombies != null) {
+      zombies = new ArrayBuffer[ZombieInterface]()
+      setDifficulty(1)
+    }
+
     zombieDeck = new ZombieDeck(area.asInstanceOf[Area])
     zombieList = zombieDeck.asInstanceOf[ZombieDeck].zombieList
     if (!itemDeck.asInstanceOf[ItemDeck].deck.isEmpty) {
@@ -121,7 +162,9 @@ class Controller() extends Publisher with ControllerInterface {
   }
 
   def roundReset() {
-    player.foreach { p => p.actionCounter = 3 }
+    player.foreach {
+      p => p.actionCounter = 3
+    }
     actualPlayer = player(0)
   }
 
@@ -179,43 +222,51 @@ class Controller() extends Publisher with ControllerInterface {
   }
 
   def fullZombieTurn {
-    zombies.foreach { z => zombieTurn(z) }
+    zombies.foreach {
+      z => zombieTurn(z)
+    }
     publish(new AktivierungZombies)
-    zombies.foreach { z => if (z.name == "Runner") { zombieTurn(z) } }
+    zombies.foreach {
+      z =>
+        if (z.name == "Runner") {
+          zombieTurn(z)
+        }
+    }
     publish(new AktivierungRunner)
     drawZombie()
     publish(new DrawZombie)
   }
 
   def zombieTurn(z: ZombieInterface) {
-    player.foreach { j =>
-      if (z.actualField.p.x == j.actualField.p.x) {
-        if (math.abs(z.actualField.p.y - j.actualField.p.y) <= z.range) {
-          attackPlayer(j, z)
-          return
-        } else if (z.actualField.p.y < j.actualField.p.y) {
-          z.walk(0, 1)
-          publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
-          return
-        } else if (z.actualField.p.y > j.actualField.p.y) {
-          z.walk(0, -1)
-          publish(new ZombieWentDown(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
-          return
+    player.foreach {
+      j =>
+        if (z.actualField.p.x == j.actualField.p.x) {
+          if (math.abs(z.actualField.p.y - j.actualField.p.y) <= z.range) {
+            attackPlayer(j, z)
+            return
+          } else if (z.actualField.p.y < j.actualField.p.y) {
+            z.walk(0, 1)
+            publish(new ZombieWentUp(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+            return
+          } else if (z.actualField.p.y > j.actualField.p.y) {
+            z.walk(0, -1)
+            publish(new ZombieWentDown(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+            return
+          }
+        } else if (z.actualField.p.y == j.actualField.p.y) {
+          if (math.abs(z.actualField.p.x - j.actualField.p.x) <= z.range) {
+            attackPlayer(j, z)
+            return
+          } else if (z.actualField.p.x < j.actualField.p.x) {
+            z.walk(1, 0)
+            publish(new ZombieWentRight(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+            return
+          } else if (z.actualField.p.x > j.actualField.p.x) {
+            z.walk(-1, 0)
+            publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
+            return
+          }
         }
-      } else if (z.actualField.p.y == j.actualField.p.y) {
-        if (math.abs(z.actualField.p.x - j.actualField.p.x) <= z.range) {
-          attackPlayer(j, z)
-          return
-        } else if (z.actualField.p.x < j.actualField.p.x) {
-          z.walk(1, 0)
-          publish(new ZombieWentRight(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
-          return
-        } else if (z.actualField.p.x > j.actualField.p.x) {
-          z.walk(-1, 0)
-          publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
-          return
-        }
-      }
     }
     if (z.walk(-1, 0)) {
       publish(new ZombieWentLeft(z.name, z.actualField.p.x / fieldlength, z.actualField.p.y / fieldlength))
@@ -323,7 +374,9 @@ class Controller() extends Publisher with ControllerInterface {
       playerBuf.remove(idx)
       player = playerBuf.toArray
       playerCount -= 1
-      if (player.forall { p => p.lifePoints == 0 }) {
+      if (player.forall {
+        p => p.lifePoints == 0
+      }) {
         publish(new DeadPlayer(pl.name, z.name))
         publish(new GameOverLost)
       }
@@ -374,19 +427,27 @@ class Controller() extends Publisher with ControllerInterface {
       if (!f.players.isEmpty && p.actualField != f) {
         attackPlayerPlayer(p, f.players(0))
       } else if (!f.zombies.isEmpty) {
-        var az = f.zombies.find { z => z.name == "Spitter" }
+        var az = f.zombies.find {
+          z => z.name == "Spitter"
+        }
         if (az != None) {
           attackZombie(p, az.get)
         } else {
-          az = f.zombies.find { z => z.name == "Schlurfer" }
+          az = f.zombies.find {
+            z => z.name == "Schlurfer"
+          }
           if (az != None) {
             attackZombie(p, az.get)
           } else {
-            az = f.zombies.find { z => z.name == "Fatti" }
+            az = f.zombies.find {
+              z => z.name == "Fatti"
+            }
             if (az != None) {
               attackZombie(p, az.get)
             } else {
-              az = f.zombies.find { z => z.name == "Tank" }
+              az = f.zombies.find {
+                z => z.name == "Tank"
+              }
               if (az != None) {
                 attackZombie(p, az.get)
               } else {
