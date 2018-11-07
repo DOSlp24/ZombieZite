@@ -29,7 +29,7 @@ trait ControllerInterface {
   def roundReset()
   def drawItem(): Item
   def attackableFields(char: Character): Array[FieldInterface]
-  def availableWeapon(p: PlayerInterface): Array[Int]
+  def availableWeapon(p: PlayerInterface): Array[Item]
   def drawZombie(): Array[ZombieInterface]
   def fullZombieTurn
   def zombieTurn(z: ZombieInterface)

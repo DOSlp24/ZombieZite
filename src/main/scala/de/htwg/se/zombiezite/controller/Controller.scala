@@ -178,7 +178,7 @@ class Controller() extends Publisher with ControllerInterface {
   def attackableFields(char: Character): Array[FieldInterface] = {
     val actualField = char.actualField
     val range = char.range + char.equippedWeapon.range
-    var attackableFields = ArrayBuffer[FieldInterface]()
+    val attackableFields = ArrayBuffer[FieldInterface]()
     for (r <- 0 to range) {
       if (actualField.p.x / fieldlength + r < area.laenge) {
         attackableFields.append(area.line(actualField.p.x / fieldlength + r)(actualField.p.y / fieldlength))
@@ -198,19 +198,15 @@ class Controller() extends Publisher with ControllerInterface {
     return attackableFields.distinct.toArray
   }
 
-  def availableWeapon(p: PlayerInterface): Array[Int] = {
-    var waffen = ArrayBuffer[Int]()
-    for (ws <- 0 to p.equipment.length - 1) {
-      if (p.equipment(ws).isInstanceOf[Weapon]) {
-        waffen.append(ws)
-      }
-    }
-
+  def availableWeapon(p: PlayerInterface): Array[Item] = {
+    val waffen = ArrayBuffer[Item]()
+    val tempEq = p.equipment
+    tempEq.filter(_.isInstanceOf[Weapon]).foreach(x => waffen.append(x))
     return waffen.toArray
   }
 
   def drawZombie(): Array[ZombieInterface] = {
-    var tempZombie = zombieDeck.draw()
+    val tempZombie = zombieDeck.draw()
     if (!tempZombie.isEmpty) {
       for (i <- 0 to tempZombie.length - 1) {
         zombies.append(tempZombie(i))
@@ -293,7 +289,7 @@ class Controller() extends Publisher with ControllerInterface {
       publish(new Search(null))
       return
     }
-    var tmpItem = drawItem()
+    val tmpItem = drawItem()
     p.equip(tmpItem)
     p.actionCounter -= 1
     publish(new Search(tmpItem))

@@ -1,0 +1,38 @@
+{
+	"schlurfi": {
+		"source": "media/zombies/Schlurfer.png"
+	},
+	"spitter": {
+		"source": "media/zombies/Spitter.png"
+	},
+	"tank": {
+		"source": "media/zombies/Tank.png"
+	},
+	"fatti": {
+		"source": "media/zombies/Fatti.png"
+	},
+	"runner": {
+		"source": "media/zombies/Runner.png"
+	},
+	"kawaguchi": {
+		"source": "media/players/K. Kawaguchi.png"
+	},
+	"maiar": {
+		"source": "media/players/F. Maiar.png"
+	},
+	"kaiba": {
+		"source": "media/players/H. Kaiba.png"
+	},
+	"rainbow": {
+		"source": "media/players/P. B. Rainbow.png"
+	},
+	"test": {
+		"source": "media/zombies/test.png"
+	},
+	"test2": {
+		"source": "media/zombies/test2.png"
+	},
+	"test3": {
+		"source": "media/zombies/test3.png"
+	}
+}
