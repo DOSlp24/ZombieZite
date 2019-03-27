@@ -3,7 +3,7 @@ package de.htwg.se.zombiezite.aview.gui
 import scala.swing._
 import scala.io.Source._
 import javax.swing._
-import de.htwg.se.zombiezite.model.{ZombieInterface, PlayerInterface}
+import de.htwg.se.zombiezite.model.{ ZombieInterface, PlayerInterface }
 
 class FieldGraphic(s: Dimension) extends GridPanel(1, 1) {
   var zombies: Array[ZombieInterface] = new Array(0)

@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{Character, Item, ZombieInterface, FieldInterface}
+import de.htwg.se.zombiezite.model.{ Character, Item, ZombieInterface, FieldInterface }
 
 case class Zombie(area: Area, name: String, str: Int, ran: Int, lp: Int) extends ZombieInterface {
   var lifePoints: Int = lp

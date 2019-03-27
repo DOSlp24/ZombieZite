@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{Character, Deck, ZombieInterface}
+import de.htwg.se.zombiezite.model.{ Character, Deck, ZombieInterface }
 
 case class ZombieDeck(area: Area) extends Deck[Array[ZombieInterface]] {
   val zombieList: Array[String] = Array("Schlurfer", "Runner", "Fatti", "Tank", "Spitter")

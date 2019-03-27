@@ -52,7 +52,7 @@ class PlayerStat(c: Controller) extends GridPanel(10, 1) {
     listenTo(this.mouse.clicks)
     reactions += {
       case MouseWheelMoved(_, _, _, _) => new ItemInfo(c.actualPlayer.equippedWeapon, "Weapon")
-      case MouseClicked(_, _, _, _,_) => c.beweapon(c.actualPlayer, null)
+      case MouseClicked(_, _, _, _, _) => c.beweapon(c.actualPlayer, null)
     }
     c.actualPlayer.equippedWeapon.name match {
       case "Axe" => icon = new ImageIcon(axe)

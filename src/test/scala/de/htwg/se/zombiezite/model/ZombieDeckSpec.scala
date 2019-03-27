@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ZombieDeckSpec extends WordSpec with Matchers {
-  
+
   "A Zombie Deck" can {
     val a = baseImpl.Area(10, 10)
     val zd = baseImpl.ZombieDeck(a)

@@ -10,7 +10,7 @@ class Attack(c: Controller) extends Frame {
     fields.foreach {
       f =>
         var fieldString = "<" + (f.p.x / fieldlength).toString() + ">, <" + (f.p.y / fieldlength).toString() + ">"
-        if(f.zombies.isEmpty){
+        if (f.zombies.isEmpty) {
           fieldString = "Zombieloses Feld " + fieldString
         } else {
           fieldString = f.zombies.length + " Zombies auf " + fieldString
@@ -27,7 +27,7 @@ class Attack(c: Controller) extends Frame {
           }
         }
     }
-    contents += Button("Abbrechen") {dispose()}
+    contents += Button("Abbrechen") { dispose() }
   }
   contents_=(grid)
   title_=("Angreifbare Felder für " + c.actualPlayer.name)

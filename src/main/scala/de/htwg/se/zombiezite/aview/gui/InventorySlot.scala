@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.aview.gui
 
-import de.htwg.se.zombiezite.model.{Item, WeaponInterface, ArmorInterface}
+import de.htwg.se.zombiezite.model.{ Item, WeaponInterface, ArmorInterface }
 import de.htwg.se.zombiezite.controller._
 import scala.swing._
 import scala.swing.event._

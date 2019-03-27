@@ -1,8 +1,8 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{AreaInterface, FieldInterface}
+import de.htwg.se.zombiezite.model.{ AreaInterface, FieldInterface }
 
-case class Area(breite: Int, laenge: Int) extends AreaInterface{
+case class Area(breite: Int, laenge: Int) extends AreaInterface {
   line = Array.ofDim[FieldInterface](laenge, breite)
   val feld: Field = Field(Position(0, 0))
   val step: Int = feld.length

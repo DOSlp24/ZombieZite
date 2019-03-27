@@ -19,7 +19,7 @@ trait ControllerInterface {
   var zombiesKilled = 0
   var winCount = 50
   var round = 1
-  
+
   def checkOrder
   def setDifficulty(dif: Int)
   def waitInput()

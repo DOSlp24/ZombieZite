@@ -20,10 +20,10 @@ class CharInfo(c: Character, iconPath: String, mode: String) extends Frame {
     contents += new Label {
       icon = new ImageIcon(iconPath)
     }
-    contents += new Label("Lifepoints: *" + c.lifePoints.toString() + "*"){
+    contents += new Label("Lifepoints: *" + c.lifePoints.toString() + "*") {
       font = new Font("Arial", java.awt.Font.TRUETYPE_FONT, 20)
     }
-    contents += new Label("Schaden: <" + (c.strength + c.equippedWeapon.strength).toString() + "> Reichweite : <" + (c.range + c.equippedWeapon.range).toString() + ">"){
+    contents += new Label("Schaden: <" + (c.strength + c.equippedWeapon.strength).toString() + "> Reichweite : <" + (c.range + c.equippedWeapon.range).toString() + ">") {
       font = new Font("Arial", java.awt.Font.TRUETYPE_FONT, 20)
     }
     contents += Button("Ok") { dispose() }

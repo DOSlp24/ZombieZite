@@ -125,18 +125,26 @@ class Gui(c: Controller) extends Frame {
         c
       }
       //Player status panel
-      add(new PlayerStat(c),
-        constraints(0, 0, fill = GridBagPanel.Fill.Vertical))
+      add(
+        new PlayerStat(c),
+        constraints(0, 0, fill = GridBagPanel.Fill.Vertical)
+      )
       //Game status
-      add((new GameStatus(c, log)),
-        constraints(2, 0))
+      add(
+        (new GameStatus(c, log)),
+        constraints(2, 0)
+      )
       //Log
-      add(grid,
-        constraints(1, 0, weightx = 1.0, fill = GridBagPanel.Fill.Horizontal))
+      add(
+        grid,
+        constraints(1, 0, weightx = 1.0, fill = GridBagPanel.Fill.Horizontal)
+      )
       //Field
-      add(new Label,
+      add(
+        new Label,
         constraints(1, 1, gridheight = 2, gridwidth = 2,
-          fill = GridBagPanel.Fill.Both))
+          fill = GridBagPanel.Fill.Both)
+      )
     }
     contents_=(gridBag)
   }

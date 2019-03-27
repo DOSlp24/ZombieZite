@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class TrashSpec extends WordSpec with Matchers {
-  
+
   "Trash" can {
     val t = baseImpl.Trash("trash")
     "have a name" in {

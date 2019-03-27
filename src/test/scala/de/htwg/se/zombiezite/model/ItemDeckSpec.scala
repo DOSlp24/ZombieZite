@@ -19,7 +19,7 @@ class ItemDeckSpec extends WordSpec with Matchers {
       deck.trash.isEmpty should be(false)
     }
     "have a complete Deck with at least one Item" in {
-      deck.deck.isEmpty should be (false)
+      deck.deck.isEmpty should be(false)
     }
     "have a first Item in Weapon" in {
       deck.weapons(0) should be(baseImpl.Weapon("Axe", 30, 1))
@@ -33,7 +33,7 @@ class ItemDeckSpec extends WordSpec with Matchers {
     "shuffle without harming the deck" in {
       val oldDeck = deck.deck
       deck.shuffle()
-      deck.deck.length should be (oldDeck.length)
+      deck.deck.length should be(oldDeck.length)
     }
     "draw and remove an Item" in {
       val oldDeckL = deck.deck.length

@@ -16,14 +16,14 @@ class ControllerSpec extends WordSpec with Matchers {
       c.init(1)
       c.player(0).equip(Weapon("Axe", 0, 0))
       c.player(0).equip(Weapon("Katana", 0, 0))
-      c.availableWeapon(c.player(0)) should not be(null)
+      c.availableWeapon(c.player(0)) should not be (null)
     }
     "show attackable Fields" in {
       val c = new Controller()
       c.init(1)
       c.player(0).actualField = c.area.line(5)(5)
       c.player(0).equip(Weapon("Axe", 1, 1))
-      c.attackableFields(c.player(0)) should not be(null)
+      c.attackableFields(c.player(0)) should not be (null)
     }
     "exist" should {
       val c = new Controller()

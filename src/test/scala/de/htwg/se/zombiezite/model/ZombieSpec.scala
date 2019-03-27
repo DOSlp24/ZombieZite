@@ -37,7 +37,7 @@ class ZombieSpec extends WordSpec with Matchers {
         z.attack(3) should be(z.strength + 1)
       }
       "do critical Damage" in {
-        z.attack(1) should be((z.strength + 1)*2)
+        z.attack(1) should be((z.strength + 1) * 2)
       }
       "have strength" in {
         z.strength should be(1)
@@ -102,11 +102,11 @@ class ZombieSpec extends WordSpec with Matchers {
         z.walk(1, 0) should be(false)
         z.actualField should be(baseImpl.Field(baseImpl.Position(18, 18)))
       }
-      "not leave Field twice" in{
+      "not leave Field twice" in {
         z.leaveField()
         z.leaveField()
       }
-      "not leave Field twice again" in{
+      "not leave Field twice again" in {
         z.actualField.zombies.append(z)
         z.leaveField()
       }

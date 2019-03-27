@@ -13,7 +13,7 @@ trait Character {
   val area: AreaInterface
   var actionCounter = 0
   val name: String
-  
+
   def walk(x: Int, y: Int): Boolean = {
     if (actualField.p.x / actualField.length + x < 0 || actualField.p.x / actualField.length + x > area.breite - 1) {
       return false
