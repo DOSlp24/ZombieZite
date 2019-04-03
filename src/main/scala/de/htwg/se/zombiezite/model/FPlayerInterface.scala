@@ -2,6 +2,7 @@ package de.htwg.se.zombiezite.model
 
 trait FPlayerInterface extends FCharacterInterface {
   val EQMAX = 5
+  val equipment: Array[Item]
 
   def equip(item: Item): FPlayerInterface = {
     item match {

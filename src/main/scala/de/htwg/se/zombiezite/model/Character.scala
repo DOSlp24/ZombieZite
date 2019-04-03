@@ -18,7 +18,7 @@ trait Character {
     if (actualField.p.x / actualField.length + x < 0 || actualField.p.x / actualField.length + x > area.breite - 1) {
       return false
     }
-    if (actualField.p.y / actualField.length + y < 0 || actualField.p.y / 2 + y > area.laenge - 1) {
+    if (actualField.p.y / actualField.length + y < 0 || actualField.p.y / actualField.length + y > area.laenge - 1) {
       return false
     }
     leaveField()

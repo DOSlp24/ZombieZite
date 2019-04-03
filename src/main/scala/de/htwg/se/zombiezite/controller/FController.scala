@@ -4,7 +4,6 @@ import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl.{Area, Zombie}
 import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
-import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
 import scala.swing.event.Event
 
@@ -90,14 +89,13 @@ class FController() extends Publisher with ControllerInterface {
                     area: AreaInterface,
                     round: Int,
                     winCount: Int) {
-
   }
 
   def startNewRound(state: cState): cState = {
     val actualPlayer = nextPlayer(state.actualPlayer, state.player)
     val round = state.round + 1
 
-    publish(NewRound(round));
+    publish(NewRound(round))
 
     cState(state.dif, state.player, state.zombies, state.playerCount, actualPlayer, state.area, round, state.winCount)
   }
