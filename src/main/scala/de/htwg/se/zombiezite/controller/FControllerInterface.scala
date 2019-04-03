@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.controller
 
-import de.htwg.se.zombiezite.model.{AreaInterface, ArmorInterface, Character, Deck, FieldInterface, Item, PlayerInterface, WeaponInterface, ZombieInterface}
+import de.htwg.se.zombiezite.model.{ AreaInterface, ArmorInterface, Character, Deck, FieldInterface, Item, PlayerInterface, WeaponInterface, ZombieInterface }
 
 import scala.collection.mutable.ArrayBuffer
 

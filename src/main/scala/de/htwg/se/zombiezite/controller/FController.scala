@@ -1,12 +1,11 @@
 package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
-import de.htwg.se.zombiezite.model.baseImpl.{Area, Zombie}
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.baseImpl.{ Area, Zombie }
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.swing.Publisher
 import scala.swing.event.Event
-
 
 case class GameOverLost() extends Event
 
@@ -78,17 +77,18 @@ case class NewAction() extends Event
 
 case class StartZombieTurn() extends Event
 
-
 class FController() extends Publisher with ControllerInterface {
 
-  case class cState(dif: Int,
-                    player: Array[PlayerInterface],
-                    zombies: Array[ZombieInterface],
-                    playerCount: Int,
-                    actualPlayer: PlayerInterface,
-                    area: AreaInterface,
-                    round: Int,
-                    winCount: Int) {
+  case class cState(
+    dif: Int,
+      player: Array[PlayerInterface],
+      zombies: Array[ZombieInterface],
+      playerCount: Int,
+      actualPlayer: PlayerInterface,
+      area: AreaInterface,
+      round: Int,
+      winCount: Int
+  ) {
   }
 
   def startNewRound(state: cState): cState = {
