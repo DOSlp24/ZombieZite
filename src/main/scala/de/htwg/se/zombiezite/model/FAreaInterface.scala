@@ -8,4 +8,6 @@ trait FAreaInterface {
   val lines: Vector[Vector[FFieldInterface]]
 
   def build: FAreaInterface
+
+  def putField(field: FFieldInterface): FAreaInterface
 }

@@ -28,7 +28,7 @@ case class FArea(
     }
   }
 
-  def putField(field: FFieldInterface): FArea = {
+  override def putField(field: FFieldInterface): FArea = {
     val newLine = lines.apply(field.p.y).updated(field.p.x, field)
     val newLines = lines.updated(field.p.y, newLine)
     copy(lines = newLines)
