@@ -7,7 +7,8 @@ trait FCharacterInterface {
   val strength: Int
   val range: Int
   val actualField: FieldInterface
-  val equippedWeapon: WeaponInterface
+  val equippedWeapon: FWeaponInterface
+  // request to rename to crit_chance
   val kritchance = 20
   var armor: Int
   val area: AreaInterface
