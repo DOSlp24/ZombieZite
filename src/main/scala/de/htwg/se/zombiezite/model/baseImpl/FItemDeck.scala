@@ -1,34 +1,40 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{FDeckInterface, FItemInterface}
+import de.htwg.se.zombiezite.model.{ FArmorInterface, FDeckInterface, FItemInterface, FWeaponInterface }
 
 import scala.collection.mutable.ArrayBuffer
 
-case class FItemDeck() extends FDeckInterface[FItemInterface] {
-  val weapons: Vector[FWeapon] = Vector[FWeapon](FWeapon("Axe", 30, 1), FWeapon("Pistol", 40, 3), FWeapon("Pistol", 40, 3),
-    FWeapon("Pistol", 40, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Sniper", 40, 5),
-    FWeapon("Sniper", 40, 5), FWeapon("Flame Thrower", 100, 2, 1), FWeapon("Knife", 10, 1), FWeapon("Knife", 10, 1),
-    FWeapon("Knife", 10, 1), FWeapon("Shotgun", 100, 1), FWeapon("Shotgun", 100, 1),
-    FWeapon("Big Mama", 150, 2), FWeapon("EVIL SISTERS", 200, 1), FWeapon("Pan", 5, 1))
+case class FItemDeck(
+    weapons: Vector[FWeaponInterface] = Vector[FWeaponInterface](FWeapon("Axe", 30, 1), FWeapon("Pistol", 40, 3), FWeapon("Pistol", 40, 3),
+      FWeapon("Pistol", 40, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Sniper", 40, 5),
+      FWeapon("Sniper", 40, 5), FWeapon("Flame Thrower", 100, 2, 1), FWeapon("Knife", 10, 1), FWeapon("Knife", 10, 1),
+      FWeapon("Knife", 10, 1), FWeapon("Shotgun", 100, 1), FWeapon("Shotgun", 100, 1),
+      FWeapon("Big Mama", 150, 2), FWeapon("EVIL SISTERS", 200, 1), FWeapon("Pan", 5, 1)),
+    armors: Vector[FArmorInterface] = Vector[FArmorInterface](FArmor("Holy Armor", 60), FArmor("Chest", 40), FArmor("Boots", 20), FArmor("Boots", 20),
+      FArmor("Boots", 20), FArmor("Swat-Shield", 100), FArmor("Healkit", 10), FArmor("Healkit", 10), FArmor("Healkit", 10)),
+    trash: Vector[FItemInterface] = Vector[FItemInterface](FTrash("Rice"), FTrash("Rice"), FTrash("Rice"), FTrash("Canned Food"), FTrash("Canned Food"), FTrash("Water"),
+      FTrash("Water"), FTrash("Stone"), FTrash("Trash"), FTrash("Trash"), FTrash("Trash"), FTrash("Trash"), FTrash("Trash"), FTrash("Bottle"), FTrash("Money")),
+    passedDeck: Vector[FItemInterface] = Vector[FItemInterface]()
+) extends FDeckInterface {
 
-  val armors: Vector[FArmor] = Vector[FArmor](FArmor("Holy Armor", 60), FArmor("Chest", 40), FArmor("Boots", 20), FArmor("Boots", 20),
-    FArmor("Boots", 20), FArmor("Swat-Shield", 100), FArmor("Healkit", 10), FArmor("Healkit", 10), FArmor("Healkit", 10))
-
-  val trash = Vector[Trash](Trash("Rice"), Trash("Rice"), Trash("Rice"), Trash("Canned Food"), Trash("Canned Food"), Trash("Water"),
-    Trash("Water"), Trash("Stone"), Trash("Trash"), Trash("Trash"), Trash("Trash"), Trash("Trash"), Trash("Trash"), Trash("Bottle"), Trash("Money"))
-
-  val deck = ArrayBuffer[FItemInterface]()
-
-  deck ++= weapons
-  deck ++= armors
-  deck ++= trash
-
-  def shuffle(): Unit = {
+  def shuffle(): FDeckInterface = {
+    val combinedDeck: Vector[FItemInterface] = weapons ++ armors ++ trash
+    FItemDeck(passedDeck = buildDeck(combinedDeck))
     //needs to be var because of the shuffle process
-    var newDeck = deck.toArray
+    /*var newDeck = deck.toArray
     newDeck = shuffle(newDeck)
     deck.clear()
-    deck ++= newDeck
+    deck ++= newDeck*/
+  }
+
+  def buildDeck(combinedDeck: Vector[FItemInterface]): Vector[FItemInterface] = {
+    if (combinedDeck.isEmpty) {
+      Vector[FItemInterface]()
+    } else {
+      val rnd = new java.util.Random
+      val index = rnd.nextInt(combinedDeck.length)
+      buildDeck(combinedDeck patch (from = index, patch = Nil, replaced = 1)) :+ combinedDeck.apply(index)
+    }
   }
 
   def shuffle[Item](array: Array[Item]): Array[Item] = {
@@ -41,8 +47,11 @@ case class FItemDeck() extends FDeckInterface[FItemInterface] {
   }
 
   def draw(): FItemInterface = {
-    shuffle()
-    deck.remove(0)
+    /*shuffle()
+    deck.remove(0)*/
+
+    //TODO pick head in controller and pass a new deck here
+    passedDeck.head
   }
 
 }

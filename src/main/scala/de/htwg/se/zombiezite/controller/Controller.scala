@@ -170,7 +170,7 @@ class Controller() extends Publisher with ControllerInterface {
 
   def drawItem(): Item = {
     if (itemDeck.asInstanceOf[ItemDeck].deck.isEmpty) {
-      return Trash("Trash")
+      return Trash("Trash").asInstanceOf[Item]
     }
     return itemDeck.draw()
   }

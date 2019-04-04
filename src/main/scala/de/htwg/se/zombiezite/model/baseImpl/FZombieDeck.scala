@@ -1,8 +1,8 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{FDeckInterface, FZombieInterface}
+import de.htwg.se.zombiezite.model.{ FDeckInterface, FZombieInterface }
 
-case class FZombieDeck(area: Area) extends FDeckInterface[Array[FZombieInterface]] {
+case class FZombieDeck(area: Area) extends FDeckInterface {
   final val MAX_ZOMBIE_SPAWN: Int = 5
   val zombieNames: Array[String] = Array("Schlurfer", "Runner", "Fatti", "Tank", "Spitter")
   final val UNIQUE_ZOMBIE_COUNT: Int = zombieNames.length

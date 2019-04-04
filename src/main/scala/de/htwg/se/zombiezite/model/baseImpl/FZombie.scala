@@ -8,11 +8,11 @@ case class FZombie(
     override val y: Int,
     override val strength: Int,
     override val range: Int = 0,
-    override val actualField: FieldInterface,
-    override val equippedWeapon: FWeaponInterface = new FWeapon("Fist", 1, 0),
-    override var armor: Int = 0,
-    override val area: AreaInterface,
-    override var actionCounter: Int = 1,
+    override val actualField: FFieldInterface,
+    override val equippedWeapon: FWeaponInterface = FWeapon("Fist", 1, 0),
+    override val armor: Int = 0,
+    override val area: FAreaInterface,
+    override val actionCounter: Int = 1,
     override val name: String
 ) extends FZombieInterface {
 
