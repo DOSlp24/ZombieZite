@@ -22,4 +22,19 @@ trait FFieldInterface {
   def enterPlayer(p: FPlayerInterface): FFieldInterface
 
   def enterZombie(z: FZombieInterface): FFieldInterface
+
+  def leaveField(c: FCharacterInterface): FFieldInterface = {
+    c match {
+      case interface: FPlayerInterface =>
+        leavePlayer(c.asInstanceOf[FPlayerInterface])
+      case interface: FZombieInterface =>
+        leaveZombies(c.asInstanceOf[FZombieInterface])
+      case _ =>
+        this
+    }
+  }
+
+  def leavePlayer(p: FPlayerInterface): FFieldInterface
+
+  def leaveZombies(z: FZombieInterface): FFieldInterface
 }

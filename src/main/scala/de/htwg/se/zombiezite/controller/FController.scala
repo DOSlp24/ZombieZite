@@ -11,8 +11,8 @@ class FController() extends Publisher with ControllerInterface {
 
   case class cState(
                      dif: Int = 2,
-                     player: Array[FPlayerInterface],
-                     zombies: Array[FZombieInterface],
+                     player: Vector[FPlayerInterface],
+                     zombies: Vector[FZombieInterface],
                      playerCount: Int,
                      actualPlayer: FPlayerInterface,
                      area: FAreaInterface = FArea(10, 10),
@@ -26,6 +26,15 @@ class FController() extends Publisher with ControllerInterface {
     def enterField(c: FCharacterInterface): cState = {
       copy(area = area.putField(area.lines.apply(c.y).apply(c.x).enterField(c)))
     }
+
+    def leaveField(c: FCharacterInterface): cState = {
+      copy(area = area.putField(area.lines.apply(c.y).apply(c.x).leaveField(c)))
+    }
+
+    def moveUp(c: FCharacterInterface): cState = {
+      leaveField(c)
+      enterField(c.walk(0, 1))
+    }
   }
 
   def startNewRound(state: cState): cState = {
@@ -37,7 +46,7 @@ class FController() extends Publisher with ControllerInterface {
     cState(state.dif, state.player, state.zombies, state.playerCount, actualPlayer, state.area, round, state.winCount)
   }
 
-  def nextPlayer(actualPlayer: FPlayerInterface, player: Array[FPlayerInterface]): FPlayerInterface = {
+  def nextPlayer(actualPlayer: FPlayerInterface, player: Vector[FPlayerInterface]): FPlayerInterface = {
     val index = player.indexOf(actualPlayer)
     if (index < player.length - 1) {
       player(index + 1)
