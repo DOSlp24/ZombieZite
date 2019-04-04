@@ -18,9 +18,9 @@ case class FZombie(
 
   override def walk(xInc: Int, yInc: Int): FZombie = {
     if (this.x + xInc < 0
-      || this.x + xInc > this.area.breite
+      || this.x + xInc > this.area.wid
       || this.y + yInc < 0
-      || this.y + yInc > this.area.laenge) {
+      || this.y + yInc > this.area.len) {
       this
     } else {
       copy(x = x + xInc, y = y + yInc)
