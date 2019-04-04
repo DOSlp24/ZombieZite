@@ -12,14 +12,14 @@ case class FField(
 ) extends FFieldInterface {
 
   override def enterPlayer(p: FPlayerInterface): FFieldInterface = {
-    val newChars: Vector[FCharacterInterface] = chars.+:(p)
-    val newPlayers: Vector[FPlayerInterface] = players.+:(p)
+    val newChars: Vector[FCharacterInterface] = chars :+ p
+    val newPlayers: Vector[FPlayerInterface] = players :+ p
     copy(chars = newChars, players = newPlayers, charCount = newChars.length)
   }
 
   override def enterZombie(z: FZombieInterface): FFieldInterface = {
-    val newChars: Vector[FCharacterInterface] = chars.+:(z)
-    val newZombies: Vector[FZombieInterface] = zombies.+:(z)
+    val newChars: Vector[FCharacterInterface] = chars :+ z
+    val newZombies: Vector[FZombieInterface] = zombies :+ z
     copy(chars = newChars, zombies = newZombies, charCount = newChars.length)
   }
 }

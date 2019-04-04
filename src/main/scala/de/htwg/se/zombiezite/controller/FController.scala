@@ -22,6 +22,10 @@ class FController() extends Publisher with ControllerInterface {
     def buildArea(): cState = {
       copy(area = area.build)
     }
+
+    def enterField(c: FCharacterInterface): cState = {
+      copy(area = area.putField(area.lines.apply(c.y).apply(c.x).enterField(c)))
+    }
   }
 
   def startNewRound(state: cState): cState = {
