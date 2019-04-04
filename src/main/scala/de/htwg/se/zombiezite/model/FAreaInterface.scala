@@ -6,4 +6,6 @@ trait FAreaInterface {
   val len: Int
   val wid: Int
   val lines: Vector[Vector[FFieldInterface]]
+
+  def build: FAreaInterface
 }

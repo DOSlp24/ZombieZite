@@ -8,7 +8,7 @@ case class FArea(
                   override val lines: Vector[Vector[FFieldInterface]] = Vector[Vector[FFieldInterface]]()
                 ) extends FAreaInterface {
 
-  def build(): FArea = {
+  override def build(): FArea = {
     copy(lines = buildLines(0, lines))
   }
 

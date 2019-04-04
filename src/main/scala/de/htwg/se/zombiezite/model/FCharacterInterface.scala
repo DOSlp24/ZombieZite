@@ -6,11 +6,9 @@ trait FCharacterInterface {
   val y: Int
   val strength: Int
   val range: Int
-  val actualField: FFieldInterface
   val equippedWeapon: FWeaponInterface
   val CRITCHANCE = 20
   val armor: Int
-  val area: FAreaInterface
   val actionCounter: Int
   val name: String
 

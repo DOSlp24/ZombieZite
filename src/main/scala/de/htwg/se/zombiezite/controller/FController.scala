@@ -1,7 +1,7 @@
 package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
-import de.htwg.se.zombiezite.model.baseImpl.{Area, Zombie}
+import de.htwg.se.zombiezite.model.baseImpl.{Area, FArea, FZombie, Zombie}
 import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
 import scala.swing.Publisher
@@ -10,20 +10,17 @@ import scala.swing.event.Event
 class FController() extends Publisher with ControllerInterface {
 
   case class cState(
-                     dif: Int,
-                     player: Array[PlayerInterface],
-                     zombies: Array[ZombieInterface],
+                     dif: Int = 2,
+                     player: Array[FPlayerInterface],
+                     zombies: Array[FZombieInterface],
                      playerCount: Int,
-                     actualPlayer: PlayerInterface,
-                     area: AreaInterface,
-                     round: Int,
-                     winCount: Int
+                     actualPlayer: FPlayerInterface,
+                     area: FAreaInterface = FArea(10, 10),
+                     round: Int = 0,
+                     winCount: Int = 60
                    ) {
     def buildArea(): cState = {
-      for (i <- 0 until area.breite; j <- 0 until area.laenge) {
-        
-      }
-      this
+      copy(area = area.build)
     }
   }
 
@@ -36,17 +33,13 @@ class FController() extends Publisher with ControllerInterface {
     cState(state.dif, state.player, state.zombies, state.playerCount, actualPlayer, state.area, round, state.winCount)
   }
 
-  def nextPlayer(actualPlayer: PlayerInterface, player: Array[PlayerInterface]): PlayerInterface = {
+  def nextPlayer(actualPlayer: FPlayerInterface, player: Array[FPlayerInterface]): FPlayerInterface = {
     val index = player.indexOf(actualPlayer)
     if (index < player.length - 1) {
       player(index + 1)
     } else {
       player(0)
     }
-  }
-
-  def zombieMove(zombie: ZombieInterface, x: Int, y: Int): ZombieInterface = {
-    Zombie(zombie.area, zombie.name, zombie.strength, zombie.range, zombie.lifePoints);
   }
 
   override def checkOrder: Unit = ???
