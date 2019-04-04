@@ -1,5 +1,5 @@
 package de.htwg.se.zombiezite.model
 
-trait ArmorInterface extends Item {
+trait FArmorInterface extends Item {
   val protection: Int
 }
