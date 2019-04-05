@@ -19,6 +19,43 @@ class FController() extends Publisher with ControllerInterface {
                      round: Int = 0,
                      winCount: Int = 60
                    ) {
+
+    def updateChars(): cState = {
+      copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers())
+    }
+
+    def searchLinesForZombies(line: Int = 0): Vector[FZombieInterface] = {
+      if (line < area.len) {
+        searchLinesForZombies(line + 1) ++ searchFieldForZombies(line, 0)
+      } else {
+        Vector[FZombieInterface]()
+      }
+    }
+
+    def searchFieldForZombies(line: Int, field: Int): Vector[FZombieInterface] = {
+      if (field < area.wid) {
+        searchFieldForZombies(line, field + 1) ++ area.lines(line)(field).zombies
+      } else {
+        Vector[FZombieInterface]()
+      }
+    }
+
+    def searchLinesForPlayers(line: Int = 0): Vector[FPlayerInterface] = {
+      if (line < area.len) {
+        searchLinesForPlayers(line + 1) ++ searchFieldForPlayers(line, 0)
+      } else {
+        Vector[FPlayerInterface]()
+      }
+    }
+
+    def searchFieldForPlayers(line: Int, field: Int): Vector[FPlayerInterface] = {
+      if (field < area.wid) {
+        searchFieldForPlayers(line, field + 1) ++ area.lines(line)(field).players
+      } else {
+        Vector[FPlayerInterface]()
+      }
+    }
+
     def buildArea(): cState = {
       copy(area = area.build)
     }
@@ -34,6 +71,21 @@ class FController() extends Publisher with ControllerInterface {
     def moveUp(c: FCharacterInterface): cState = {
       leaveField(c)
       enterField(c.walk(0, 1))
+    }
+
+    def moveDown(c: FCharacterInterface): cState = {
+      leaveField(c)
+      enterField(c.walk(0, -1))
+    }
+
+    def moveLeft(c: FCharacterInterface): cState = {
+      leaveField(c)
+      enterField(c.walk(-1, 0))
+    }
+
+    def moveRight(c: FCharacterInterface): cState = {
+      leaveField(c)
+      enterField(c.walk(1, 0))
     }
   }
 
