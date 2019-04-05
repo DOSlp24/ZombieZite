@@ -69,23 +69,19 @@ class FController() extends Publisher with ControllerInterface {
     }
 
     def moveUp(c: FCharacterInterface): cState = {
-      leaveField(c)
-      enterField(c.walk(0, 1))
+      leaveField(c).enterField(c.walk(0, 1)).updateChars()
     }
 
     def moveDown(c: FCharacterInterface): cState = {
-      leaveField(c)
-      enterField(c.walk(0, -1))
+      leaveField(c).enterField(c.walk(0, -1)).updateChars()
     }
 
     def moveLeft(c: FCharacterInterface): cState = {
-      leaveField(c)
-      enterField(c.walk(-1, 0))
+      leaveField(c).enterField(c.walk(-1, 0)).updateChars()
     }
 
     def moveRight(c: FCharacterInterface): cState = {
-      leaveField(c)
-      enterField(c.walk(1, 0))
+      leaveField(c).enterField(c.walk(1, 0)).updateChars()
     }
   }
 
