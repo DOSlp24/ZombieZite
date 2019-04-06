@@ -83,6 +83,53 @@ class FController() extends Publisher with ControllerInterface {
     def moveRight(c: FCharacterInterface): cState = {
       leaveField(c).enterField(c.walk(1, 0)).updateChars()
     }
+
+    def increaseRoundCount(): cState = {
+      copy(round = round + 1)
+    }
+
+    def nextPlayer(): cState = {
+      val index = player.indexOf(actualPlayer)
+      if (index < player.length - 1) {
+        copy(actualPlayer = player(index + 1))
+      } else {
+        copy(actualPlayer = player(0)).startNewTurn()
+      }
+    }
+
+    def startNewTurn(): cState = {
+      increaseRoundCount().zombieTurn()
+    }
+
+    def zombieTurn(): cState = {
+      def zombieMove(z: FZombieInterface): FZombieInterface = {
+        //TODO ZombieMove
+        val canSeePlayer = player.filter(p => {
+          p.x == z.x || p.y == z.y
+        })
+
+        if (canSeePlayer.nonEmpty) {
+
+          val canAttackPlayer = canSeePlayer.filter(p => {
+            math.abs(z.y - p.y) <= z.range || math.abs(z.x - p.x) <= z.range
+          })
+
+          if(canAttackPlayer.nonEmpty) {
+            //TODO attack a player out of this list
+          } else {
+            //TODO move towards player
+          }
+
+        } else {
+          //TODO move somewhere
+        }
+
+        z
+      }
+
+      val newZombies: Vector[FZombieInterface] = zombies.map(z => zombieMove(z))
+      copy(zombies = newZombies)
+    }
   }
 
   def startNewRound(state: cState): cState = {
