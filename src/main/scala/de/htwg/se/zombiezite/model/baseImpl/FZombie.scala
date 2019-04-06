@@ -11,7 +11,8 @@ case class FZombie(
                     override val equippedWeapon: FWeaponInterface = FWeapon("Fist", 1, 0),
                     override val armor: Int = 0,
                     override val actionCounter: Int = 1,
-                    override val name: String
+                    override val name: String,
+                    override val archenemy: FPlayerInterface = FPlayerWithoutIdentity()
                   ) extends FZombieInterface {
 
   override def walk(xInc: Int, yInc: Int): FZombieInterface = {
@@ -25,5 +26,9 @@ case class FZombie(
     } else {
       copy(armor = 0, lifePoints = lifePoints + armorLeft)
     }
+  }
+
+  override def selectTarget(p: FPlayerInterface): FZombieInterface = {
+    copy(archenemy = p)
   }
 }

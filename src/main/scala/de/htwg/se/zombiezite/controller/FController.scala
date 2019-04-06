@@ -1,9 +1,10 @@
 package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
-import de.htwg.se.zombiezite.model.baseImpl.{Area, FArea, FZombie, Zombie}
+import de.htwg.se.zombiezite.model.baseImpl._
 import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
 import scala.swing.event.Event
 
@@ -174,8 +175,26 @@ class FController() extends Publisher with FControllerInterface {
       z
     }
 
-    def zombieAttack(z: FZombieInterface, p: FPlayerInterface): cState = {
-      p.takeDmg(z.equippedWeapon.strength * z.strength) //TODO Attack a player should be a variable in FZombieInterface
+    def zombieAttack(z: FZombieInterface, p: FPlayerInterface): FZombieInterface = {
+      z.selectTarget(p)
+      //p.takeDmg(z.equippedWeapon.strength * z.strength) //TODO Attack a player should be a variable in FZombieInterface
+    }
+
+    def zombiesTriggerAttack(z: FZombieInterface = zombies.apply(0)): cState = {
+      val archenemy = z.archenemy
+      if (z == zombies.last) {
+        if (player.contains(archenemy)) {
+          copy(player = player.updated(player.indexOf(archenemy), archenemy.takeDmg(z.equippedWeapon.strength * z.strength)))
+        } else {
+          this
+        }
+      } else {
+        if (player.contains(archenemy)) {
+          zombiesTriggerAttack(zombies.apply(zombies.indexOf(z) + 1)).copy(player = player.updated(player.indexOf(archenemy), archenemy.takeDmg(z.equippedWeapon.strength * z.strength)))
+        } else {
+          zombiesTriggerAttack(zombies.apply(zombies.indexOf(z) + 1))
+        }
+      }
     }
   }
 

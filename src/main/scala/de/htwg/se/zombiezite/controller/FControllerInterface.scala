@@ -5,7 +5,7 @@ import de.htwg.se.zombiezite.model.{AreaInterface, ArmorInterface, Character, De
 import scala.collection.mutable.ArrayBuffer
 
 trait FControllerInterface {
-  val actualPlayer: PlayerInterface
+  /*val actualPlayer: PlayerInterface
   val zombieList: Array[String]
   val itemList: ArrayBuffer[String]
   val area: AreaInterface
@@ -19,7 +19,7 @@ trait FControllerInterface {
   val playerCount: Int
   val zombiesKilled: Int
   val winCount: Int
-  val round: Int
+  val round: Int*/
 
   def checkOrder
   def setDifficulty(dif: Int)
