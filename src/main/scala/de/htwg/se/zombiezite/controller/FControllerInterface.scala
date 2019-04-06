@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.controller
 
-import de.htwg.se.zombiezite.model.{ AreaInterface, ArmorInterface, Character, Deck, FieldInterface, Item, PlayerInterface, WeaponInterface, ZombieInterface }
+import de.htwg.se.zombiezite.model.{AreaInterface, ArmorInterface, Character, Deck, FPlayerInterface, FZombieInterface, FieldInterface, Item, PlayerInterface, WeaponInterface, ZombieInterface}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -9,8 +9,8 @@ trait FControllerInterface {
   val zombieList: Array[String]
   val itemList: ArrayBuffer[String]
   val area: AreaInterface
-  val player: Array[PlayerInterface]
-  val zombies: ArrayBuffer[ZombieInterface]
+  val player: Vector[FPlayerInterface]
+  val zombies: Vector[FZombieInterface]
   val itemDeck: Deck[Item]
   val zombieDeck: Deck[Array[ZombieInterface]]
   val playerNamer: Array[String] = Array("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow")

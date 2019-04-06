@@ -13,4 +13,6 @@ trait FCharacterInterface {
   val name: String
 
   def walk(x: Int, y: Int): FCharacterInterface
+
+  def takeDmg(dmg: Int): FCharacterInterface
 }

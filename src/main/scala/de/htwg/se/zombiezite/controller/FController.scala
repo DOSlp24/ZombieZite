@@ -7,7 +7,8 @@ import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 import scala.swing.Publisher
 import scala.swing.event.Event
 
-class FController() extends Publisher with ControllerInterface {
+//noinspection ScalaStyle
+class FController() extends Publisher with FControllerInterface {
 
   case class cState(
                      dif: Int = 2,
@@ -102,8 +103,7 @@ class FController() extends Publisher with ControllerInterface {
     }
 
     def zombieTurn(): cState = {
-      def zombieMove(z: FZombieInterface): FZombieInterface = {
-        //TODO ZombieMove
+      def execTurn(z: FZombieInterface): FZombieInterface = {
         val canSeePlayer = player.filter(p => {
           p.x == z.x || p.y == z.y
         })
@@ -114,23 +114,71 @@ class FController() extends Publisher with ControllerInterface {
             math.abs(z.y - p.y) <= z.range || math.abs(z.x - p.x) <= z.range
           })
 
-          if(canAttackPlayer.nonEmpty) {
+          if (canAttackPlayer.nonEmpty) {
             //TODO attack a player out of this list
           } else {
-            //TODO move towards player
+            zombieMoveTowards(canSeePlayer.apply(0), z)
           }
-
         } else {
           //TODO move somewhere
         }
-
         z
       }
 
-      val newZombies: Vector[FZombieInterface] = zombies.map(z => zombieMove(z))
+      val newZombies: Vector[FZombieInterface] = zombies.map(z => execTurn(z))
       copy(zombies = newZombies)
     }
+
+    def executeZombieTurn(z: FZombieInterface): FZombieInterface = {
+      val canSeePlayer = player.filter(p => {
+        p.x == z.x || p.y == z.y
+      })
+
+      if (canSeePlayer.nonEmpty) {
+
+        val canAttackPlayer = canSeePlayer.filter(p => {
+          math.abs(z.y - p.y) <= z.range || math.abs(z.x - p.x) <= z.range
+        })
+
+        if (canAttackPlayer.nonEmpty) {
+          zombieAttack(z, canAttackPlayer.apply(0))
+        } else {
+          zombieMoveTowards(canSeePlayer.apply(0), z)
+        }
+      } else {
+        zombieMove(z)
+      }
+      z
+    }
+
+    def zombieMove(z: FZombieInterface): FZombieInterface = {
+      val random = scala.util.Random.nextInt(4)
+      random match {
+        case 0 => z.walk(0, 1)
+        case 1 => z.walk(0, -1)
+        case 2 => z.walk(1, 0)
+        case 3 => z.walk(-1, 0)
+      }
+    }
+
+    def zombieMoveTowards(p: FPlayerInterface, z: FZombieInterface): FZombieInterface = {
+      //Move towards player
+      p.x - z.x match {
+        case x if x < 0 => z.walk(-1, 0)
+        case x if x > 0 => z.walk(1, 0)
+      }
+      p.y - z.y match {
+        case y if y < 0 => z.walk(0, -1)
+        case y if y > 0 => z.walk(0, 1)
+      }
+      z
+    }
+
+    def zombieAttack(z: FZombieInterface, p: FPlayerInterface): cState = {
+      p.takeDmg(z.equippedWeapon.strength * z.strength) //TODO Attack a player should be a variable in FZombieInterface
+    }
   }
+
 
   def startNewRound(state: cState): cState = {
     val actualPlayer = nextPlayer(state.actualPlayer, state.player)

@@ -20,4 +20,8 @@ trait FPlayerInterface extends FCharacterInterface {
   def useArmor(a: FArmorInterface): FPlayerInterface
 
   def drop(item: FItemInterface): FPlayerInterface
+
+  override def takeDmg(dmg: Int): FPlayerInterface
+
+  override def walk(x: Int, y: Int): FPlayerInterface
 }
