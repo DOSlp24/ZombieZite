@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -12,15 +12,15 @@ import scala.swing.event.Event
 class FController() extends Publisher with FControllerInterface {
 
   case class cState(
-                     dif: Int = 2,
-                     player: Vector[FPlayerInterface],
-                     zombies: Vector[FZombieInterface],
-                     playerCount: Int,
-                     actualPlayer: FPlayerInterface,
-                     area: FAreaInterface = FArea(10, 10),
-                     round: Int = 0,
-                     winCount: Int = 60
-                   ) {
+      dif: Int = 2,
+      player: Vector[FPlayerInterface],
+      zombies: Vector[FZombieInterface],
+      playerCount: Int,
+      actualPlayer: FPlayerInterface,
+      area: FAreaInterface = FArea(10, 10),
+      round: Int = 0,
+      winCount: Int = 60
+  ) {
 
     def updateChars(): cState = {
       copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers())
@@ -197,7 +197,6 @@ class FController() extends Publisher with FControllerInterface {
       }
     }
   }
-
 
   def startNewRound(state: cState): cState = {
     val actualPlayer = nextPlayer(state.actualPlayer, state.player)

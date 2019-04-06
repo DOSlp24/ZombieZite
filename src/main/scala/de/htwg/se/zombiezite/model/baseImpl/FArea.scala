@@ -1,12 +1,12 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{FAreaInterface, FFieldInterface, FieldInterface}
+import de.htwg.se.zombiezite.model.{ FAreaInterface, FFieldInterface, FieldInterface }
 
 case class FArea(
-                  override val len: Int,
-                  override val wid: Int,
-                  override val lines: Vector[Vector[FFieldInterface]] = Vector[Vector[FFieldInterface]]()
-                ) extends FAreaInterface {
+    override val len: Int,
+    override val wid: Int,
+    override val lines: Vector[Vector[FFieldInterface]] = Vector[Vector[FFieldInterface]]()
+) extends FAreaInterface {
 
   override def build(): FArea = {
     copy(lines = buildLines(0, lines))

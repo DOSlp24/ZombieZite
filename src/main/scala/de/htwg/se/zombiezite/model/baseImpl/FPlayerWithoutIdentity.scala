@@ -1,9 +1,9 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
-import de.htwg.se.zombiezite.model.{FArmorInterface, FItemInterface, FPlayerInterface, FWeaponInterface}
+import de.htwg.se.zombiezite.model.{ FArmorInterface, FItemInterface, FPlayerInterface, FWeaponInterface }
 
-case class FPlayerWithoutIdentity() extends FPlayerInterface{
-  override val equipment: Array[FItemInterface] = _
+case class FPlayerWithoutIdentity() extends FPlayerInterface {
+  override val equipment: Array[FItemInterface] = Array[FItemInterface]()
 
   override def equipWeapon(weapon: FWeaponInterface): FPlayerInterface = {
     this
@@ -25,13 +25,13 @@ case class FPlayerWithoutIdentity() extends FPlayerInterface{
     this
   }
 
-  override val lifePoints: Int = _
-  override val x: Int = _
-  override val y: Int = _
-  override val strength: Int = _
-  override val range: Int = _
-  override val equippedWeapon: FWeaponInterface = _
-  override val armor: Int = _
-  override val actionCounter: Int = _
-  override val name: String = _
+  override val lifePoints: Int = 100
+  override val x: Int = 0
+  override val y: Int = 0
+  override val strength: Int = 0
+  override val range: Int = 0
+  override val equippedWeapon: FWeaponInterface = FWeapon("", 0, 0)
+  override val armor: Int = 0
+  override val actionCounter: Int = 0
+  override val name: String = ""
 }
