@@ -26,6 +26,14 @@ class FController() extends Publisher with FControllerInterface {
       copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers())
     }
 
+    def updateAreaOverChar(index: Int = 0, chars: Vector[FCharacterInterface] = zombies ++ player): cState = {
+      if (index == chars.length - 1) {
+        buildArea().enterField(chars(index))
+      } else {
+        updateAreaOverChar(index + 1, chars).enterField(chars(index))
+      }
+    }
+
     def searchLinesForZombies(line: Int = 0): Vector[FZombieInterface] = {
       if (line < area.len) {
         searchLinesForZombies(line + 1) ++ searchFieldForZombies(line, 0)
@@ -59,7 +67,7 @@ class FController() extends Publisher with FControllerInterface {
     }
 
     def buildArea(): cState = {
-      copy(area = area.build)
+      copy(area = FArea(area.len, area.wid).build())
     }
 
     def enterField(c: FCharacterInterface): cState = {
@@ -126,7 +134,7 @@ class FController() extends Publisher with FControllerInterface {
         if (canSeePlayer.nonEmpty) {
 
           val canAttackPlayer = canSeePlayer.filter(p => {
-            math.abs(z.y - p.y) <= z.range || math.abs(z.x - p.x) <= z.range
+            math.abs(z.y - p.y) + math.abs(z.x - p.x) <= z.range
           })
 
           if (canAttackPlayer.nonEmpty) {
@@ -142,8 +150,8 @@ class FController() extends Publisher with FControllerInterface {
       val newZombies: Vector[FZombieInterface] = zombies.map(z => execTurn(z))
       val ret = copy(zombies = newZombies)
       ret.zombies.length match {
-        case 0 => ret
-        case _ => ret.zombiesTriggerAttack()
+        case 0 => ret.updateAreaOverChar().updateChars()
+        case _ => ret.zombiesTriggerAttack().updateAreaOverChar().updateChars()
       }
     }
 
@@ -166,30 +174,49 @@ class FController() extends Publisher with FControllerInterface {
       } else {
         zombieMove(z)
       }
-      z
     }
 
     def zombieMove(z: FZombieInterface): FZombieInterface = {
-      val random = scala.util.Random.nextInt(4)
-      random match {
-        case 0 => z.walk(0, 1)
-        case 1 => z.walk(0, -1)
-        case 2 => z.walk(1, 0)
-        case 3 => z.walk(-1, 0)
+      z match {
+        case _ if z.x == area.wid - 1 => z.walk(-1, 0)
+        case _ if z.x == 0 => z.walk(1, 0)
+        case _ if z.y == area.len - 1 => z.walk(0, -1)
+        case _ if z.y == 0 => z.walk(0, 1)
+        case _ => {
+          val random = scala.util.Random.nextInt(4)
+          random match {
+            case 0 => z.walk(0, 1)
+            case 1 => z.walk(0, -1)
+            case 2 => z.walk(1, 0)
+            case 3 => z.walk(-1, 0)
+          }
+        }
       }
     }
 
     def zombieMoveTowards(p: FPlayerInterface, z: FZombieInterface): FZombieInterface = {
       //Move towards player
-      p.x - z.x match {
-        case x if x < 0 => z.walk(-1, 0)
-        case x if x > 0 => z.walk(1, 0)
+
+      val x = p.x - z.x
+      val y = p.y - z.y
+
+      if (p.x == 0) {
+        System.out.println("")
       }
-      p.y - z.y match {
-        case y if y < 0 => z.walk(0, -1)
-        case y if y > 0 => z.walk(0, 1)
+
+      if (x < 0) {
+        z.walk(-1, 0)
+      } else if (x > 0) {
+        z.walk(1, 0)
+      } else {
+        if (y < 0) {
+          z.walk(0, -1)
+        } else if (y > 0) {
+          z.walk(0, 1)
+        } else {
+          z
+        }
       }
-      z
     }
 
     def zombieAttack(z: FZombieInterface, p: FPlayerInterface): FZombieInterface = {

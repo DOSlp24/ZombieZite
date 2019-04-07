@@ -1,7 +1,7 @@
 package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model.baseImpl.{ FPlayer, FZombie }
-import de.htwg.se.zombiezite.model.{ FItemInterface, FPlayerInterface, FZombieInterface }
+import de.htwg.se.zombiezite.model.{ FItemInterface, FPlayerInterface, FZombieInterface, baseImpl }
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{ Matchers, WordSpec }
@@ -78,12 +78,48 @@ class FControllerSpec extends WordSpec with Matchers {
       "Iterate after last" in {
         itState.nextPlayer().nextPlayer().nextPlayer().actualPlayer should be(p1)
       }
-      "ZombieTurn" can {
-        val z1 = FZombie(100, 5, 5)
-        val z2 = FZombie(100, 6, 5)
-        val ztState = c.cState().buildArea().enterField(z1).enterField(z2)
-        "Walk default" in {
-          ztState.zombieTurn().zombies should not be (ztState.zombies)
+    }
+    "ZombieTurn" can {
+      val z1 = FZombie(100, 5, 5)
+      val z2 = FZombie(100, 6, 5)
+      val z3 = FZombie(100, 9, 9)
+      val ztState = c.cState().buildArea().enterField(z1).enterField(z2).enterField(z3)
+      "Walk default" in {
+        ztState.zombieTurn().zombies should not be ztState.zombies
+      }
+      "Walk towards Player X" in {
+        val p1 = FPlayer(5, 9)
+        ztState.enterField(p1).zombieTurn().zombies should contain(FZombie(100, 5, 6))
+      }
+      "Walk towards Player X Negative" in {
+        val p1 = FPlayer(5, 0)
+        ztState.enterField(p1).zombieTurn().zombies should contain(FZombie(100, 5, 4))
+      }
+      "Walk towards Player Y" in {
+        val p1 = FPlayer(9, 5)
+        ztState.enterField(p1).zombieTurn().zombies should contain(FZombie(100, 7, 5))
+      }
+      "Walk towards Player Y Negative" in {
+        val p1 = FPlayer(0, 5)
+        ztState.enterField(p1).zombieTurn().zombies should contain(FZombie(100, 4, 5))
+      }
+
+      "Walk away from borders" can {
+        val z1 = FZombie(100, 9, 5)
+        val z2 = FZombie(100, 0, 5)
+        val z3 = FZombie(100, 5, 9)
+        val z4 = FZombie(100, 5, 0)
+        "Walk Left" in {
+          c.cState().buildArea().enterField(z1).zombieTurn().zombies(0).x should be(8)
+        }
+        "Walk Right" in {
+          c.cState().buildArea().enterField(z2).zombieTurn().zombies(0).x should be(1)
+        }
+        "Walk Up" in {
+          c.cState().buildArea().enterField(z3).zombieTurn().zombies(0).y should be(8)
+        }
+        "Walk Down" in {
+          c.cState().buildArea().enterField(z4).zombieTurn().zombies(0).y should be(1)
         }
       }
     }
