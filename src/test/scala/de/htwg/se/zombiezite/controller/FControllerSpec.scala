@@ -78,6 +78,14 @@ class FControllerSpec extends WordSpec with Matchers {
       "Iterate after last" in {
         itState.nextPlayer().nextPlayer().nextPlayer().actualPlayer should be(p1)
       }
+      "ZombieTurn" can {
+        val z1 = FZombie(100, 5, 5)
+        val z2 = FZombie(100, 6, 5)
+        val ztState = c.cState().buildArea().enterField(z1).enterField(z2)
+        "Walk default" in {
+          ztState.zombieTurn().zombies should not be (ztState.zombies)
+        }
+      }
     }
 
   }

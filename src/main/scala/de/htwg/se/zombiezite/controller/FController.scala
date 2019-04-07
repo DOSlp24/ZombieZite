@@ -130,18 +130,21 @@ class FController() extends Publisher with FControllerInterface {
           })
 
           if (canAttackPlayer.nonEmpty) {
-            //TODO attack a player out of this list
+            z.selectTarget(canAttackPlayer(0))
           } else {
             zombieMoveTowards(canSeePlayer.apply(0), z)
           }
         } else {
-          //TODO move somewhere
+          zombieMove(z)
         }
-        z
       }
 
       val newZombies: Vector[FZombieInterface] = zombies.map(z => execTurn(z))
-      copy(zombies = newZombies)
+      val ret = copy(zombies = newZombies)
+      ret.zombies.length match {
+        case 0 => ret
+        case _ => ret.zombiesTriggerAttack()
+      }
     }
 
     def executeZombieTurn(z: FZombieInterface): FZombieInterface = {
