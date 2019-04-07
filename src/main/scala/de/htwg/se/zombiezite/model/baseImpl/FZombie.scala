@@ -6,12 +6,12 @@ case class FZombie(
     override val lifePoints: Int,
     override val x: Int,
     override val y: Int,
-    override val strength: Int,
+    override val strength: Int = 3,
     override val range: Int = 0,
     override val equippedWeapon: FWeaponInterface = FWeapon("Fist", 1, 0),
     override val armor: Int = 0,
     override val actionCounter: Int = 1,
-    override val name: String,
+    override val name: String = "Zombie",
     override val archenemy: FPlayerInterface = FPlayerWithoutIdentity()
 ) extends FZombieInterface {
 

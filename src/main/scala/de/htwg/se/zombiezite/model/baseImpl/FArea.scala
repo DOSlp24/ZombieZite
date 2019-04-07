@@ -22,7 +22,7 @@ case class FArea(
 
   def buildLine(lineNum: Int, fieldNum: Int, myLine: Vector[FFieldInterface] = Vector[FFieldInterface]()): Vector[FFieldInterface] = {
     if (fieldNum < wid) {
-      buildLine(lineNum, fieldNum + 1) :+ FField(Position(fieldNum, lineNum))
+      buildLine(lineNum, fieldNum + 1) :+ FField(Position(wid - 1 - fieldNum, lineNum))
     } else {
       myLine
     }

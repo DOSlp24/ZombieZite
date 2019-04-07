@@ -13,11 +13,11 @@ class FController() extends Publisher with FControllerInterface {
 
   case class cState(
       dif: Int = 2,
-      player: Vector[FPlayerInterface],
-      zombies: Vector[FZombieInterface],
-      playerCount: Int,
-      actualPlayer: FPlayerInterface,
-      area: FAreaInterface = FArea(10, 10),
+      player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+      zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+      playerCount: Int = 0,
+      actualPlayer: FPlayerInterface = FPlayerWithoutIdentity(),
+      area: FAreaInterface = FArea(10, 10).build(),
       round: Int = 0,
       winCount: Int = 60
   ) {
@@ -63,19 +63,33 @@ class FController() extends Publisher with FControllerInterface {
     }
 
     def enterField(c: FCharacterInterface): cState = {
-      copy(area = area.putField(area.lines.apply(c.y).apply(c.x).enterField(c)))
+      c match {
+        case interface: FPlayerInterface => enterFieldPlayer(c.asInstanceOf[FPlayerInterface])
+        case interface: FZombieInterface => enterFieldZombie(c.asInstanceOf[FZombieInterface])
+      }
+    }
+
+    def enterFieldPlayer(p: FPlayerInterface): cState = {
+      player.length match {
+        case 0 => copy(actualPlayer = p, area = area.putField(area.lines(p.y)(p.x).enterField(p))).updateChars()
+        case _ => copy(area = area.putField(area.lines(p.y)(p.x).enterField(p))).updateChars()
+      }
+    }
+
+    def enterFieldZombie(z: FZombieInterface): cState = {
+      copy(area = area.putField(area.lines(z.y)(z.x).enterField(z))).updateChars()
     }
 
     def leaveField(c: FCharacterInterface): cState = {
-      copy(area = area.putField(area.lines.apply(c.y).apply(c.x).leaveField(c)))
+      copy(area = area.putField(area.lines(c.y)(c.x).leaveField(c))).updateChars()
     }
 
     def moveUp(c: FCharacterInterface): cState = {
-      leaveField(c).enterField(c.walk(0, 1)).updateChars()
+      leaveField(c).enterField(c.walk(0, -1)).updateChars()
     }
 
     def moveDown(c: FCharacterInterface): cState = {
-      leaveField(c).enterField(c.walk(0, -1)).updateChars()
+      leaveField(c).enterField(c.walk(0, 1)).updateChars()
     }
 
     def moveLeft(c: FCharacterInterface): cState = {
