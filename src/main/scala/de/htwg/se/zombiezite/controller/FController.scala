@@ -200,10 +200,6 @@ class FController() extends Publisher with FControllerInterface {
       val x = p.x - z.x
       val y = p.y - z.y
 
-      if (p.x == 0) {
-        System.out.println("")
-      }
-
       if (x < 0) {
         z.walk(-1, 0)
       } else if (x > 0) {
