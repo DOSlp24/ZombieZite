@@ -72,6 +72,14 @@ case class cState(
     copy(area = FArea(area.len, area.wid).build())
   }
 
+  def enterFieldMulti(index: Int = 0, chars: Vector[FCharacterInterface]): cState = {
+    if (index < chars.length) {
+      enterFieldMulti(index = index + 1, chars).enterField(chars(index))
+    } else {
+      this
+    }
+  }
+
   def enterField(c: FCharacterInterface): cState = {
     c match {
       case interface: FPlayerInterface => enterFieldPlayer(c.asInstanceOf[FPlayerInterface])
@@ -110,6 +118,10 @@ case class cState(
     leaveField(c).enterField(c.walk(1, 0)).updateChars()
   }
 
+  def pWait(): cState = {
+    nextPlayer()
+  }
+
   def drawItem(): cState = {
     val drawnItem = itemDeck.asInstanceOf[FItemDeck].draw()
     //TODO do stuff with item
@@ -118,6 +130,7 @@ case class cState(
 
   def drawZombie(): cState = {
     val zombiesDrawn = zombieDeck.asInstanceOf[FZombieDeck].draw()
+    enterFieldMulti(chars = zombiesDrawn).updateChars()
   }
 
   def increaseRoundCount(): cState = {
@@ -127,9 +140,9 @@ case class cState(
   def nextPlayer(): cState = {
     val index = player.indexOf(actualPlayer)
     if (index < player.length - 1) {
-      copy(actualPlayer = player(index + 1))
+      copy(actualPlayer = player(index + 1).resetActionCounter)
     } else {
-      copy(actualPlayer = player(0)).startNewTurn()
+      copy(actualPlayer = player(0).resetActionCounter).startNewTurn()
     }
   }
 
@@ -267,9 +280,9 @@ class FController() extends Publisher with FControllerInterface {
     val actualPlayer = nextPlayer(state.actualPlayer, state.player)
     val round = state.round + 1
 
-    publish(NewRound(round))
-
-    cState(state.dif, state.player, state.zombies, state.playerCount, actualPlayer, state.area, round, state.winCount)
+    val retState = cState(state.dif, state.player, state.zombies, state.playerCount, actualPlayer, state.area, round, state.winCount)
+    publish(Update(retState))
+    retState
   }
 
   def nextPlayer(actualPlayer: FPlayerInterface, player: Vector[FPlayerInterface]): FPlayerInterface = {
@@ -295,7 +308,9 @@ class FController() extends Publisher with FControllerInterface {
 
   override def newRound: Unit = ???
 
-  override def wait(p: PlayerInterface): Unit = ???
+  override def wait(state: cState): cState = {
+    state.pWait
+  }
 
   override def roundReset(): Unit = ???
 

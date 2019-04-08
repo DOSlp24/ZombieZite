@@ -15,8 +15,6 @@ case class FZombieDeck() extends FDeckInterface {
 
   def getDrawnZombie(randomZombie: Int): FZombieInterface = {
     val zombie = randomZombie match {
-      // TODO: Zombie spawn
-      // Zombies  spawn at 2-2 right now, this might change soon.
       case 0 => FZombie(name = zombieNames(0), lifePoints = 150, strength = 19, x = 2, y = 2)
       case 1 => FZombie(name = zombieNames(1), lifePoints = 100, strength = 9, x = 2, y = 2)
       case 2 => FZombie(name = zombieNames(2), lifePoints = 250, strength = 39, range = 1, x = 2, y = 2)

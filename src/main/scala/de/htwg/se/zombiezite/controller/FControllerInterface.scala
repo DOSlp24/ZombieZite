@@ -26,7 +26,7 @@ trait FControllerInterface {
   def waitInput()
   def init(playerCounter: Int)
   def newRound
-  def wait(p: PlayerInterface)
+  def wait(state: cState): cState
   def roundReset()
   def drawItem(): Item
   def attackableFields(char: Character): Array[FieldInterface]

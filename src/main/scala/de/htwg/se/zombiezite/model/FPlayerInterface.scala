@@ -21,6 +21,14 @@ trait FPlayerInterface extends FCharacterInterface {
 
   def drop(item: FItemInterface): FPlayerInterface
 
+  def gotInventorySpace(): Boolean
+
+  def burnActionCounter(): FPlayerInterface
+
+  def pWait(): FPlayerInterface
+
+  def resetActionCounter: FPlayerInterface
+
   override def takeDmg(dmg: Int): FPlayerInterface
 
   override def walk(x: Int, y: Int): FPlayerInterface
