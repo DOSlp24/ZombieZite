@@ -27,10 +27,6 @@ class FAreaSpec extends WordSpec with Matchers {
         a.lines.isEmpty should be(false)
       }
 
-      "change a line" in {
-        a.putField(baseImpl.FField(baseImpl.Position(2, 2)))
-        a.lines(2)(2) should be(baseImpl.FField(baseImpl.Position(2, 2)))
-      }
     }
   }
 }
