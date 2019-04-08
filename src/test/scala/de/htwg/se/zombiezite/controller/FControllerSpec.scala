@@ -1,10 +1,10 @@
 package de.htwg.se.zombiezite.controller
 
-import de.htwg.se.zombiezite.model.baseImpl.{ FPlayer, FZombie }
-import de.htwg.se.zombiezite.model.{ FItemInterface, FPlayerInterface, FZombieInterface, baseImpl }
+import de.htwg.se.zombiezite.model.baseImpl.{FPlayer, FZombie}
+import de.htwg.se.zombiezite.model.{FItemInterface, FPlayerInterface, FZombieInterface, baseImpl}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class FControllerSpec extends WordSpec with Matchers {
@@ -123,6 +123,5 @@ class FControllerSpec extends WordSpec with Matchers {
         }
       }
     }
-
   }
 }
