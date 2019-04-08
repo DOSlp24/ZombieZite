@@ -2,8 +2,6 @@ package de.htwg.se.zombiezite.model.baseImpl
 
 import de.htwg.se.zombiezite.model.{ FArmorInterface, FDeckInterface, FItemInterface, FWeaponInterface }
 
-import scala.collection.mutable.ArrayBuffer
-
 case class FItemDeck(
     weapons: Vector[FWeaponInterface] = Vector[FWeaponInterface](FWeapon("Axe", 30, 1), FWeapon("Pistol", 40, 3), FWeapon("Pistol", 40, 3),
       FWeapon("Pistol", 40, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Sniper", 40, 5),
@@ -20,11 +18,6 @@ case class FItemDeck(
   def shuffle(): FDeckInterface = {
     val combinedDeck: Vector[FItemInterface] = weapons ++ armors ++ trash
     FItemDeck(passedDeck = buildDeck(combinedDeck))
-    //needs to be var because of the shuffle process
-    /*var newDeck = deck.toArray
-    newDeck = shuffle(newDeck)
-    deck.clear()
-    deck ++= newDeck*/
   }
 
   def buildDeck(combinedDeck: Vector[FItemInterface]): Vector[FItemInterface] = {
@@ -47,8 +40,6 @@ case class FItemDeck(
   }
 
   def draw(): FItemInterface = {
-    /*shuffle()
-    deck.remove(0)*/
 
     //TODO pick head in controller and pass a new deck here
     passedDeck.head
