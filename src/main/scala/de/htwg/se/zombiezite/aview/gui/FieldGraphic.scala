@@ -6,7 +6,7 @@ import javax.swing._
 import de.htwg.se.zombiezite.model.{ ZombieInterface, PlayerInterface }
 
 class FieldGraphic(s: Dimension) extends GridPanel(1, 1) {
-  var zombies: Array[ZombieInterface] = new Array(0)
+  /*var zombies: Array[ZombieInterface] = new Array(0)
   var players: Array[PlayerInterface] = new Array(0)
   var attackMode = false
   preferredSize = s
@@ -111,5 +111,5 @@ class FieldGraphic(s: Dimension) extends GridPanel(1, 1) {
         }
       }
     }
-  }
+  }*/
 }

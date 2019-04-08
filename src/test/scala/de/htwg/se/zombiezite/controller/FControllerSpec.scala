@@ -12,7 +12,7 @@ class FControllerSpec extends WordSpec with Matchers {
     val player: Vector[FPlayerInterface] = Vector(FPlayer(0, 0))
     val zombies: Vector[FZombieInterface] = Vector[FZombieInterface]()
     val c = new FController()
-    val s = c.cState()
+    val s = cState()
     "increase Round counter" in {
       s.increaseRoundCount().round should be(1)
     }
@@ -65,7 +65,7 @@ class FControllerSpec extends WordSpec with Matchers {
       val p1 = FPlayer(3, 3)
       val p2 = FPlayer(3, 3)
       val p3 = FPlayer(3, 3)
-      val itState = c.cState().buildArea().enterField(p1).enterField(p2).enterField(p3)
+      val itState = cState().buildArea().enterField(p1).enterField(p2).enterField(p3)
       "Have a first" in {
         itState.actualPlayer should be(p1)
       }
@@ -83,7 +83,7 @@ class FControllerSpec extends WordSpec with Matchers {
       val z1 = FZombie(100, 5, 5)
       val z2 = FZombie(100, 6, 5)
       val z3 = FZombie(100, 9, 9)
-      val ztState = c.cState().buildArea().enterField(z1).enterField(z2).enterField(z3)
+      val ztState = cState().buildArea().enterField(z1).enterField(z2).enterField(z3)
       "Walk default" in {
         ztState.zombieTurn().zombies should not be ztState.zombies
       }
@@ -110,16 +110,16 @@ class FControllerSpec extends WordSpec with Matchers {
         val z3 = FZombie(100, 5, 9)
         val z4 = FZombie(100, 5, 0)
         "Walk Left" in {
-          c.cState().buildArea().enterField(z1).zombieTurn().zombies(0).x should be(8)
+          cState().buildArea().enterField(z1).zombieTurn().zombies(0).x should be(8)
         }
         "Walk Right" in {
-          c.cState().buildArea().enterField(z2).zombieTurn().zombies(0).x should be(1)
+          cState().buildArea().enterField(z2).zombieTurn().zombies(0).x should be(1)
         }
         "Walk Up" in {
-          c.cState().buildArea().enterField(z3).zombieTurn().zombies(0).y should be(8)
+          cState().buildArea().enterField(z3).zombieTurn().zombies(0).y should be(8)
         }
         "Walk Down" in {
-          c.cState().buildArea().enterField(z4).zombieTurn().zombies(0).y should be(1)
+          cState().buildArea().enterField(z4).zombieTurn().zombies(0).y should be(1)
         }
       }
     }

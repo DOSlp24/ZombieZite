@@ -4,13 +4,13 @@ import scala.swing._
 import scala.swing.Swing.LineBorder
 import scala.swing.event._
 import javax.swing._
-import de.htwg.se.zombiezite.model.Character
+import de.htwg.se.zombiezite.model.{ Character, FCharacterInterface }
 import de.htwg.se.zombiezite.controller._
+
 import scala.util.parsing.json._
 import scala.io.Source
 
-class AtomicFieldGraphic(s: Dimension, c: Character) extends Label {
-  //TODO Define error case here
+case class AtomicFieldGraphic(s: Dimension, c: FCharacterInterface) extends Label {
   val schlurfi, spitter, tank, fatti, runner, kawaguchi, maiar, kaiba, rainbow, test, test2, test3 = "media/zombies/Default.png"
   val filename = "constants/MediaCon.json"
 

@@ -6,7 +6,7 @@ import de.htwg.se.zombiezite.controller._
 import scala.swing._
 
 class Gui(c: Controller) extends Frame {
-
+  /*
   listenTo(c)
   reactions += {
     case e: GameOverLost => lost
@@ -176,5 +176,5 @@ class Gui(c: Controller) extends Frame {
       }
     }
     areaGraphic()
-  }
+  }*/
 }

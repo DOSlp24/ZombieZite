@@ -1,11 +1,12 @@
 package de.htwg.se.zombiezite.aview.gui
 
-import de.htwg.se.zombiezite.model.Character
+import de.htwg.se.zombiezite.model.{ Character, FCharacterInterface }
 import de.htwg.se.zombiezite.controller._
+
 import scala.swing._
 import javax.swing.ImageIcon
 
-class CharInfo(c: Character, iconPath: String, mode: String) extends Frame {
+class CharInfo(c: FCharacterInterface, iconPath: String, mode: String) extends Frame {
 
   val grid = new GridPanel(10, 1) {
     if (mode == "Zombie") {
