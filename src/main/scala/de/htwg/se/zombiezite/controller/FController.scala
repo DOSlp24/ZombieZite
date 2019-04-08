@@ -19,7 +19,9 @@ case class cState(
                    area: FAreaInterface = FArea(10, 10).build(),
                    round: Int = 0,
                    winCount: Int = 60,
-                   zombiesKilled: Int = 0
+                   zombiesKilled: Int = 0,
+                   zombieDeck: FDeckInterface = FZombieDeck(),
+                   itemDeck: FDeckInterface = FItemDeck().shuffle()
                  ) {
 
   def updateChars(): cState = {
@@ -106,6 +108,16 @@ case class cState(
 
   def moveRight(c: FCharacterInterface): cState = {
     leaveField(c).enterField(c.walk(1, 0)).updateChars()
+  }
+
+  def drawItem(): cState = {
+    val drawnItem = itemDeck.asInstanceOf[FItemDeck].draw()
+    //TODO do stuff with item
+    copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw())
+  }
+
+  def drawZombie(): cState = {
+    val zombiesDrawn = zombieDeck.asInstanceOf[FZombieDeck].draw()
   }
 
   def increaseRoundCount(): cState = {
