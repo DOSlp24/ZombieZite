@@ -13,7 +13,7 @@ case class FArea(
   }
 
   def buildLines(lineNum: Int, myLines: Vector[Vector[FFieldInterface]]): Vector[Vector[FFieldInterface]] = {
-    if (lineNum < len) {
+    if (lineNum < wid) {
       buildLines(lineNum + 1, myLines :+ buildLine(lineNum, 0))
     } else {
       myLines
@@ -21,8 +21,8 @@ case class FArea(
   }
 
   def buildLine(lineNum: Int, fieldNum: Int, myLine: Vector[FFieldInterface] = Vector[FFieldInterface]()): Vector[FFieldInterface] = {
-    if (fieldNum < wid) {
-      buildLine(lineNum, fieldNum + 1) :+ FField(Position(wid - 1 - fieldNum, lineNum))
+    if (fieldNum < len) {
+      buildLine(lineNum, fieldNum + 1) :+ FField(Position(len - 1 - fieldNum, lineNum))
     } else {
       myLine
     }

@@ -20,6 +20,7 @@ case class FZombieDeck() extends FDeckInterface {
       case 2 => FZombie(name = zombieNames(2), lifePoints = 250, strength = 39, range = 1, x = 2, y = 2)
       case 3 => FZombie(name = zombieNames(3), lifePoints = 500, strength = 49, range = 2, x = 2, y = 2)
       case 4 => FZombie(name = zombieNames(4), lifePoints = 70, strength = 9, range = 3, x = 2, y = 2)
+      case _ => FZombie(name = zombieNames(0), lifePoints = 150, strength = 19, x = 2, y = 2)
     }
 
     zombie
