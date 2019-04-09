@@ -103,19 +103,31 @@ case class cState(
   }
 
   def moveUp(c: FCharacterInterface): cState = {
-    leaveField(c).enterField(c.walk(0, -1)).updateChars()
+    player(actualPlayer).y match {
+      case y if y > 0 => leaveField(c).enterField(c.walk(0, -1)).updateChars()
+      case _ => this
+    }
   }
 
   def moveDown(c: FCharacterInterface): cState = {
-    leaveField(c).enterField(c.walk(0, 1)).updateChars()
+    player(actualPlayer).y match {
+      case y if y < area.len - 1 => leaveField(c).enterField(c.walk(0, 1)).updateChars()
+      case _ => this
+    }
   }
 
   def moveLeft(c: FCharacterInterface): cState = {
-    leaveField(c).enterField(c.walk(-1, 0)).updateChars()
+    player(actualPlayer).x match {
+      case x if x > 0 => leaveField(c).enterField(c.walk(-1, 0)).updateChars()
+      case _ => this
+    }
   }
 
   def moveRight(c: FCharacterInterface): cState = {
-    leaveField(c).enterField(c.walk(1, 0)).updateChars()
+    player(actualPlayer).x match {
+      case x if x < area.wid - 1 => leaveField(c).enterField(c.walk(1, 0)).updateChars()
+      case _ => this
+    }
   }
 
   def pWait(): cState = {
