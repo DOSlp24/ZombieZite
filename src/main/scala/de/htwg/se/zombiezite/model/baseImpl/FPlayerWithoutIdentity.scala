@@ -34,4 +34,12 @@ case class FPlayerWithoutIdentity() extends FPlayerInterface {
   override val armor: Int = 0
   override val actionCounter: Int = 0
   override val name: String = ""
+
+  override def gotInventorySpace(): Boolean = true
+
+  override def burnActionCounter(): FPlayerInterface = this
+
+  override def pWait(): FPlayerInterface = this
+
+  override def resetActionCounter: FPlayerInterface = this
 }
