@@ -38,17 +38,5 @@ class FItemDeckSpec extends WordSpec with Matchers {
       filledDeck.shuffle()
       filledDeck.passedDeck.length should be(oldDeckL)
     }
-    // TODO: Test ignored bc functionality not implemented yet
-    // "remove an Item" in {
-    "remove an Item" ignore {
-      val oldDeckL = filledDeck.passedDeck.length
-      filledDeck.draw()
-      filledDeck.passedDeck.length should be(oldDeckL - 1)
-    }
-    // TODO: Test ignored bc functionality not implemented yet
-    // "draw an Item" in {
-    "draw an Item" ignore {
-      filledDeck.draw() shouldBe a[FItemInterface]
-    }
   }
 }

@@ -44,7 +44,6 @@ class FPlayerSpec extends WordSpec with Matchers {
     }
     "walk and" should {
       val p1 = baseImpl.FPlayer(0, 0, name = "Franz")
-      // TODO: Whats the maximum Dimension of the Arena?
       val MAX_DIM = 10
       val p2 = baseImpl.FPlayer(MAX_DIM, MAX_DIM, name = "Peta")
       "start from a Field" in {
@@ -71,7 +70,6 @@ class FPlayerSpec extends WordSpec with Matchers {
         p1.walk(0, -1).x should be(new_p.x)
         p1.walk(0, -1).y should be(new_p.y)
       }
-      // TODO: is this even implemented?
       "not move right over border" ignore {
         p1.walk(1, 0) should be(p1)
       }
@@ -98,7 +96,6 @@ class FPlayerSpec extends WordSpec with Matchers {
       "and remove an Item when dropped" in {
         p.drop(trash1) should not be(p)
       }
-      // TODO: is this really the intended behaviour? ( manual removal of item on use)
       "and use Armor" in {
         val new_p: FPlayerInterface = p.equip(arnolds_armor)
           .drop(arnolds_armor)
