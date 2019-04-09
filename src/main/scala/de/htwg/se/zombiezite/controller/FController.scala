@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -11,18 +11,18 @@ import scala.swing.event.Event
 case class Update(state: cState) extends Event
 
 case class cState(
-                   dif: Int = 2,
-                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-                   playerCount: Int = 0,
-                   actualPlayer: FPlayerInterface = FPlayerWithoutIdentity(),
-                   area: FAreaInterface = FArea(10, 10).build(),
-                   round: Int = 0,
-                   winCount: Int = 60,
-                   zombiesKilled: Int = 0,
-                   zombieDeck: FDeckInterface = FZombieDeck(),
-                   itemDeck: FDeckInterface = FItemDeck().shuffle()
-                 ) {
+    dif: Int = 2,
+    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+    playerCount: Int = 0,
+    actualPlayer: FPlayerInterface = FPlayerWithoutIdentity(),
+    area: FAreaInterface = FArea(10, 10).build(),
+    round: Int = 0,
+    winCount: Int = 60,
+    zombiesKilled: Int = 0,
+    zombieDeck: FDeckInterface = FZombieDeck(),
+    itemDeck: FDeckInterface = FItemDeck().shuffle()
+) {
 
   def updateChars(): cState = {
     copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers())
