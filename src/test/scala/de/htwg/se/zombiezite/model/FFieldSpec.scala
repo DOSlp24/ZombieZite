@@ -20,8 +20,8 @@ class FFieldSpec extends WordSpec with Matchers {
       emptyField.players.isEmpty should be(true)
     }
 
-    val player = baseImpl.FPlayer(0,0)
-    val zombie = baseImpl.FZombie(1,0,0)
+    val player = baseImpl.FPlayer(0, 0)
+    val zombie = baseImpl.FZombie(1, 0, 0)
 
     val n = emptyField.enterPlayer(player)
     val newField = n.enterZombie(zombie)

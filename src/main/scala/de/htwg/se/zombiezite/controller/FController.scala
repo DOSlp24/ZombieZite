@@ -15,7 +15,7 @@ case class cState(
     player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
     zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
     playerCount: Int = 0,
-    actualPlayer: FPlayerInterface = FPlayerWithoutIdentity(),
+    actualPlayer: Int = 0,
     area: FAreaInterface = FArea(10, 10).build(),
     round: Int = 0,
     winCount: Int = 60,
@@ -89,7 +89,7 @@ case class cState(
 
   def enterFieldPlayer(p: FPlayerInterface): cState = {
     player.length match {
-      case 0 => copy(actualPlayer = p, area = area.putField(area.lines(p.y)(p.x).enterField(p))).updateChars()
+      case 0 => copy(actualPlayer = 0, area = area.putField(area.lines(p.y)(p.x).enterField(p))).updateChars()
       case _ => copy(area = area.putField(area.lines(p.y)(p.x).enterField(p))).updateChars()
     }
   }
@@ -138,11 +138,11 @@ case class cState(
   }
 
   def nextPlayer(): cState = {
-    val index = player.indexOf(actualPlayer)
+    val index = actualPlayer
     if (index < player.length - 1) {
-      copy(actualPlayer = player(index + 1).resetActionCounter)
+      copy(actualPlayer = index + 1, player = player.updated(index + 1, player(index + 1).resetActionCounter))
     } else {
-      copy(actualPlayer = player(0).resetActionCounter).startNewTurn()
+      copy(actualPlayer = 0, player = player.updated(0, player(0).resetActionCounter)).startNewTurn()
     }
   }
 
@@ -277,20 +277,20 @@ class FController() extends Publisher with FControllerInterface {
   }
 
   def startNewRound(state: cState): cState = {
-    val actualPlayer = nextPlayer(state.actualPlayer, state.player)
+    val actualPlayer = nextPlayer(state)
     val round = state.round + 1
 
-    val retState = cState(state.dif, state.player, state.zombies, state.playerCount, actualPlayer, state.area, round, state.winCount)
+    val retState = cState(actualPlayer = actualPlayer, round = round)
     publish(Update(retState))
     retState
   }
 
-  def nextPlayer(actualPlayer: FPlayerInterface, player: Vector[FPlayerInterface]): FPlayerInterface = {
-    val index = player.indexOf(actualPlayer)
-    if (index < player.length - 1) {
-      player(index + 1)
-    } else {
-      player(0)
+  def nextPlayer(state: cState): Int = {
+    val actualPlayer = state.actualPlayer
+    val lastPlayer = state.player.length - 1
+    actualPlayer match {
+      case _ if actualPlayer == lastPlayer => 0
+      case _ => actualPlayer + 1
     }
   }
 
@@ -309,7 +309,9 @@ class FController() extends Publisher with FControllerInterface {
   override def newRound: Unit = ???
 
   override def wait(state: cState): cState = {
-    state.pWait
+    val retState = state.pWait
+    publish(Update(retState))
+    retState
   }
 
   override def roundReset(): Unit = ???
@@ -326,7 +328,16 @@ class FController() extends Publisher with FControllerInterface {
 
   override def zombieTurn(z: ZombieInterface): Unit = ???
 
-  override def move(char: model.Character, x: Int, y: Int): Unit = ???
+  override def move(state: cState, direction: String): cState = {
+    val retState: cState = direction match {
+      case "up" => state.moveUp(state.player(state.actualPlayer))
+      case "down" => state.moveDown(state.player(state.actualPlayer))
+      case "left" => state.moveLeft(state.player(state.actualPlayer))
+      case "right" => state.moveRight(state.player(state.actualPlayer))
+    }
+    publish(Update(retState))
+    retState
+  }
 
   override def search(p: PlayerInterface): Unit = ???
 

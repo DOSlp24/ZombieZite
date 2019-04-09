@@ -6,6 +6,8 @@ import scala.swing.{ Button, Dimension, Frame, GridPanel }
 
 class FGui(c: FController) extends Frame {
 
+  val controllerFrame = new Frame()
+
   listenTo(c)
   reactions += {
     case e: GameOverLost => lost
@@ -30,10 +32,15 @@ class FGui(c: FController) extends Frame {
   }
 
   def update(state: cState) {
-    val grid = new GridPanel(10, 10) {
+    val areaGrid = new GridPanel(state.area.wid, state.area.len) {
       state.area.lines.flatten.foreach(field => {
         contents += FFieldGraphic(field)
       })
+    }
+    controllerFrame.contents = FDpad(c, state)
+    controllerFrame.visible = true
+    val grid = new GridPanel(1, 2) {
+      contents += areaGrid
     }
     contents = grid
     repaint

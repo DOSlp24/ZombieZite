@@ -9,7 +9,7 @@ class FPlayerSpec extends WordSpec with Matchers {
 
   "A Player" can {
     "exist with default stats" can {
-      val p = baseImpl.FPlayer(0,0, name = "Franz")
+      val p = baseImpl.FPlayer(0, 0, name = "Franz")
       "life points" in {
         val defaultLife = 100
         p.lifePoints should be(defaultLife)
@@ -33,7 +33,7 @@ class FPlayerSpec extends WordSpec with Matchers {
     "exist with modified stats" can {
       val lp_mod = 2000
       val weapon_mod = baseImpl.FWeapon("Weapon", 2, 1)
-      val p = baseImpl.FPlayer(0,0, lifePoints=lp_mod,name= "", equippedWeapon= weapon_mod)
+      val p = baseImpl.FPlayer(0, 0, lifePoints = lp_mod, name = "", equippedWeapon = weapon_mod)
 
       "life points" in {
         p.lifePoints should be(lp_mod)
@@ -94,7 +94,7 @@ class FPlayerSpec extends WordSpec with Matchers {
       val equip = Array[FItemInterface](trash1, trash2, arnolds_armor, arnolds_weapon)
       val p = baseImpl.FPlayer(0, 0, name = "Terminator", equipment = equip)
       "and remove an Item when dropped" in {
-        p.drop(trash1) should not be(p)
+        p.drop(trash1) should not be (p)
       }
       "and use Armor" in {
         val new_p: FPlayerInterface = p.equip(arnolds_armor)
@@ -115,12 +115,12 @@ class FPlayerSpec extends WordSpec with Matchers {
         val ARMOR_VALUE = 20
         val DMG_VALUE = 10
         val new_p = p.equip(baseImpl.FArmor("Seat belt", ARMOR_VALUE))
-        new_p.takeDmg(DMG_VALUE).lifePoints should be (p.lifePoints)
-        new_p.takeDmg(DMG_VALUE).armor should be (ARMOR_VALUE - DMG_VALUE)
+        new_p.takeDmg(DMG_VALUE).lifePoints should be(p.lifePoints)
+        new_p.takeDmg(DMG_VALUE).armor should be(ARMOR_VALUE - DMG_VALUE)
 
       }
       "on life points" in {
-        p.takeDmg(2).lifePoints should be (p.lifePoints - 2)
+        p.takeDmg(2).lifePoints should be(p.lifePoints - 2)
       }
     }
   }

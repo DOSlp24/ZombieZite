@@ -9,7 +9,7 @@ import scala.swing.{ GridPanel, Label, TextField }
 case class FFieldGraphic(field: FFieldInterface) extends GridPanel(1, 1) {
   val height = 100
   if (field.chars.isEmpty) {
-    contents += new TextField("hello") {
+    contents += new TextField() {
       editable_=(false)
     }
   } else {

@@ -14,16 +14,16 @@ class FZombieDeckSpec extends WordSpec with Matchers {
       zDeck.getDrawnZombie(0) shouldBe a[FZombieInterface]
     }
     "return a special 1Zombie by draw" in {
-      zDeck.getDrawnZombie(1).name should not be("Schlurfer")
+      zDeck.getDrawnZombie(1).name should not be ("Schlurfer")
     }
     "return a special 2Zombie by draw" in {
-      zDeck.getDrawnZombie(2).name should not be("Schlurfer")
+      zDeck.getDrawnZombie(2).name should not be ("Schlurfer")
     }
     "return a special 3Zombie by draw" in {
-      zDeck.getDrawnZombie(3).name should not be("Schlurfer")
+      zDeck.getDrawnZombie(3).name should not be ("Schlurfer")
     }
     "return a special 4Zombie by draw" in {
-      zDeck.getDrawnZombie(4).name should not be("Schlurfer")
+      zDeck.getDrawnZombie(4).name should not be ("Schlurfer")
     }
     "return default zombie on invalid zombie number" in {
       zDeck.getDrawnZombie(-1) shouldBe a[FZombieInterface]

@@ -34,7 +34,7 @@ trait FControllerInterface {
   def drawZombie(): Array[ZombieInterface]
   def fullZombieTurn
   def zombieTurn(z: ZombieInterface)
-  def move(char: Character, x: Int, y: Int)
+  def move(state: cState, direction: String): cState
   def search(p: PlayerInterface)
   def drop(pl: PlayerInterface, item: Item)
   def equipArmor(char: PlayerInterface, i: ArmorInterface)
