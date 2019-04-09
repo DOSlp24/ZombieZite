@@ -61,7 +61,7 @@ class FZombieSpec extends WordSpec with Matchers {
       }
     }
     "handle taking damage on life points" in {
-      zombie.takeDmg(2).lifePoints should be (zombie.lifePoints - 2)
+      zombie.takeDmg(2).lifePoints should be(zombie.lifePoints - 2)
     }
     "select a target" in {
       val player = baseImpl.FPlayer(0, 0, name = "Trainings target")

@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.model
 
-import de.htwg.se.zombiezite.model.baseImpl.{ FWeapon, FArmor, FTrash,FItemDeck }
+import de.htwg.se.zombiezite.model.baseImpl.{ FWeapon, FArmor, FTrash, FItemDeck }
 import de.htwg.se.zombiezite.model.FItemInterface
 import org.junit.runner.RunWith
 import org.scalatest._

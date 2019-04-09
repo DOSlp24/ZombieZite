@@ -21,7 +21,7 @@ class FAreaSpec extends WordSpec with Matchers {
         a.lines(1)(1).isInstanceOf[baseImpl.FField] should be(true)
       }
       "have a line length" in {
-        a.lines.length should not be(0)
+        a.lines.length should not be (0)
       }
       "have a non empty line" in {
         a.lines.isEmpty should be(false)
