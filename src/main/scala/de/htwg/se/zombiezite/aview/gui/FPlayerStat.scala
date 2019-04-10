@@ -85,4 +85,5 @@ case class FPlayerStat(c: FControllerInterface, state: cState) extends GridPanel
   contents += new Label("Aktionspunkte: " + p.actionCounter) {
     font = new Font("Arial", java.awt.Font.HANGING_BASELINE, 15)
   }
+  contents += FDpad(c, state)
 }

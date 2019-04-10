@@ -91,7 +91,7 @@ class FPlayerSpec extends WordSpec with Matchers {
       val trash1 = baseImpl.FTrash("T101")
       val trash2 = baseImpl.FTrash("T1000")
 
-      val equip = Array[FItemInterface](trash1, trash2, arnolds_armor, arnolds_weapon)
+      val equip = Vector[FItemInterface](trash1, trash2, arnolds_armor, arnolds_weapon)
       val p = baseImpl.FPlayer(0, 0, name = "Terminator", equipment = equip)
       "and remove an Item when dropped" in {
         p.drop(trash1) should not be (p)

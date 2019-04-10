@@ -21,10 +21,7 @@ trait FControllerInterface {
   val winCount: Int
   val round: Int*/
 
-  def checkOrder
-  def setDifficulty(dif: Int)
-  def waitInput()
-  def init(playerCounter: Int)
+  def init(): cState
   def newRound
   def wait(state: cState): cState
   def roundReset()

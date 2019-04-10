@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -12,18 +12,18 @@ case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-                   dif: Int = 2,
-                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-                   playerCount: Int = 0,
-                   actualPlayer: Int = 0,
-                   area: FAreaInterface = FArea(10, 10).build(),
-                   round: Int = 0,
-                   winCount: Int = 60,
-                   zombiesKilled: Int = 0,
-                   zombieDeck: FDeckInterface = FZombieDeck(),
-                   itemDeck: FDeckInterface = FItemDeck().shuffle()
-                 ) {
+    dif: Int = 2,
+    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+    playerCount: Int = 0,
+    actualPlayer: Int = 0,
+    area: FAreaInterface = FArea(10, 10).build(),
+    round: Int = 0,
+    winCount: Int = 60,
+    zombiesKilled: Int = 0,
+    zombieDeck: FDeckInterface = FZombieDeck(),
+    itemDeck: FDeckInterface = FItemDeck().shuffle()
+) {
 
   def updateChars(): cState = {
     copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers()).checkActionCounter()
@@ -42,10 +42,14 @@ case class cState(
   }
 
   def checkActionCounter(): cState = {
-    val actionCounter = player(actualPlayer).actionCounter
-    actionCounter match {
-      case a if a > 0 => this
-      case _ => nextPlayer()
+    if (player.length > 0) {
+      val actionCounter = player(actualPlayer).actionCounter
+      actionCounter match {
+        case a if a > 0 => this
+        case _ => nextPlayer()
+      }
+    } else {
+      this
     }
   }
 
@@ -306,7 +310,7 @@ case class cState(
 //noinspection ScalaStyle
 class FController() extends Publisher with FControllerInterface {
 
-  def init(): cState = {
+  override def init(): cState = {
     val p1 = FPlayer(name = "F. Maiar", x = 5, y = 0)
     val p2 = FPlayer(name = "K. Kawaguchi", x = 5, y = 0)
     val p3 = FPlayer(name = "H. Kaiba", x = 5, y = 0)
@@ -332,18 +336,6 @@ class FController() extends Publisher with FControllerInterface {
       case _ if actualPlayer == lastPlayer => 0
       case _ => actualPlayer + 1
     }
-  }
-
-  override def checkOrder: Unit = ???
-
-  override def setDifficulty(dif: Int): Unit = ???
-
-  override def waitInput(): Unit = {
-    cState().buildArea()
-  }
-
-  override def init(playerCounter: Int): Unit = {
-    init()
   }
 
   override def newRound: Unit = ???

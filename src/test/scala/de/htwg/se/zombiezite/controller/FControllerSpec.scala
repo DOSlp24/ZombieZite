@@ -67,16 +67,16 @@ class FControllerSpec extends WordSpec with Matchers {
       val p3 = FPlayer(3, 3)
       val itState = cState().buildArea().enterField(p1).enterField(p2).enterField(p3)
       "Have a first" in {
-        itState.actualPlayer should be(p1)
+        itState.player(itState.actualPlayer) should be(p1)
       }
       "Have a second" in {
-        itState.nextPlayer().actualPlayer should be(p2)
+        itState.player(itState.nextPlayer().actualPlayer) should be(p2)
       }
       "Have a third" in {
-        itState.nextPlayer().nextPlayer().actualPlayer should be(p3)
+        itState.player(itState.nextPlayer().nextPlayer().actualPlayer) should be(p3)
       }
       "Iterate after last" in {
-        itState.nextPlayer().nextPlayer().nextPlayer().actualPlayer should be(p1)
+        itState.player(itState.nextPlayer().nextPlayer().nextPlayer().actualPlayer) should be(p1)
       }
     }
     "ZombieTurn" can {
