@@ -52,9 +52,11 @@ class FGui(c: FController) extends Frame {
     repaint
   }
 
-  contents_=(Button("Update") {
+  contents_=(Button("Start Game") {
     c.init()
   })
+
+  centerOnScreen()
 
   preferredSize = new Dimension(1000, 1000)
   visible = true
