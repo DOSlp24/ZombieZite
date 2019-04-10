@@ -70,18 +70,6 @@ class FPlayerSpec extends WordSpec with Matchers {
         p1.walk(0, -1).x should be(new_p.x)
         p1.walk(0, -1).y should be(new_p.y)
       }
-      "not move right over border" ignore {
-        p1.walk(1, 0) should be(p1)
-      }
-      "not move left over border" ignore {
-        p1.walk(-1, 0) should be(p1)
-      }
-      "not move up over border" ignore {
-        p1.walk(0, 1) should be(p1)
-      }
-      "not move down over border" ignore {
-        p1.walk(0, -1) should be(p1)
-      }
     }
 
     "handle equipment" can {
