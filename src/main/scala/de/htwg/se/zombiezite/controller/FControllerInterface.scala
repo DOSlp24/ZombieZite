@@ -1,6 +1,6 @@
 package de.htwg.se.zombiezite.controller
 
-import de.htwg.se.zombiezite.model.{ AreaInterface, ArmorInterface, Character, Deck, FPlayerInterface, FZombieInterface, FieldInterface, Item, PlayerInterface, WeaponInterface, ZombieInterface }
+import de.htwg.se.zombiezite.model.{ AreaInterface, ArmorInterface, Character, Deck, FArmorInterface, FItemInterface, FPlayerInterface, FWeaponInterface, FZombieInterface, FieldInterface, Item, PlayerInterface, WeaponInterface, ZombieInterface }
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -35,10 +35,10 @@ trait FControllerInterface {
   def fullZombieTurn
   def zombieTurn(z: ZombieInterface)
   def move(state: cState, direction: String): cState
-  def search(p: PlayerInterface)
-  def drop(pl: PlayerInterface, item: Item)
-  def equipArmor(char: PlayerInterface, i: ArmorInterface)
-  def beweapon(char: PlayerInterface, item: WeaponInterface)
+  def search(state: cState): cState
+  def drop(state: cState, item: FItemInterface): cState
+  def equipArmor(state: cState, i: FArmorInterface): cState
+  def beweapon(state: cState, weapon: FWeaponInterface): cState
   def attackZombie(pl: PlayerInterface, z: ZombieInterface)
   def attackPlayer(pl: PlayerInterface, z: ZombieInterface)
   def attackPlayerPlayer(atk: PlayerInterface, opf: PlayerInterface)

@@ -7,6 +7,7 @@ import scala.swing.{ Button, Dimension, Frame, GridPanel }
 class FGui(c: FController) extends Frame {
 
   val controllerFrame = new Frame()
+  val inventoryFrame = new Frame()
 
   listenTo(c)
   reactions += {
@@ -39,6 +40,10 @@ class FGui(c: FController) extends Frame {
     }
     controllerFrame.contents = FDpad(c, state)
     controllerFrame.visible = true
+
+    inventoryFrame.contents = FPlayerStat(c, state)
+    inventoryFrame.visible = true
+
     val grid = new GridPanel(1, 2) {
       contents += areaGrid
     }

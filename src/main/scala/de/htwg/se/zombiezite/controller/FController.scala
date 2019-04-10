@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
+import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -10,29 +10,42 @@ import scala.swing.event.Event
 
 case class Update(state: cState) extends Event
 
+//noinspection ScalaStyle
 case class cState(
-    dif: Int = 2,
-    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-    playerCount: Int = 0,
-    actualPlayer: Int = 0,
-    area: FAreaInterface = FArea(10, 10).build(),
-    round: Int = 0,
-    winCount: Int = 60,
-    zombiesKilled: Int = 0,
-    zombieDeck: FDeckInterface = FZombieDeck(),
-    itemDeck: FDeckInterface = FItemDeck().shuffle()
-) {
+                   dif: Int = 2,
+                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+                   playerCount: Int = 0,
+                   actualPlayer: Int = 0,
+                   area: FAreaInterface = FArea(10, 10).build(),
+                   round: Int = 0,
+                   winCount: Int = 60,
+                   zombiesKilled: Int = 0,
+                   zombieDeck: FDeckInterface = FZombieDeck(),
+                   itemDeck: FDeckInterface = FItemDeck().shuffle()
+                 ) {
 
   def updateChars(): cState = {
-    copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers())
+    copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers()).checkActionCounter()
   }
 
   def updateAreaOverChar(index: Int = 0, chars: Vector[FCharacterInterface] = zombies ++ player): cState = {
     if (index == chars.length - 1) {
-      buildArea().enterField(chars(index))
+      buildArea().enterField(chars(index)).checkActionCounter()
     } else {
-      updateAreaOverChar(index + 1, chars).enterField(chars(index))
+      updateAreaOverChar(index + 1, chars).enterField(chars(index)).checkActionCounter()
+    }
+  }
+
+  def pushActualPlayer(newActualPlayer: FPlayerInterface): cState = {
+    copy(player = player.updated(actualPlayer, newActualPlayer)).checkActionCounter()
+  }
+
+  def checkActionCounter(): cState = {
+    val actionCounter = player(actualPlayer).actionCounter
+    actionCounter match {
+      case a if a > 0 => this
+      case _ => nextPlayer()
     }
   }
 
@@ -99,7 +112,7 @@ case class cState(
   }
 
   def leaveField(c: FCharacterInterface): cState = {
-    copy(area = area.putField(area.lines(c.y)(c.x).leaveField(c))).updateChars()
+    copy(area = area.putField(area.lines(c.y)(c.x).leaveField(c)))
   }
 
   def moveUp(c: FCharacterInterface): cState = {
@@ -136,8 +149,23 @@ case class cState(
 
   def drawItem(): cState = {
     val drawnItem = itemDeck.asInstanceOf[FItemDeck].draw()
-    //TODO do stuff with item
-    copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw())
+    val newActualPlayer = player(actualPlayer).takeItem(drawnItem)
+    copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw(), player = player.updated(actualPlayer, newActualPlayer))
+  }
+
+  def dropItem(i: FItemInterface): cState = {
+    val newActualPlayer = player(actualPlayer).drop(i)
+    pushActualPlayer(newActualPlayer)
+  }
+
+  def equipWeapon(w: FWeaponInterface): cState = {
+    val newActualPlayer = player(actualPlayer).equipWeapon(w)
+    pushActualPlayer(newActualPlayer)
+  }
+
+  def useArmor(a: FArmorInterface): cState = {
+    val newActualPlayer = player(actualPlayer).useArmor(a)
+    pushActualPlayer(newActualPlayer)
   }
 
   def drawZombie(): cState = {
@@ -351,13 +379,29 @@ class FController() extends Publisher with FControllerInterface {
     retState
   }
 
-  override def search(p: PlayerInterface): Unit = ???
+  override def search(state: cState): cState = {
+    val retState = state.drawItem()
+    publish(Update(retState))
+    retState
+  }
 
-  override def drop(pl: PlayerInterface, item: Item): Unit = ???
+  override def drop(state: cState, item: FItemInterface): cState = {
+    val retState = state.dropItem(item)
+    publish(Update(retState))
+    retState
+  }
 
-  override def equipArmor(char: PlayerInterface, i: ArmorInterface): Unit = ???
+  override def equipArmor(state: cState, i: FArmorInterface): cState = {
+    val retState = state.useArmor(i)
+    publish(Update(retState))
+    retState
+  }
 
-  override def beweapon(char: PlayerInterface, item: WeaponInterface): Unit = ???
+  override def beweapon(state: cState, weapon: FWeaponInterface): cState = {
+    val retState = state.equipWeapon(weapon)
+    publish(Update(retState))
+    retState
+  }
 
   override def attackZombie(pl: PlayerInterface, z: ZombieInterface): Unit = ???
 

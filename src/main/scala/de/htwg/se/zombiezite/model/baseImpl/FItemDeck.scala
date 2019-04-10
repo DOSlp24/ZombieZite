@@ -44,7 +44,7 @@ case class FItemDeck(
   }
 
   def afterDraw(): FDeckInterface = {
-    copy(passedDeck = passedDeck.drop(0))
+    copy(passedDeck = passedDeck.drop(1))
   }
 
 }

@@ -3,7 +3,7 @@ package de.htwg.se.zombiezite.model.baseImpl
 import de.htwg.se.zombiezite.model.{ FArmorInterface, FItemInterface, FPlayerInterface, FWeaponInterface }
 
 case class FPlayerWithoutIdentity() extends FPlayerInterface {
-  override val equipment: Array[FItemInterface] = Array[FItemInterface]()
+  override val equipment: Vector[FItemInterface] = Vector[FItemInterface]()
 
   override def equipWeapon(weapon: FWeaponInterface): FPlayerInterface = {
     this
@@ -42,4 +42,6 @@ case class FPlayerWithoutIdentity() extends FPlayerInterface {
   override def pWait(): FPlayerInterface = this
 
   override def resetActionCounter: FPlayerInterface = this
+
+  override def takeItem(item: FItemInterface): FPlayerInterface = this
 }

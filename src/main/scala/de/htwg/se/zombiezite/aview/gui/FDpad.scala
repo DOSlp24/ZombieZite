@@ -9,7 +9,7 @@ case class FDpad(c: FControllerInterface, state: cState) extends GridPanel(5, 3)
   contents += Button("Hoch") { c.move(state, "up") }
   contents += new Label
   contents += Button("Links") { c.move(state, "left") }
-  //contents += Button("Suchen") { c.search(c.actualPlayer) }
+  contents += Button("Suchen") { c.search(state) }
   contents += Button("Rechts") { c.move(state, "right") }
   contents += new Label
   contents += Button("Runter") { c.move(state, "down") }
