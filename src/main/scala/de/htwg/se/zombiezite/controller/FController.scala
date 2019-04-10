@@ -342,27 +342,11 @@ class FController() extends Publisher with FControllerInterface {
     }
   }
 
-  override def newRound: Unit = ???
-
   override def wait(state: cState): cState = {
     val retState = state.pWait
     publish(Update(retState))
     retState
   }
-
-  override def roundReset(): Unit = ???
-
-  override def drawItem(): Item = ???
-
-  override def attackableFields(char: model.Character): Array[FieldInterface] = ???
-
-  override def availableWeapon(p: PlayerInterface): Array[Item] = ???
-
-  override def drawZombie(): Array[ZombieInterface] = ???
-
-  override def fullZombieTurn: Unit = ???
-
-  override def zombieTurn(z: ZombieInterface): Unit = ???
 
   override def move(state: cState, direction: String): cState = {
     val retState: cState = direction match {
@@ -399,17 +383,7 @@ class FController() extends Publisher with FControllerInterface {
     retState
   }
 
-  override def attackZombie(pl: PlayerInterface, z: ZombieInterface): Unit = ???
-
-  override def attackPlayer(pl: PlayerInterface, z: ZombieInterface): Unit = ???
-
-  override def attackPlayerPlayer(atk: PlayerInterface, opf: PlayerInterface): Unit = ???
-
-  override def attackField(p: PlayerInterface, f: FieldInterface): Unit = ???
-
-  override def attackWholeField(p: PlayerInterface, f: FieldInterface): Boolean = ???
-
-  override def getZombieList: Array[String] = ???
-
-  override def getItemList: Array[String] = ???
+  override def attackField(state: cState, f: FieldInterface): cState = {
+    state
+  }
 }
