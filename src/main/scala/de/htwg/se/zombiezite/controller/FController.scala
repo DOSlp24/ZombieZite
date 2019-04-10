@@ -290,7 +290,7 @@ case class cState(
 
   def zombieAttack(z: FZombieInterface, p: FPlayerInterface): FZombieInterface = {
     z.selectTarget(p)
-    //p.takeDmg(z.equippedWeapon.strength * z.strength) //TODO Attack a player should be a variable in FZombieInterface
+    //p.takeDmg(z.equippedWeapon.strength * z.strength)
   }
 
   def zombiesTriggerAttack(z: FZombieInterface = zombies.apply(0)): cState = {

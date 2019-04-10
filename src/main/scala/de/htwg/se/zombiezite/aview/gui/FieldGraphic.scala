@@ -78,7 +78,6 @@ class FieldGraphic(s: Dimension) extends GridPanel(1, 1) {
       } else {
         if (players.length + zombies.length > 4) {
           val field = new Label {
-            //TODO define
             text = "More than 4 Chars here!"
           }
           contents += field

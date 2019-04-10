@@ -19,7 +19,6 @@ case class FZombie(
     copy(x = x + xInc, y = y + yInc)
   }
 
-  // TODO: Zombies cant equip armor, right? (obsolete code or move to character interface)
   override def takeDmg(dmg: Int): FZombieInterface = {
     val armorLeft = armor - dmg
     if (armorLeft >= 0) {
