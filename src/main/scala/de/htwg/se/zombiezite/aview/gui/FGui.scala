@@ -38,8 +38,9 @@ class FGui(c: FController) extends Frame {
         contents += FFieldGraphic(field)
       })
     }
-    //controllerFrame.contents = FDpad(c, state)
-    //controllerFrame.visible = true
+    controllerFrame.contents = FDpad(c, state)
+    controllerFrame.centerOnScreen()
+    controllerFrame.visible = true
 
     inventoryFrame.contents = FPlayerStat(c, state)
     inventoryFrame.visible = true

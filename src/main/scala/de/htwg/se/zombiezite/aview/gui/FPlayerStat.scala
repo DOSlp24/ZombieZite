@@ -7,7 +7,7 @@ import javax.swing.ImageIcon
 import scala.swing.{ Font, GridPanel, Label }
 import scala.swing.event.{ MouseClicked, MouseWheelMoved }
 
-case class FPlayerStat(c: FControllerInterface, state: cState) extends GridPanel(10, 1) {
+case class FPlayerStat(c: FControllerInterface, state: cState) extends GridPanel(12, 1) {
   val p = state.player(state.actualPlayer)
 
   val axe = "media/weapons/Axe.png"
@@ -60,7 +60,7 @@ case class FPlayerStat(c: FControllerInterface, state: cState) extends GridPanel
     }
     p.equippedWeapon.name match {
       case "Axe" => icon = new ImageIcon(axe)
-      case "Fist" => icon = new ImageIcon(fists)
+      case "Fists" => icon = new ImageIcon(fists)
       case "Pan" => icon = new ImageIcon(pan)
       case "Flame Thrower" => icon = new ImageIcon(flame)
       case "EVIL SISTERS" => icon = new ImageIcon(sisters)
@@ -73,7 +73,7 @@ case class FPlayerStat(c: FControllerInterface, state: cState) extends GridPanel
       case _ => icon = new ImageIcon(default)
     }
   }
-  contents += new FInventory(c, state)
+  contents += FInventory(c, state)
   contents += new Label {
     contents += new Label("LP " + p.lifePoints.toString()) {
       font = new Font("Arial", java.awt.Font.TRUETYPE_FONT, 20)
@@ -85,5 +85,5 @@ case class FPlayerStat(c: FControllerInterface, state: cState) extends GridPanel
   contents += new Label("Aktionspunkte: " + p.actionCounter) {
     font = new Font("Arial", java.awt.Font.HANGING_BASELINE, 15)
   }
-  contents += FDpad(c, state)
+  //contents += FDpad(c, state)
 }

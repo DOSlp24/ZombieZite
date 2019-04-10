@@ -22,11 +22,12 @@ case class cState(
     winCount: Int = 60,
     zombiesKilled: Int = 0,
     zombieDeck: FDeckInterface = FZombieDeck(),
-    itemDeck: FDeckInterface = FItemDeck().shuffle()
+    itemDeck: FDeckInterface = FItemDeck().shuffle(),
+    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow")
 ) {
 
   def updateChars(): cState = {
-    copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers()).checkActionCounter()
+    copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))).checkActionCounter()
   }
 
   def updateAreaOverChar(index: Int = 0, chars: Vector[FCharacterInterface] = zombies ++ player): cState = {

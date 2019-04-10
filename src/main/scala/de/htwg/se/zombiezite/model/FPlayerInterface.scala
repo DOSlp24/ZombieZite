@@ -19,6 +19,8 @@ trait FPlayerInterface extends FCharacterInterface {
 
   def equipWeapon(weapon: FWeaponInterface): FPlayerInterface
 
+  def unequipWeapon(): FPlayerInterface
+
   def useArmor(a: FArmorInterface): FPlayerInterface
 
   def drop(item: FItemInterface): FPlayerInterface

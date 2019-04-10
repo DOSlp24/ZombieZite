@@ -12,7 +12,7 @@ case class FPlayer(
     override val name: String = "Player",
     override val actionCounter: Int = 3,
     override val equipment: Vector[FItemInterface] = Vector[FItemInterface](),
-    override val equippedWeapon: FWeaponInterface = FWeapon("Fist", 1, 0)
+    override val equippedWeapon: FWeaponInterface = FWeapon("Fists", 1, 0)
 ) extends FPlayerInterface {
 
   override def takeItem(item: FItemInterface): FPlayerInterface = {
@@ -28,7 +28,19 @@ case class FPlayer(
   }
 
   override def equipWeapon(weapon: FWeaponInterface): FPlayerInterface = {
-    copy(equippedWeapon = weapon)
+    unequipWeapon().asInstanceOf[FPlayer].takeWeapon(weapon)
+  }
+
+  def takeWeapon(w: FWeaponInterface): FPlayerInterface = {
+    copy(equippedWeapon = w).drop(w)
+  }
+
+  override def unequipWeapon(): FPlayerInterface = {
+    if (gotInventorySpace() && equippedWeapon.name != "Fists") {
+      takeItem(equippedWeapon).equipWeapon(FWeapon("Fists", 1, 0))
+    } else {
+      this
+    }
   }
 
   override def drop(item: FItemInterface): FPlayerInterface = {

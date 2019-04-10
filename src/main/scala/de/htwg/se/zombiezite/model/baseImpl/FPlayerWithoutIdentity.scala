@@ -44,4 +44,6 @@ case class FPlayerWithoutIdentity() extends FPlayerInterface {
   override def resetActionCounter: FPlayerInterface = this
 
   override def takeItem(item: FItemInterface): FPlayerInterface = this
+
+  override def unequipWeapon(): FPlayerInterface = this
 }
