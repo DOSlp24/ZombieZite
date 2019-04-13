@@ -28,5 +28,6 @@ trait FControllerInterface {
   def drop(state: cState, item: FItemInterface): cState
   def equipArmor(state: cState, i: FArmorInterface): cState
   def beweapon(state: cState, weapon: FWeaponInterface): cState
+  def triggerAttack(state: cState): cState
   def attackField(state: cState, f: FieldInterface): cState
 }

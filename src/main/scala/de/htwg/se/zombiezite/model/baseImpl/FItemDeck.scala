@@ -30,15 +30,6 @@ case class FItemDeck(
     }
   }
 
-  /*def shuffle[Item](array: Array[Item]): Array[Item] = {
-    val rnd = new java.util.Random
-    for (n <- Iterator.range(array.length - 1, 0, -1)) {
-      val k = rnd.nextInt(n + 1)
-      val t = array(k); array(k) = array(n); array(n) = t
-    }
-    array
-  }*/
-
   def draw(): FItemInterface = {
     passedDeck.head
   }
