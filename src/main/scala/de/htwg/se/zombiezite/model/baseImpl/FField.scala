@@ -24,8 +24,8 @@ case class FField(
   }
 
   override def leavePlayer(p: FPlayerInterface): FFieldInterface = {
-    val newChars: Vector[FCharacterInterface] = dropFirstMatch[FCharacterInterface](chars, p)
-    val newPlayers: Vector[FPlayerInterface] = dropFirstMatch[FPlayerInterface](players, p)
+    val newChars: Vector[FCharacterInterface] = chars.filter(c => c.name != p.name)
+    val newPlayers: Vector[FPlayerInterface] = players.filter(player => player.name != p.name)
     copy(chars = newChars, players = newPlayers, charCount = newChars.length)
   }
 

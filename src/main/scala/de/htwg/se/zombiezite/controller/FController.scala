@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -12,23 +12,24 @@ case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-                   dif: Int = 2,
-                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-                   playerCount: Int = 0,
-                   actualPlayer: Int = 0,
-                   area: FAreaInterface = FArea(10, 10).build(),
-                   round: Int = 0,
-                   winCount: Int = 60,
-                   zombiesKilled: Int = 0,
-                   zombieDeck: FDeckInterface = FZombieDeck(),
-                   itemDeck: FDeckInterface = FItemDeck().shuffle(),
-                   playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
-                   won: Boolean = false,
-                   lost: Boolean = false
-                 ) {
+    dif: Int = 2,
+    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+    playerCount: Int = 0,
+    actualPlayer: Int = 0,
+    area: FAreaInterface = FArea(10, 10).build(),
+    round: Int = 0,
+    winCount: Int = 60,
+    zombiesKilled: Int = 0,
+    zombieDeck: FDeckInterface = FZombieDeck(),
+    itemDeck: FDeckInterface = FItemDeck().shuffle(),
+    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
+    won: Boolean = false,
+    lost: Boolean = false
+) {
 
   def updateChars(): cState = {
+    val players = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))
     copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))).checkActionCounter()
   }
 
@@ -89,19 +90,7 @@ case class cState(
   }
 
   def searchLinesForPlayers(line: Int = 0): Vector[FPlayerInterface] = {
-    if (line < area.len) {
-      searchLinesForPlayers(line + 1) ++ searchFieldForPlayers(line, 0)
-    } else {
-      Vector[FPlayerInterface]()
-    }
-  }
-
-  def searchFieldForPlayers(line: Int, field: Int): Vector[FPlayerInterface] = {
-    if (field < area.wid) {
-      searchFieldForPlayers(line, field + 1) ++ area.lines(line)(field).players.filter(p => p.lifePoints > 0)
-    } else {
-      Vector[FPlayerInterface]()
-    }
+    area.lines.flatten.flatMap(f => f.players)
   }
 
   def buildArea(): cState = {
@@ -118,8 +107,8 @@ case class cState(
 
   def enterField(c: FCharacterInterface): cState = {
     c match {
-      case interface: FPlayerInterface => enterFieldPlayer(c.asInstanceOf[FPlayerInterface])
-      case interface: FZombieInterface => enterFieldZombie(c.asInstanceOf[FZombieInterface])
+      case interface: FPlayerInterface => enterFieldPlayer(interface)
+      case interface: FZombieInterface => enterFieldZombie(interface)
     }
   }
 
@@ -173,7 +162,7 @@ case class cState(
   def drawItem(): cState = {
     val drawnItem = itemDeck.asInstanceOf[FItemDeck].draw()
     val newActualPlayer = player(actualPlayer).takeItem(drawnItem)
-    copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw(), player = player.updated(actualPlayer, newActualPlayer))
+    copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw(), player = player.updated(actualPlayer, newActualPlayer)).checkActionCounter()
   }
 
   def dropItem(i: FItemInterface): cState = {
@@ -210,34 +199,14 @@ case class cState(
   }
 
   def startNewTurn(): cState = {
-    increaseRoundCount().zombieTurn().drawZombie()
+    increaseRoundCount()
+    //increaseRoundCount().zombieTurn().drawZombie()
   }
 
   def zombieTurn(): cState = {
-    def execTurn(z: FZombieInterface): FZombieInterface = {
-      val canSeePlayer = player.filter(p => {
-        p.x == z.x || p.y == z.y
-      })
-
-      if (canSeePlayer.nonEmpty) {
-
-        val canAttackPlayer = canSeePlayer.filter(p => {
-          math.abs(z.y - p.y) + math.abs(z.x - p.x) <= z.range
-        })
-
-        if (canAttackPlayer.nonEmpty) {
-          z.selectTarget(canAttackPlayer(0))
-        } else {
-          zombieMoveTowards(canSeePlayer.apply(0), z)
-        }
-      } else {
-        zombieMove(z)
-      }
-    }
-
     val newZombies: Vector[FZombieInterface] = zombies.map {
-      case z if z.name == "Runner" => execTurn(execTurn(z)) // Runner trigger twice
-      case z => execTurn(z)
+      case z if z.name == "Runner" => executeZombieTurn(executeZombieTurn(z)) // Runner trigger twice
+      case z => executeZombieTurn(z)
     }
     val ret = copy(zombies = newZombies)
     ret.zombies.length match {
@@ -338,10 +307,10 @@ class FController() extends Publisher with FControllerInterface {
   }
 
   def startNewRound(state: cState): cState = {
-    val actualPlayer = nextPlayer(state)
+    val newPlayer = nextPlayer(state)
     val round = state.round + 1
 
-    val retState = cState(actualPlayer = actualPlayer, round = round)
+    val retState = cState(actualPlayer = newPlayer, round = round)
     publish(Update(retState))
     retState
   }

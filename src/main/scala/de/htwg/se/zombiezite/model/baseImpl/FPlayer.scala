@@ -45,7 +45,7 @@ case class FPlayer(
 
   override def drop(item: FItemInterface): FPlayerInterface = {
     val eq = equipment.filter(_ != item)
-    copy(equipment = eq).burnActionCounter()
+    copy(equipment = eq)
   }
 
   override def walk(xInc: Int, yInc: Int): FPlayerInterface = {
@@ -70,6 +70,7 @@ case class FPlayer(
   }
 
   override def resetActionCounter: FPlayerInterface = {
+    println("Resetting")
     copy(actionCounter = 3)
   }
 
