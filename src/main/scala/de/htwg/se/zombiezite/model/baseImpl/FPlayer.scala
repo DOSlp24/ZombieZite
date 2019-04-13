@@ -70,7 +70,6 @@ case class FPlayer(
   }
 
   override def resetActionCounter: FPlayerInterface = {
-    println("Resetting")
     copy(actionCounter = 3)
   }
 

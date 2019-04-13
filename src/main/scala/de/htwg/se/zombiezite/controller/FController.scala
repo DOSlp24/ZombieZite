@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
+import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -12,33 +12,29 @@ case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-    dif: Int = 2,
-    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-    playerCount: Int = 0,
-    actualPlayer: Int = 0,
-    area: FAreaInterface = FArea(10, 10).build(),
-    round: Int = 0,
-    winCount: Int = 60,
-    zombiesKilled: Int = 0,
-    zombieDeck: FDeckInterface = FZombieDeck(),
-    itemDeck: FDeckInterface = FItemDeck().shuffle(),
-    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
-    won: Boolean = false,
-    lost: Boolean = false
-) {
+                   dif: Int = 2,
+                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+                   playerCount: Int = 0,
+                   actualPlayer: Int = 0,
+                   area: FAreaInterface = FArea(10, 10).build(),
+                   round: Int = 0,
+                   winCount: Int = 60,
+                   zombiesKilled: Int = 0,
+                   zombieDeck: FDeckInterface = FZombieDeck(),
+                   itemDeck: FDeckInterface = FItemDeck().shuffle(),
+                   playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
+                   won: Boolean = false,
+                   lost: Boolean = false
+                 ) {
 
   def updateChars(): cState = {
     val players = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))
     copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))).checkActionCounter()
   }
 
-  def updateAreaOverChar(index: Int = 0, chars: Vector[FCharacterInterface] = zombies ++ player): cState = {
-    if (index == chars.length - 1) {
-      buildArea().enterField(chars(index)).checkActionCounter()
-    } else {
-      updateAreaOverChar(index + 1, chars).enterField(chars(index)).checkActionCounter()
-    }
+  def updateAreaOverChar(): cState = {
+    buildArea().enterFieldMulti(zombies ++ player)
   }
 
   def pushActualPlayer(newActualPlayer: FPlayerInterface): cState = {
@@ -64,7 +60,7 @@ case class cState(
   }
 
   def checkForGameOver(): cState = {
-    if (player.length == 0) {
+    if (player.isEmpty) {
       copy(lost = true)
     }
     if (round == 30) {
@@ -97,9 +93,9 @@ case class cState(
     copy(area = FArea(area.len, area.wid).build())
   }
 
-  def enterFieldMulti(index: Int = 0, chars: Vector[FCharacterInterface]): cState = {
-    if (index < chars.length) {
-      enterFieldMulti(index = index + 1, chars).enterField(chars(index))
+  def enterFieldMulti(chars: Vector[FCharacterInterface]): cState = {
+    if (chars.nonEmpty) {
+      enterField(chars.head).enterFieldMulti(chars.drop(1))
     } else {
       this
     }
@@ -199,8 +195,8 @@ case class cState(
   }
 
   def startNewTurn(): cState = {
-    increaseRoundCount()
-    //increaseRoundCount().zombieTurn().drawZombie()
+    //increaseRoundCount()
+    increaseRoundCount().zombieTurn().drawZombie()
   }
 
   def zombieTurn(): cState = {
@@ -210,8 +206,8 @@ case class cState(
     }
     val ret = copy(zombies = newZombies)
     ret.zombies.length match {
-      case 0 => ret.updateAreaOverChar().updateChars()
-      case _ => ret.zombiesTriggerAttack().updateAreaOverChar().updateChars()
+      case 0 => ret.updateAreaOverChar()
+      case _ => ret.zombiesTriggerAttack().updateAreaOverChar()
     }
   }
 
