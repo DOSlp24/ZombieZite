@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
+import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -12,19 +12,21 @@ case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-    dif: Int = 2,
-    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-    playerCount: Int = 0,
-    actualPlayer: Int = 0,
-    area: FAreaInterface = FArea(10, 10).build(),
-    round: Int = 0,
-    winCount: Int = 60,
-    zombiesKilled: Int = 0,
-    zombieDeck: FDeckInterface = FZombieDeck(),
-    itemDeck: FDeckInterface = FItemDeck().shuffle(),
-    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow")
-) {
+                   dif: Int = 2,
+                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+                   playerCount: Int = 0,
+                   actualPlayer: Int = 0,
+                   area: FAreaInterface = FArea(10, 10).build(),
+                   round: Int = 0,
+                   winCount: Int = 60,
+                   zombiesKilled: Int = 0,
+                   zombieDeck: FDeckInterface = FZombieDeck(),
+                   itemDeck: FDeckInterface = FItemDeck().shuffle(),
+                   playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
+                   won: Boolean = false,
+                   lost: Boolean = false
+                 ) {
 
   def updateChars(): cState = {
     copy(zombies = searchLinesForZombies(), player = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))).checkActionCounter()
@@ -52,6 +54,22 @@ case class cState(
     } else {
       this
     }
+  }
+
+  def checkForDeadChars(): cState = {
+    val newZombies = zombies.filter(z => z.lifePoints > 0)
+    val newPlayer = player.filter(p => p.lifePoints > 0)
+    copy(zombies = newZombies, player = newPlayer)
+  }
+
+  def checkForGameOver(): cState = {
+    if (player.length == 0) {
+      copy(lost = true)
+    }
+    if (round == 30) {
+      copy(won = true)
+    }
+    this
   }
 
   def searchLinesForZombies(line: Int = 0): Vector[FZombieInterface] = {
@@ -294,15 +312,15 @@ case class cState(
   }
 
   def zombiesTriggerAttack(): cState = {
-    val kawaDmg: Int = zombies.filter(zombie => zombie.archenemy.name.contains("Kawaguchi")).map(z => z.strength).sum
-    val maierDmg = zombies.filter(zombie => zombie.archenemy.name.contains("Maiar")).map(z => z.strength).sum
+    val kawaDmg = zombies.filter(zombie => zombie.archenemy.name.contains("Kawaguchi")).map(z => z.strength).sum
+    val maiarDmg = zombies.filter(zombie => zombie.archenemy.name.contains("Maiar")).map(z => z.strength).sum
     val rainDmg = zombies.filter(zombie => zombie.archenemy.name.contains("Rainbow")).map(z => z.strength).sum
     val kaibaDmg = zombies.filter(zombie => zombie.archenemy.name.contains("Kaiba")).map(z => z.strength).sum
-    println(kawaDmg)
-    println(maierDmg)
-    println(rainDmg)
-    println(kaibaDmg)
-    this
+    val newKawa = player.filter(p => p.name.contains("Kawaguchi")).map(p => p.takeDmg(kawaDmg))
+    val newMaiar = player.filter(p => p.name.contains("Maiar")).map(p => p.takeDmg(maiarDmg))
+    val newRain = player.filter(p => p.name.contains("Rainbow")).map(p => p.takeDmg(rainDmg))
+    val newKaiba = player.filter(p => p.name.contains("Kaiba")).map(p => p.takeDmg(kaibaDmg))
+    copy(zombies = zombies.map(z => z.selectTarget(FPlayerWithoutIdentity())), player = Vector() ++ newMaiar ++ newKawa ++ newKaiba ++ newRain).checkForDeadChars().updateAreaOverChar().checkForGameOver()
   }
 }
 
