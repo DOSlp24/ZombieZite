@@ -6,8 +6,12 @@ import de.htwg.se.zombiezite.model.baseImpl._
 import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{ Await, Future }
 import scala.swing.Publisher
 import scala.swing.event.Event
+import scala.util.{ Failure, Success }
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 case class Update(state: cState) extends Event
 
@@ -157,14 +161,19 @@ case class cState(
   }
 
   def drawItem(): cState = {
-    val drawnItem: ItemMonad[Option[FItemInterface]] = itemDeck.asInstanceOf[FItemDeck].draw()
-    val test = {
-      for (item <- drawnItem.items) yield item match {
+    val drawnItems: ItemMonad[Option[FItemInterface]] = itemDeck.asInstanceOf[FItemDeck].draw()
+    /*val drawnItems: ItemMonad[Future[FItemInterface]] = itemDeck.asInstanceOf[FItemDeck].draw()
+
+    val drawnItem = for (item <- drawnItems.items) yield Await.result(item, 10 seconds) match {
+      case i => i
+    }*/
+    val drawnItem = {
+      for (item <- drawnItems.items) yield item match {
         case Some(i) => i
-        case None => FTrash
+        case None => FTrash("Trash")
       }
     }
-    val newActualPlayer = player(actualPlayer).takeItem(test(0).asInstanceOf[FItemInterface])
+    val newActualPlayer = player(actualPlayer).takeItem(drawnItem.head)
     copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw(), player = player.updated(actualPlayer, newActualPlayer)).checkActionCounter()
   }
 

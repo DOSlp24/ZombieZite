@@ -3,6 +3,10 @@ package de.htwg.se.zombiezite.model.baseImpl
 import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model.{ FArmorInterface, FDeckInterface, FItemInterface, FWeaponInterface }
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{ Failure, Success }
+
 case class FItemDeck(
     weapons: Vector[FWeaponInterface] = Vector[FWeaponInterface](FWeapon("Axe", 30, 1), FWeapon("Pistol", 40, 3), FWeapon("Pistol", 40, 3),
       FWeapon("Pistol", 40, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Mashine Gun", 70, 3), FWeapon("Sniper", 40, 5),
@@ -32,6 +36,12 @@ case class FItemDeck(
   }
 
   def draw(): ItemMonad[Option[FItemInterface]] = {
+  /*def draw(): ItemMonad[Future[FItemInterface]] = {
+    val future = Future[FItemInterface] {
+      passedDeck.head
+    }
+    new ItemMonad(Vector(future))*/
+
     if (passedDeck.nonEmpty) {
       new ItemMonad(Vector(Some(passedDeck.head)))
     } else {
