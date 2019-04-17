@@ -2,7 +2,7 @@ package de.htwg.se.zombiezite.controller
 
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.swing.Publisher
@@ -12,21 +12,21 @@ case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-                   dif: Int = 2,
-                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-                   playerCount: Int = 0,
-                   actualPlayer: Int = 0,
-                   area: FAreaInterface = FArea(10, 10).build(),
-                   round: Int = 0,
-                   winCount: Int = 60,
-                   zombiesKilled: Int = 0,
-                   zombieDeck: FDeckInterface = FZombieDeck(),
-                   itemDeck: FDeckInterface = FItemDeck().shuffle(),
-                   playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
-                   won: Boolean = false,
-                   lost: Boolean = false
-                 ) {
+    dif: Int = 2,
+    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+    playerCount: Int = 0,
+    actualPlayer: Int = 0,
+    area: FAreaInterface = FArea(10, 10).build(),
+    round: Int = 0,
+    winCount: Int = 60,
+    zombiesKilled: Int = 0,
+    zombieDeck: FDeckInterface = FZombieDeck(),
+    itemDeck: FDeckInterface = FItemDeck().shuffle(),
+    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
+    won: Boolean = false,
+    lost: Boolean = false
+) {
 
   def updateChars(): cState = {
     val players = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))
@@ -187,7 +187,7 @@ case class cState(
 
   def nextPlayer(): cState = {
     val actual = player(actualPlayer)
-    if (actual.name != playerOrder.last) {
+    if (actual.name != playerOrder.last && this.actualPlayer < player.length - 1) {
       copy(actualPlayer = actualPlayer + 1, player = player.updated(actualPlayer + 1, player(actualPlayer + 1).resetActionCounter))
     } else {
       copy(actualPlayer = 0, player = player.updated(0, player(0).resetActionCounter)).startNewTurn()
@@ -219,7 +219,7 @@ case class cState(
     if (canSeePlayer.nonEmpty) {
 
       val canAttackPlayer = canSeePlayer.filter(p => {
-        math.abs(z.y - p.y) <= z.range || math.abs(z.x - p.x) <= z.range
+        math.abs(z.y - p.y) + math.abs(z.x - p.x) <= z.range
       })
 
       if (canAttackPlayer.nonEmpty) {

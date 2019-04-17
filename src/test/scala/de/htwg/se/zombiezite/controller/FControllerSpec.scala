@@ -42,7 +42,7 @@ class FControllerSpec extends WordSpec with Matchers {
         moveState.moveLeft(player.apply(0)).player.apply(0).x should be(4)
       }
       "Not Move Other Players" in {
-        moveState.enterField(player.apply(0).walk(1, 0)).moveDown(player.apply(0)).player.apply(1).y should be(5)
+        moveState.enterField(player.apply(0).walk(1, 0)).moveDown(player.apply(0)).player.apply(0).y should be(5)
       }
 
       "Zombie Move Down" in {
