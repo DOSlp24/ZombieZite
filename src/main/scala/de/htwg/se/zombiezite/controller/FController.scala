@@ -1,5 +1,6 @@
 package de.htwg.se.zombiezite.controller
 
+import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
 import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
@@ -156,8 +157,14 @@ case class cState(
   }
 
   def drawItem(): cState = {
-    val drawnItem = itemDeck.asInstanceOf[FItemDeck].draw()
-    val newActualPlayer = player(actualPlayer).takeItem(drawnItem)
+    val drawnItem: ItemMonad[Option[FItemInterface]] = itemDeck.asInstanceOf[FItemDeck].draw()
+    val test = {
+      for (item <- drawnItem.items) yield item match {
+        case Some(i) => i
+        case None => FTrash
+      }
+    }
+    val newActualPlayer = player(actualPlayer).takeItem(test(0).asInstanceOf[FItemInterface])
     copy(itemDeck = itemDeck.asInstanceOf[FItemDeck].afterDraw(), player = player.updated(actualPlayer, newActualPlayer)).checkActionCounter()
   }
 

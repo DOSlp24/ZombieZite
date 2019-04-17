@@ -1,5 +1,6 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
+import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model.{ FArmorInterface, FDeckInterface, FItemInterface, FWeaponInterface }
 
 case class FItemDeck(
@@ -30,8 +31,12 @@ case class FItemDeck(
     }
   }
 
-  def draw(): FItemInterface = {
-    passedDeck.head
+  def draw(): ItemMonad[Option[FItemInterface]] = {
+    if (passedDeck.nonEmpty) {
+      new ItemMonad(Vector(Some(passedDeck.head)))
+    } else {
+      new ItemMonad(Vector(None))
+    }
   }
 
   def afterDraw(): FDeckInterface = {
