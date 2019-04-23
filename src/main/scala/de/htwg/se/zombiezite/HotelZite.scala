@@ -37,6 +37,16 @@ object HotelZite {
   }
 
   def printHotelZite(): Unit = {
+    println("                  _________")
+    println("               __/         \\__")
+    println("            __/               \\__")
+    println("          _/                     \\_")
+    println("        _/                         \\_")
+    println("      _/                             \\_")
+    println("    _/                                 \\_")
+    println("  _/                                     \\_")
+    println(" /                                         \\")
+    println("*********************************************")
     roomArray.foreach(floor => {
       floor.foreach(room => {
         print("#")
@@ -49,6 +59,7 @@ object HotelZite {
       })
       println("\n*********************************************")
     })
+    println("********************[R]**********************")
   }
 
   object Receptionist {
