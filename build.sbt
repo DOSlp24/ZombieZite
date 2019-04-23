@@ -13,8 +13,11 @@ libraryDependencies ++= {
     "org.scalatest" %% "scalatest"                   % scalaTestV       % "test",
     "org.scalamock" %% "scalamock-scalatest-support" % scalaMockV       % "test"
   )
+
 }
 
 libraryDependencies += "junit" % "junit" % "4.8" % "test"
 libraryDependencies += "org.scala-lang" % "scala-swing" % "2.11+"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.5.22"
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.22" % Test

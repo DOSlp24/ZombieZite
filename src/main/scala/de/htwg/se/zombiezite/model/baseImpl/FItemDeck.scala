@@ -36,7 +36,7 @@ case class FItemDeck(
   }
 
   def draw(): ItemMonad[Option[FItemInterface]] = {
-  /*def draw(): ItemMonad[Future[FItemInterface]] = {
+    /*def draw(): ItemMonad[Future[FItemInterface]] = {
     val future = Future[FItemInterface] {
       passedDeck.head
     }
