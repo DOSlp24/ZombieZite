@@ -1,16 +1,13 @@
 package de.htwg.se.zombiezite
 
-import java.util.UUID
-
 import akka.actor._
-import akka.pattern._
 import de.htwg.se.zombiezite.HotelZite.Receptionist.CheckIn
 
 object HotelZite {
   val system = ActorSystem("HotelZite")
   val receptionist: ActorRef = system.actorOf(Props[Receptionist], "receptionist")
 
-  val floors = 5
+  val floors = 8
   val rooms = 15
   var roomArray: Array[Array[Room]] = Array.ofDim[Room](floors, rooms)
   var keys: Array[Key] = new Array[Key](floors * rooms)
@@ -80,6 +77,8 @@ object HotelZite {
           sender ! keys.head
           roomArray(keys.head.floor)(keys.head.room) = Room(keys.head.floor, keys.head.room, sender, true)
           keys = keys.drop(1)
+        } else {
+          sender ! HotelFull
         }
       }
       case CheckOut(sender, room: Key) => {
@@ -93,9 +92,9 @@ object HotelZite {
 
   case class Room(floor: Integer, room: Integer, guest: ActorRef = null, taken: Boolean = false)
 
-  abstract class Guest extends Actor {
+  case class HotelFull()
 
-  }
+  abstract class Guest extends Actor
 
   class ZombieGuest extends Guest {
     var room: Key = null
@@ -103,6 +102,11 @@ object HotelZite {
 
     override def receive: Receive = {
       case key: Key => room = key
+      case _: HotelFull => die()
+    }
+
+    def die(): Unit = {
+      system.stop(self)
     }
   }
 
@@ -112,6 +116,11 @@ object HotelZite {
 
     override def receive: Receive = {
       case key: Key => room = key
+      case _: HotelFull => die()
+    }
+
+    def die(): Unit = {
+      system.stop(self)
     }
   }
 
