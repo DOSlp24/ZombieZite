@@ -11,8 +11,12 @@ object HotelZite {
   val rooms = 15
   var roomArray: Array[Array[Room]] = Array.ofDim[Room](floors, rooms)
   var keys: Array[Key] = new Array[Key](floors * rooms)
-
+  /*
   def main(args: Array[String]): Unit = {
+    hotelMain
+  }
+  */
+  def hotelMain: Unit = {
     for {
       floor <- 0 until floors
       room <- 0 until rooms
