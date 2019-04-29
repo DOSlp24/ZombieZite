@@ -33,7 +33,20 @@ class HttpServer(controller: FController) {
         controller.init()
         statetoHtml
       } ~
+      path("zombiezite" / "moveDown") {
+        controller.move(controller.init(), "down")
+        statetoHtml
+      } ~
+      /*
+      path("zombiezite" / "move" / Directio) { command => {
+      // TODO: does not work yet...
+        controller.move(controller.init(), Directio)
+        statetoHtml
+      }
+      }~
+      */
       path("zombiezite" / "wait") {
+        // TODO: object.wait() is called here. how to make it controller.wait()? ...
         controller.wait()
         statetoHtml
       }
