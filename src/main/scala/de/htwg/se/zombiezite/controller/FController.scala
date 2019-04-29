@@ -316,7 +316,7 @@ case class cState(
     "box"
   }
 
-  def toHtml():String = {
+  def toHtml(): String = {
     "<p  style=\"font-family:'Lucida Console', monospace\"> " +
       toString.replace("\n", "<br>").replace("  ", " _") + "</p>"
   }

@@ -3,9 +3,9 @@ package de.htwg.se.zombiezite.aview.api
 import akka.actor.ActorSystem
 import akka.http.javadsl.server.directives.RouteDirectives
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity }
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Route, StandardRoute}
+import akka.http.scaladsl.server.{ Route, StandardRoute }
 import akka.stream.ActorMaterializer
 import de.htwg.se.zombiezite.controller.FController
 import de.htwg.se.zombiezite.controller.cState
@@ -42,7 +42,7 @@ class HttpServer(controller: FController) {
 
   def statetoHtml: StandardRoute = {
     // TODO: from where does server know the most recent state?
-    val state: cState  = controller.init()
+    val state: cState = controller.init()
     complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Sudoku</h1>" + controller.stateToHtml(state)))
   }
 

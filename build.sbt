@@ -22,4 +22,5 @@ libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % 
 libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.5.22"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.22" % Test
 
-libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.0"
+libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.1.8"
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.22"
