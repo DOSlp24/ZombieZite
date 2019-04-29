@@ -21,3 +21,5 @@ libraryDependencies += "org.scala-lang" % "scala-swing" % "2.11+"
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
 libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.5.22"
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.22" % Test
+
+libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.0.0"

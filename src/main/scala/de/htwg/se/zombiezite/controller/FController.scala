@@ -303,6 +303,23 @@ case class cState(
     val newKaiba = player.filter(p => p.name.contains("Kaiba")).map(p => p.takeDmg(kaibaDmg))
     copy(zombies = zombies.map(z => z.selectTarget(FPlayerWithoutIdentity())), player = Vector() ++ newMaiar ++ newKawa ++ newKaiba ++ newRain).checkForDeadChars().updateAreaOverChar().checkForGameOver()
   }
+
+  override def toString: String = {
+    /*val lineseparator = ("+-" + ("--" * blocknum)) * blocknum + "+\n"
+    val line = ("| " + ("x " * blocknum)) * blocknum + "|\n"
+    var box = "\n" + (lineseparator + (line * blocknum)) * blocknum + lineseparator
+    for {
+      row <- 0 until size
+      col <- 0 until size
+    } box = box.replaceFirst("x ", cell(row, col).toString)
+    */
+    "box"
+  }
+
+  def toHtml():String = {
+    "<p  style=\"font-family:'Lucida Console', monospace\"> " +
+      toString.replace("\n", "<br>").replace("  ", " _") + "</p>"
+  }
 }
 
 //noinspection ScalaStyle
@@ -383,5 +400,9 @@ class FController() extends Publisher with FControllerInterface {
 
   override def attackField(state: cState, f: FieldInterface): cState = {
     state
+  }
+
+  override def stateToHtml(state: cState): String = {
+    state.toHtml()
   }
 }

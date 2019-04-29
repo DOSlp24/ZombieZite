@@ -30,4 +30,5 @@ trait FControllerInterface {
   def beweapon(state: cState, weapon: FWeaponInterface): cState
   def triggerAttack(state: cState): cState
   def attackField(state: cState, f: FieldInterface): cState
+  def stateToHtml(state: cState): String
 }

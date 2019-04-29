@@ -1,6 +1,7 @@
 package de.htwg.se.zombiezite
 
-import de.htwg.se.zombiezite.aview.gui.{ FGui, Gui }
+import de.htwg.se.zombiezite.aview.gui.{ FGui, Gui}
+import de.htwg.se.zombiezite.aview.api.{ HttpServer}
 import de.htwg.se.zombiezite.aview.tui.Tui
 import de.htwg.se.zombiezite.controller._
 import de.htwg.se.zombiezite.model.FItemInterface
@@ -13,6 +14,8 @@ object ZombieZiteApp {
   //val c = new Controller()
   val c = new FController()
 
+  val webserver = new HttpServer(c)
+
   def main(args: Array[String]): Unit = {
     val gui = new FGui(c)
     /*val gui = new Gui(c)
@@ -22,6 +25,9 @@ object ZombieZiteApp {
       val a = StdIn.readLine()
       tui.compute(a)
     }*/
+    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+    StdIn.readLine() // let it run until user presses return
+    webserver.unbind
   }
 
   /*def getController(): Controller = {
