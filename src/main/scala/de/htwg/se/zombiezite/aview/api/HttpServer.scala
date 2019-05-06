@@ -17,6 +17,8 @@ class HttpServer(controller: FController) {
   // needed for the future flatMap/onComplete in the end
   implicit val executionContext = system.dispatcher
 
+  var state: cState = cState()
+
   val route: Route = get {
     pathSingleSlash {
       complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "<h1>Zombiezite</h1>"))
@@ -25,16 +27,16 @@ class HttpServer(controller: FController) {
       statetoHtml
     } ~
       path("zombiezite" / "init") {
-        controller.init()
+        this.state = controller.init()
         statetoHtml
       } ~
       path("zombiezite" / "new") {
         // new = alias for init.
-        controller.init()
+        this.state = controller.init()
         statetoHtml
       } ~
       path("zombiezite" / "moveDown") {
-        controller.move(controller.init(), "down")
+        this.state = controller.move(this.state, "down")
         statetoHtml
       } ~
       /*
@@ -46,16 +48,13 @@ class HttpServer(controller: FController) {
       }~
       */
       path("zombiezite" / "wait") {
-        // TODO: object.wait() is called here. how to make it controller.wait()? ...
-        controller.wait()
+        this.state = controller.wait(this.state)
         statetoHtml
       }
     // TODO: more commands
   }
 
   def statetoHtml: StandardRoute = {
-    // TODO: from where does server know the most recent state?
-    val state: cState = controller.init()
     complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Sudoku</h1>" + controller.stateToHtml(state)))
   }
 
