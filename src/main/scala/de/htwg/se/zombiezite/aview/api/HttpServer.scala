@@ -3,12 +3,14 @@ package de.htwg.se.zombiezite.aview.api
 import akka.actor.ActorSystem
 import akka.http.javadsl.server.directives.RouteDirectives
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity }
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ Route, StandardRoute }
+import akka.http.scaladsl.server.{Route, StandardRoute}
 import akka.stream.ActorMaterializer
 import de.htwg.se.zombiezite.controller.FController
 import de.htwg.se.zombiezite.controller.cState
+
+import scala.concurrent.Future
 
 class HttpServer(controller: FController) {
 
@@ -55,12 +57,12 @@ class HttpServer(controller: FController) {
   }
 
   def statetoHtml: StandardRoute = {
-    complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Sudoku</h1>" + controller.stateToHtml(state)))
+    complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>HTWG Sudoku</h1>" + controller.stateToHtml(this.state)))
   }
 
-  val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
+  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8080)
 
-  def unbind = {
+  def unbind(): Unit = {
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
       .onComplete(_ => system.terminate()) // and shutdown when done
