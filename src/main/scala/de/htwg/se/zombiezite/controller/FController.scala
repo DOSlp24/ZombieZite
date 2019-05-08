@@ -384,6 +384,10 @@ class FController() extends Publisher with FControllerInterface {
     retState
   }
 
+  def dropBySlot(state: cState, slot: Integer): cState = {
+    drop(state, state.player(state.actualPlayer).equipment(slot))
+  }
+
   override def equipArmor(state: cState, i: FArmorInterface): cState = {
     val retState = state.useArmor(i)
     publish(Update(retState))
@@ -394,6 +398,13 @@ class FController() extends Publisher with FControllerInterface {
     val retState = state.equipWeapon(weapon)
     publish(Update(retState))
     retState
+  }
+
+  def equipBySlot(state: cState, slot: Integer): cState = {
+    state.player(state.actualPlayer).equipment(slot) match {
+      case weapon: FWeaponInterface => beweapon(state, weapon)
+      case armor: FArmorInterface => equipArmor(state, armor)
+    }
   }
 
   override def triggerAttack(state: cState): cState = {
