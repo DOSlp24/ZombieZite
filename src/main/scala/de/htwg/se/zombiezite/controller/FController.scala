@@ -314,8 +314,7 @@ case class cState(
     } box = box.replaceFirst("x ", cell(row, col).toString)
     */
     //"box"
-    "actualPlayer: " + actualPlayer + ", playerCount: " + playerCount + ", ..."
-
+    "actualPlayer: " + player(actualPlayer).name
   }
 
   def toHtml(): String = {
