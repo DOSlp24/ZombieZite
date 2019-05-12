@@ -69,6 +69,12 @@ class HttpServer(controller: FController) {
       path("equip" / IntNumber) { slot =>
         this.state = controller.equipBySlot(this.state, slot)
         statetoHtml
+      } ~
+      path("sc" / RemainingPath) { arg =>
+        complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, scalaj.http.Http("http://localhost:8081/" + arg).param("", "").asString.body))
+      } ~
+      path("itemDeck" / RemainingPath) { arg =>
+        complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, scalaj.http.Http("http://localhost:8082/" + arg).param("", "").asString.body))
       }
   }
 
