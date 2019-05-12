@@ -29,7 +29,7 @@ class SimpleCounter {
   }
 
   override def toString: String = {
-    "Last User was: " + lastUser + " Counter: " + counter
+    "User " + lastUser + " changed Counter to: " + counter
   }
 
   def toHtml: String = {

@@ -13,7 +13,7 @@ object MicroItemDeckMain {
 }
 
 class MicroItemDeck {
-  var deck: List[String] = List("Machine Gun", "Rocket Launcher", "Knife", "Trash", "Water", "Armor", "Chest Plate")
+  var deck: List[String] = List("Machine Gun", "Rocket Launcher", "Knife", "Trash", "Water", "Armor", "Chest Plate", "Boots", "Pistol")
 
   def shuffle(): Unit = {
     deck = Random.shuffle(deck)
