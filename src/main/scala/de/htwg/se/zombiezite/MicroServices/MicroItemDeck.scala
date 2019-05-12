@@ -25,7 +25,7 @@ class MicroItemDeck {
     } else {
       val item = deck.head
       deck = deck.drop(1)
-      "You got" + item
+      "You got " + item
     }
   }
 }
