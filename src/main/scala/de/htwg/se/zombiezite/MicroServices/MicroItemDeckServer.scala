@@ -35,7 +35,7 @@ class MicroItemDeckServer(itemDeck: MicroItemDeck) {
     complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>" + itemDeck.draw + "</h1>"))
   }
 
-  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "localhost", 8082)
+  val bindingFuture: Future[Http.ServerBinding] = Http().bindAndHandle(route, "0.0.0.0", 8082)
 
   def unbind(): Unit = {
     bindingFuture

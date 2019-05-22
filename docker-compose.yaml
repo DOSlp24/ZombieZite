@@ -1,0 +1,19 @@
+version: '3'
+services:
+  simple-counter:
+    build:
+      context: .
+      dockerfile: SimpleCounterDocker
+    volumes:
+      - .:/main
+    ports:
+      - 8081:8081
+
+  deck_server:
+    build:
+      context: .
+      dockerfile: DeckServerDocker
+    volumes:
+      - .:/main
+    ports:
+      - 8082:8082
