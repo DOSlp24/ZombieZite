@@ -9,7 +9,7 @@ services:
     ports:
       - 8081:8081
 
-  deck_server:
+  deck-server:
     build:
       context: .
       dockerfile: DeckServerDocker
