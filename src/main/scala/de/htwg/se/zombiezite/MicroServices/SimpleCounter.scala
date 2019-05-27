@@ -5,8 +5,10 @@ import scala.io.StdIn
 object SimpleCounterMain {
   def main(args: Array[String]): Unit = {
     val webserver = new SimpleCounterServer(new SimpleCounter)
-    println(s"Server online at http://localhost:8081/\nPress RETURN to stop...")
-    StdIn.readLine() // let it run until user presses return
+    println(s"Server online at http://localhost:8081/")
+    while (true) {
+      Thread.sleep(10000000)
+    }
     webserver.unbind()
   }
 }
