@@ -25,3 +25,9 @@ libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.5.22" % Test
 libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.1.8"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.22"
 libraryDependencies += "org.scalaj" % "scalaj-http_2.11" % "2.3.0"
+
+libraryDependencies ++= Seq(
+  "com.typesafe.slick" %% "slick" % "3.0.0",
+  "ch.qos.logback" % "logback-classic" % "1.1.2"
+  // "org.slf4j" % "slf4j-nop" % "1.6.4"
+)
