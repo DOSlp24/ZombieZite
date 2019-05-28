@@ -1,26 +1,28 @@
 package de.htwg.se.zombiezite.MicroServices
 
-import scala.io.StdIn
+
 import scala.util.Random
-// Use H2Driver to connect to an H2 database
 import slick.driver.H2Driver.api._
 
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object MicroItemDeckMain {
   def main(args: Array[String]): Unit = {
 
-    //TODO: This needs to be in a file named application.conf?
-    h2mem1 = {
-      url = "jdbc:h2:mem:test1"
-      driver = org.h2.Driver
-      connectionPool = disabled
-      keepAliveConnection = true
-    }
-
-    val db = Database.forConfig("h2mem1")
+    val db = Database.forConfig("zombieDb")
     try {
-      // TODO: schema ... Database stuff comes here
+      class counterClass(tag: Tag) extends Table[(Int, Int, String)](tag, "Counter") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def counter = column[Int]("Counter")
+
+        def name = column[String]("Name")
+
+        def * = (id, counter, name)
+      }
+      val counterTable = TableQuery[counterClass]
+
     } finally db.close
 
     val webserver = new MicroItemDeckServer(new MicroItemDeck)
