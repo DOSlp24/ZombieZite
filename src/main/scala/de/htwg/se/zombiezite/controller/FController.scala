@@ -3,35 +3,36 @@ package de.htwg.se.zombiezite.controller
 import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
+import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{Await, Future}
 import scala.swing.Publisher
 import scala.swing.event.Event
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import slick.driver.H2Driver.api._
 
 case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-    dif: Int = 2,
-    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-    playerCount: Int = 0,
-    actualPlayer: Int = 0,
-    area: FAreaInterface = FArea(10, 10).build(),
-    round: Int = 0,
-    winCount: Int = 60,
-    zombiesKilled: Int = 0,
-    zombieDeck: FDeckInterface = FZombieDeck(),
-    itemDeck: FDeckInterface = FItemDeck().shuffle(),
-    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
-    won: Boolean = false,
-    lost: Boolean = false
-) {
+                   dif: Int = 2,
+                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+                   playerCount: Int = 0,
+                   actualPlayer: Int = 0,
+                   area: FAreaInterface = FArea(10, 10).build(),
+                   round: Int = 0,
+                   winCount: Int = 60,
+                   zombiesKilled: Int = 0,
+                   zombieDeck: FDeckInterface = FZombieDeck(),
+                   itemDeck: FDeckInterface = FItemDeck().shuffle(),
+                   playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
+                   won: Boolean = false,
+                   lost: Boolean = false
+                 ) {
 
   def updateChars(): cState = {
     val players = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))
@@ -416,5 +417,136 @@ class FController() extends Publisher with FControllerInterface {
 
   override def stateToHtml(state: cState): String = {
     state.toHtml()
+  }
+
+  def slickstuff(): Unit = {
+    val db = Database.forConfig("zombieDb")
+    try {
+      class Area(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def len = column[Int]("Length")
+
+        def wid = column[Int]("Width")
+
+        def * = (id, len, wid)
+      }
+
+      val areaTable = TableQuery[Area]
+
+      class Field(tag: Tag) extends Table[(Int, Int, Int, Int)](tag, "Field") {
+        //def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def x = column[Int]("X", O.PrimaryKey)
+
+        def y = column[Int]("Y", O.PrimaryKey)
+
+        def areaID = column[Int]("F_Area")
+
+        def charCount = column[Int]("CharCount")
+
+        def * = (x, y, areaID, charCount)
+
+        def area = foreignKey("MY_AREA", areaID, areaTable)(_.id)
+      }
+
+      val fieldTable = TableQuery[Field]
+
+      class Player(tag: Tag) extends Table[(Int, Int, Int, String, Int, Int, Int, Int)](tag, "Player") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def fieldX = column[Int]("F_FieldX")
+
+        def fieldY = column[Int]("F_FieldY")
+
+        def name = column[String]("Name")
+
+        def lifepoints = column[Int]("Lifepoints")
+
+        def armor = column[Int]("Armor")
+
+        def stren = column[Int]("Strength")
+
+        def ran = column[Int]("Range")
+
+        def * = (id, fieldX, fieldY, name, lifepoints, armor, stren, ran)
+
+        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)
+
+        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)
+      }
+
+      val playerTable = TableQuery[Player]
+
+      class Zombie(tag: Tag) extends Table[(Int, Int, Int, String)](tag, "Zombie") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def fieldX = column[Int]("F_FieldX")
+
+        def fieldY = column[Int]("F_FieldY")
+
+        def name = column[String]("Name")
+
+        def * = (id, fieldX, fieldY, name)
+
+        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)
+
+        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)
+      }
+
+      val zombieTable = TableQuery[Zombie]
+
+      class Weapon(tag: Tag) extends Table[(Int, Int, Boolean, String, Int, Int, Int)](tag, "Weapon") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def belongsTo = column[Int]("Owner")
+
+        def isEquipped = column[Boolean]("IsEquipped")
+
+        def name = column[String]("Name")
+
+        def str = column[Int]("Strength")
+
+        def ran = column[Int]("Range")
+
+        def aoe = column[Int]("AOE")
+
+        def * = (id, belongsTo, isEquipped, name, str, ran, aoe)
+
+        def owner = foreignKey("MY_OWNER", belongsTo, playerTable)(_.id)
+      }
+
+      val weaponTable = TableQuery[Weapon]
+
+      class Armor(tag: Tag) extends Table[(Int, Int, String, Int)](tag, "Armor") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def ownerID = column[Int]("Owner")
+
+        def name = column[String]("Name")
+
+        def protection = column[Int]("Protection")
+
+        def * = (id, ownerID, name, protection)
+
+        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.id)
+      }
+
+      val armorTable = TableQuery[Armor]
+
+      class Trash(tag: Tag) extends Table[(Int, Int, String)](tag, "Trash") {
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+        def ownerID = column[Int]("Owner")
+
+        def name = column[String]("Name")
+
+        def * = (id, ownerID, name)
+
+        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.id)
+      }
+
+      val trashTable = TableQuery[Trash]
+    } finally db.close
   }
 }
