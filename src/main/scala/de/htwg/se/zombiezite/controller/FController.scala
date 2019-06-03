@@ -419,7 +419,7 @@ class FController() extends Publisher with FControllerInterface {
     state.toHtml()
   }
 
-  def slickstuff(): Unit = {
+  def buildTables(): Unit = {
     val db = Database.forConfig("zombieDb")
     try {
       class Area(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
