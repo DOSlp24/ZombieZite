@@ -1,6 +1,5 @@
 package de.htwg.se.zombiezite.MicroServices
 
-
 import scala.util.Random
 import slick.driver.H2Driver.api._
 
@@ -13,7 +12,7 @@ object MicroItemDeckMain {
     val db = Database.forConfig("zombieDb")
     try {
       class counterClass(tag: Tag) extends Table[(Int, Int, String)](tag, "Counter") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc  )
+        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
         def counter = column[Int]("Counter")
 

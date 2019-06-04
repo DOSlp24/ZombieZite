@@ -419,7 +419,7 @@ class FController() extends Publisher with FControllerInterface {
     state.toHtml()
   }
 
-  def buildTables(): Unit = {
+  def buildTables(state: cState): Unit = {
     val db = Database.forConfig("zombieDb")
     try {
       class Area(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
@@ -452,14 +452,12 @@ class FController() extends Publisher with FControllerInterface {
 
       val fieldTable = TableQuery[Field]
 
-      class Player(tag: Tag) extends Table[(Int, Int, Int, String, Int, Int, Int, Int)](tag, "Player") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+      class Player(tag: Tag) extends Table[(String, Int, Int, Int, Int, Int, Int)](tag, "Player") {
+        def name = column[String]("Name", O.PrimaryKey)
 
         def fieldX = column[Int]("F_FieldX")
 
         def fieldY = column[Int]("F_FieldY")
-
-        def name = column[String]("Name")
 
         def lifepoints = column[Int]("Lifepoints")
 
@@ -469,7 +467,7 @@ class FController() extends Publisher with FControllerInterface {
 
         def ran = column[Int]("Range")
 
-        def * = (id, fieldX, fieldY, name, lifepoints, armor, stren, ran)
+        def * = (name, fieldX, fieldY, lifepoints, armor, stren, ran)
 
         def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)
 
@@ -496,10 +494,10 @@ class FController() extends Publisher with FControllerInterface {
 
       val zombieTable = TableQuery[Zombie]
 
-      class Weapon(tag: Tag) extends Table[(Int, Int, Boolean, String, Int, Int, Int)](tag, "Weapon") {
+      class Weapon(tag: Tag) extends Table[(Int, String, Boolean, String, Int, Int, Int)](tag, "Weapon") {
         def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-        def belongsTo = column[Int]("Owner")
+        def belongsTo = column[String]("Owner")
 
         def isEquipped = column[Boolean]("IsEquipped")
 
@@ -513,15 +511,15 @@ class FController() extends Publisher with FControllerInterface {
 
         def * = (id, belongsTo, isEquipped, name, str, ran, aoe)
 
-        def owner = foreignKey("MY_OWNER", belongsTo, playerTable)(_.id)
+        def owner = foreignKey("MY_OWNER", belongsTo, playerTable)(_.name)
       }
 
       val weaponTable = TableQuery[Weapon]
 
-      class Armor(tag: Tag) extends Table[(Int, Int, String, Int)](tag, "Armor") {
+      class Armor(tag: Tag) extends Table[(Int, String, String, Int)](tag, "Armor") {
         def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-        def ownerID = column[Int]("Owner")
+        def ownerID = column[String]("Owner")
 
         def name = column[String]("Name")
 
@@ -529,24 +527,34 @@ class FController() extends Publisher with FControllerInterface {
 
         def * = (id, ownerID, name, protection)
 
-        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.id)
+        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.name)
       }
 
       val armorTable = TableQuery[Armor]
 
-      class Trash(tag: Tag) extends Table[(Int, Int, String)](tag, "Trash") {
+      class Trash(tag: Tag) extends Table[(Int, String, String)](tag, "Trash") {
         def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-        def ownerID = column[Int]("Owner")
+        def ownerID = column[String]("Owner")
 
         def name = column[String]("Name")
 
         def * = (id, ownerID, name)
 
-        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.id)
+        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.name)
       }
 
       val trashTable = TableQuery[Trash]
+
+      DBIO.seq(
+        (areaTable.schema ++ fieldTable.schema ++ playerTable.schema ++ zombieTable.schema ++ weaponTable.schema
+          ++ armorTable.schema ++ trashTable.schema).create,
+
+        areaTable += (0, state.area.len, state.area.wid),
+        fieldTable ++= state.area.lines.flatMap(line => line.map(f => (f.p.x, f.p.y, 0, f.charCount))),
+        playerTable ++= state.player.map(p => (p.name, p.x, p.y, p.lifePoints, p.armor, p.strength, p.range))
+      )
     } finally db.close
+
   }
 }
