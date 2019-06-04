@@ -546,7 +546,7 @@ class FController() extends Publisher with FControllerInterface {
 
       val trashTable = TableQuery[Trash]
 
-      DBIO.seq(
+      val setup = DBIO.seq(
         (areaTable.schema ++ fieldTable.schema ++ playerTable.schema ++ zombieTable.schema ++ weaponTable.schema
           ++ armorTable.schema ++ trashTable.schema).create,
 
@@ -554,6 +554,8 @@ class FController() extends Publisher with FControllerInterface {
         fieldTable ++= state.area.lines.flatMap(line => line.map(f => (f.p.x, f.p.y, 0, f.charCount))),
         playerTable ++= state.player.map(p => (p.name, p.x, p.y, p.lifePoints, p.armor, p.strength, p.range))
       )
+      val setupFuture = db.run(setup)
+
     } finally db.close
 
   }
