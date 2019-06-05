@@ -24,12 +24,12 @@ object ZombieZiteApp {
       tui.compute(a)
     }*/
 
-    val webserver = new HttpServer(c)
+    /*val webserver = new HttpServer(c)
     println(s"Server online at http://localhost:8080/")
     while (true) {
       Thread.sleep(10000000)
     }
-    webserver.unbind
+    webserver.unbind*/
   }
 
   /*def getController(): Controller = {

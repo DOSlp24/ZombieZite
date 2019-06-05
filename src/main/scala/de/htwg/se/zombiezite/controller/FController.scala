@@ -1,15 +1,16 @@
 package de.htwg.se.zombiezite.controller
 
+import com.typesafe.config.ConfigFactory
 import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
-import de.htwg.se.zombiezite.model.{PlayerInterface, ZombieInterface, _}
+import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 import scala.swing.Publisher
 import scala.swing.event.Event
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import slick.driver.H2Driver.api._
@@ -18,21 +19,21 @@ case class Update(state: cState) extends Event
 
 //noinspection ScalaStyle
 case class cState(
-                   dif: Int = 2,
-                   player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
-                   zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
-                   playerCount: Int = 0,
-                   actualPlayer: Int = 0,
-                   area: FAreaInterface = FArea(10, 10).build(),
-                   round: Int = 0,
-                   winCount: Int = 60,
-                   zombiesKilled: Int = 0,
-                   zombieDeck: FDeckInterface = FZombieDeck(),
-                   itemDeck: FDeckInterface = FItemDeck().shuffle(),
-                   playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
-                   won: Boolean = false,
-                   lost: Boolean = false
-                 ) {
+    dif: Int = 2,
+    player: Vector[FPlayerInterface] = Vector[FPlayerInterface](),
+    zombies: Vector[FZombieInterface] = Vector[FZombieInterface](),
+    playerCount: Int = 0,
+    actualPlayer: Int = 0,
+    area: FAreaInterface = FArea(10, 10).build(),
+    round: Int = 0,
+    winCount: Int = 60,
+    zombiesKilled: Int = 0,
+    zombieDeck: FDeckInterface = FZombieDeck(),
+    itemDeck: FDeckInterface = FItemDeck().shuffle(),
+    playerOrder: Vector[String] = Vector[String]("F. Maiar", "K. Kawaguchi", "H. Kaiba", "P. B. Rainbow"),
+    won: Boolean = false,
+    lost: Boolean = false
+) {
 
   def updateChars(): cState = {
     val players = searchLinesForPlayers().sortWith((p1, p2) => playerOrder.indexOf(p1.name) < playerOrder.indexOf(p2.name))
@@ -334,6 +335,7 @@ class FController() extends Publisher with FControllerInterface {
     val p4 = FPlayer(name = "P. B. Rainbow", x = 5, y = 0)
     val retState = cState().buildArea().enterField(p1).enterField(p2).enterField(p3).enterField(p4)
     publish(Update(retState))
+    buildTables(retState)
     retState
   }
 
@@ -420,6 +422,8 @@ class FController() extends Publisher with FControllerInterface {
   }
 
   def buildTables(state: cState): Unit = {
+    val v = ConfigFactory.load().getString("zombieDb.url")
+    println(s"Url is $v")
     val db = Database.forConfig("zombieDb")
     try {
       class Area(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
@@ -469,9 +473,9 @@ class FController() extends Publisher with FControllerInterface {
 
         def * = (name, fieldX, fieldY, lifepoints, armor, stren, ran)
 
-        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)
+        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)(_.x)
 
-        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)
+        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)(_.y)
       }
 
       val playerTable = TableQuery[Player]
@@ -487,9 +491,9 @@ class FController() extends Publisher with FControllerInterface {
 
         def * = (id, fieldX, fieldY, name)
 
-        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)
+        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)(_.x)
 
-        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)
+        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)(_.y)
       }
 
       val zombieTable = TableQuery[Zombie]
@@ -548,7 +552,7 @@ class FController() extends Publisher with FControllerInterface {
 
       val setup = DBIO.seq(
         (areaTable.schema ++ fieldTable.schema ++ playerTable.schema ++ zombieTable.schema ++ weaponTable.schema
-          ++ armorTable.schema ++ trashTable.schema).create,
+        ++ armorTable.schema ++ trashTable.schema).create,
 
         areaTable += (0, state.area.len, state.area.wid),
         fieldTable ++= state.area.lines.flatMap(line => line.map(f => (f.p.x, f.p.y, 0, f.charCount))),
@@ -556,6 +560,23 @@ class FController() extends Publisher with FControllerInterface {
       )
       val setupFuture = db.run(setup)
 
+      /*val fieldJoin = for {
+        f <- fieldTable
+        a <- f.area
+      } yield (f.x, f.y, a.len, a.wid)*/
+
+      /*db.run(fieldJoin.result).map(_.foreach {
+        case (x, y, len, wid) =>
+          println(" My X: " + x + " My Y: " + y + " My len: " + len + " My wid: " + wid)
+      })*/
+      /*db.run(areaTable.result).map(_.foreach {
+        case (id, len, wid) =>
+          println("  " + id + "\t" + len + "\t" + wid)
+      })*/
+
+      db.run(areaTable.result).foreach(println)
+      /*setupFuture.onComplete(_ => {
+      })*/
     } finally db.close
 
   }
