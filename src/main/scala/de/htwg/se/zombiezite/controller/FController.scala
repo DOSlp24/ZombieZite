@@ -421,10 +421,12 @@ class FController() extends Publisher with FControllerInterface {
     state.toHtml()
   }
 
+  //**************************************************************************************************
+  //************************************SLICK KINGDOM*************************************************
+  //**************************************************************************************************
+
   def buildTables(state: cState): Unit = {
-    val v = ConfigFactory.load().getString("zombieDb.url")
-    println(s"Url is $v")
-    val db = Database.forConfig("zombieDb")
+    val db = Database.forConfig("zombieDb") // Load Configs from src/main/resources/application.conf
     try {
       class Area(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
         def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -436,6 +438,7 @@ class FController() extends Publisher with FControllerInterface {
         def * = (id, len, wid)
       }
 
+      // A Query on a specific Table (Area in this case) - We need it for foreign keys and using the db
       val areaTable = TableQuery[Area]
 
       class Field(tag: Tag) extends Table[(Int, Int, Int, Int)](tag, "Field") {
@@ -554,9 +557,9 @@ class FController() extends Publisher with FControllerInterface {
         (areaTable.schema ++ fieldTable.schema ++ playerTable.schema ++ zombieTable.schema ++ weaponTable.schema
         ++ armorTable.schema ++ trashTable.schema).create,
 
-        areaTable += (0, state.area.len, state.area.wid),
-        fieldTable ++= state.area.lines.flatMap(line => line.map(f => (f.p.x, f.p.y, 0, f.charCount))),
-        playerTable ++= state.player.map(p => (p.name, p.x, p.y, p.lifePoints, p.armor, p.strength, p.range))
+        areaTable += (0, state.area.len, state.area.wid), // our area
+        fieldTable ++= state.area.lines.flatMap(line => line.map(f => (f.p.x, f.p.y, 0, f.charCount))), //Map all fields to a sequence
+        playerTable ++= state.player.map(p => (p.name, p.x, p.y, p.lifePoints, p.armor, p.strength, p.range)) //Map all players to a sequence
       )
       val setupFuture = db.run(setup)
 
