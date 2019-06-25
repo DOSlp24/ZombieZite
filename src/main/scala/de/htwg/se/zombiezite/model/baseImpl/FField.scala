@@ -1,6 +1,7 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
 import de.htwg.se.zombiezite.model._
+import slick.driver.H2Driver.api._
 
 case class FField(
     override val p: PositionInterface,
@@ -47,4 +48,20 @@ case class FField(
       a ++ b.tail
     }
   }
+}
+
+class FieldTable(tag: Tag) extends Table[(Int, Int, Int, Int, Int)](tag, "Field") {
+  def id = column[Int]("ID", O.PrimaryKey)
+
+  def x = column[Int]("X")
+
+  def y = column[Int]("Y")
+
+  def areaID = column[Int]("F_Area")
+
+  def charCount = column[Int]("CharCount")
+
+  def * = (id, x, y, areaID, charCount)
+
+  def area = foreignKey("MY_AREA", areaID, TableQuery[AreaTable])(_.id)
 }

@@ -1,6 +1,7 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
 import de.htwg.se.zombiezite.model.{ FAreaInterface, FFieldInterface, FieldInterface }
+import slick.driver.H2Driver.api._
 
 case class FArea(
     override val len: Int,
@@ -33,4 +34,14 @@ case class FArea(
     val newLines = lines.updated(field.p.y, newLine)
     copy(lines = newLines)
   }
+}
+
+class AreaTable(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
+  def id = column[Int]("ID", O.PrimaryKey)
+
+  def len = column[Int]("Length")
+
+  def wid = column[Int]("Width")
+
+  def * = (id, len, wid)
 }

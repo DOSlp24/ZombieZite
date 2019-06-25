@@ -1,6 +1,7 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
 import de.htwg.se.zombiezite.model._
+import slick.driver.H2Driver.api._
 
 case class FPlayer(
     override val x: Int,
@@ -76,4 +77,22 @@ case class FPlayer(
   override def gotInventorySpace(): Boolean = {
     equipment.length < EQMAX
   }
+}
+
+class PlayerTable(tag: Tag) extends Table[(String, Int, Int, Int, Int, Int)](tag, "Player") {
+  def name = column[String]("Name", O.PrimaryKey)
+
+  def fieldId = column[Int]("F_Field")
+
+  def lifepoints = column[Int]("Lifepoints")
+
+  def armor = column[Int]("Armor")
+
+  def stren = column[Int]("Strength")
+
+  def ran = column[Int]("Range")
+
+  def * = (name, fieldId, lifepoints, armor, stren, ran)
+
+  def myField = foreignKey("MY_FIELD_PLAYER", fieldId, TableQuery[FieldTable])(_.id)
 }

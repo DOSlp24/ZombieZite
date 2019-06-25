@@ -5,6 +5,7 @@ import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
 import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
+import de.htwg.se.zombiezite.util.SlickDAO
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ Await, Future }
@@ -428,159 +429,53 @@ class FController() extends Publisher with FControllerInterface {
   def buildTables(state: cState): Unit = {
     val db = Database.forConfig("zombieDb") // Load Configs from src/main/resources/application.conf
     try {
-      class Area(tag: Tag) extends Table[(Int, Int, Int)](tag, "Area") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-
-        def len = column[Int]("Length")
-
-        def wid = column[Int]("Width")
-
-        def * = (id, len, wid)
-      }
 
       // A Query on a specific Table (Area in this case) - We need it for foreign keys and using the db
-      val areaTable = TableQuery[Area]
+      val areaTable = TableQuery[AreaTable]
 
-      class Field(tag: Tag) extends Table[(Int, Int, Int, Int)](tag, "Field") {
-        //def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+      val fieldTable = TableQuery[FieldTable]
 
-        def x = column[Int]("X", O.PrimaryKey)
+      val playerTable = TableQuery[PlayerTable]
 
-        def y = column[Int]("Y", O.PrimaryKey)
+      val zombieTable = TableQuery[ZombieTable]
 
-        def areaID = column[Int]("F_Area")
+      val weaponTable = TableQuery[WeaponTable]
 
-        def charCount = column[Int]("CharCount")
+      val armorTable = TableQuery[ArmorTable]
 
-        def * = (x, y, areaID, charCount)
-
-        def area = foreignKey("MY_AREA", areaID, areaTable)(_.id)
-      }
-
-      val fieldTable = TableQuery[Field]
-
-      class Player(tag: Tag) extends Table[(String, Int, Int, Int, Int, Int, Int)](tag, "Player") {
-        def name = column[String]("Name", O.PrimaryKey)
-
-        def fieldX = column[Int]("F_FieldX")
-
-        def fieldY = column[Int]("F_FieldY")
-
-        def lifepoints = column[Int]("Lifepoints")
-
-        def armor = column[Int]("Armor")
-
-        def stren = column[Int]("Strength")
-
-        def ran = column[Int]("Range")
-
-        def * = (name, fieldX, fieldY, lifepoints, armor, stren, ran)
-
-        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)(_.x)
-
-        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)(_.y)
-      }
-
-      val playerTable = TableQuery[Player]
-
-      class Zombie(tag: Tag) extends Table[(Int, Int, Int, String)](tag, "Zombie") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-
-        def fieldX = column[Int]("F_FieldX")
-
-        def fieldY = column[Int]("F_FieldY")
-
-        def name = column[String]("Name")
-
-        def * = (id, fieldX, fieldY, name)
-
-        def myFieldX = foreignKey("MY_FIELDX", fieldX, fieldTable)(_.x)
-
-        def myFieldY = foreignKey("MY_FIELDY", fieldY, fieldTable)(_.y)
-      }
-
-      val zombieTable = TableQuery[Zombie]
-
-      class Weapon(tag: Tag) extends Table[(Int, String, Boolean, String, Int, Int, Int)](tag, "Weapon") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-
-        def belongsTo = column[String]("Owner")
-
-        def isEquipped = column[Boolean]("IsEquipped")
-
-        def name = column[String]("Name")
-
-        def str = column[Int]("Strength")
-
-        def ran = column[Int]("Range")
-
-        def aoe = column[Int]("AOE")
-
-        def * = (id, belongsTo, isEquipped, name, str, ran, aoe)
-
-        def owner = foreignKey("MY_OWNER", belongsTo, playerTable)(_.name)
-      }
-
-      val weaponTable = TableQuery[Weapon]
-
-      class Armor(tag: Tag) extends Table[(Int, String, String, Int)](tag, "Armor") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-
-        def ownerID = column[String]("Owner")
-
-        def name = column[String]("Name")
-
-        def protection = column[Int]("Protection")
-
-        def * = (id, ownerID, name, protection)
-
-        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.name)
-      }
-
-      val armorTable = TableQuery[Armor]
-
-      class Trash(tag: Tag) extends Table[(Int, String, String)](tag, "Trash") {
-        def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-
-        def ownerID = column[String]("Owner")
-
-        def name = column[String]("Name")
-
-        def * = (id, ownerID, name)
-
-        def owner = foreignKey("MY_OWNER", ownerID, playerTable)(_.name)
-      }
-
-      val trashTable = TableQuery[Trash]
+      val trashTable = TableQuery[TrashTable]
 
       val setup = DBIO.seq(
         (areaTable.schema ++ fieldTable.schema ++ playerTable.schema ++ zombieTable.schema ++ weaponTable.schema
         ++ armorTable.schema ++ trashTable.schema).create,
 
         areaTable += (0, state.area.len, state.area.wid), // our area
-        fieldTable ++= state.area.lines.flatMap(line => line.map(f => (f.p.x, f.p.y, 0, f.charCount))), //Map all fields to a sequence
-        playerTable ++= state.player.map(p => (p.name, p.x, p.y, p.lifePoints, p.armor, p.strength, p.range)) //Map all players to a sequence
+        areaTable += (1, 5, 5),
+        fieldTable ++= state.area.lines.zipWithIndex.flatMap {
+          case (line, lineIndex) => line.zipWithIndex.map {
+            case (f, i) => (lineIndex * state.area.len + i, f.p.x, f.p.y, 0, f.charCount)
+          }
+        }, //Map all fields to a sequence
+        playerTable ++= state.player.map(p => (p.name, p.y * 10 + p.x, p.lifePoints, p.armor, p.strength, p.range)) //Map all players to a sequence
       )
       val setupFuture = db.run(setup)
 
-      /*val fieldJoin = for {
-        f <- fieldTable
-        a <- f.area
-      } yield (f.x, f.y, a.len, a.wid)*/
+      setupFuture onComplete {
+        case Success(_) => {
+          println("Success")
+          db.run(areaTable.result).foreach(println)
+          db.run(fieldTable.result).foreach(println)
+          //SlickDAO().read()
+        }
+        case Failure(e) => {
+          println("Fail")
+          println(e)
+        }
+      }
 
-      /*db.run(fieldJoin.result).map(_.foreach {
-        case (x, y, len, wid) =>
-          println(" My X: " + x + " My Y: " + y + " My len: " + len + " My wid: " + wid)
-      })*/
-      /*db.run(areaTable.result).map(_.foreach {
-        case (id, len, wid) =>
-          println("  " + id + "\t" + len + "\t" + wid)
-      })*/
-
-      db.run(areaTable.result).foreach(println)
       /*setupFuture.onComplete(_ => {
       })*/
-    } finally db.close
+    } // finally db.close
 
   }
 }

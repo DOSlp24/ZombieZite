@@ -1,6 +1,7 @@
 package de.htwg.se.zombiezite.model.baseImpl
 
 import de.htwg.se.zombiezite.model._
+import slick.driver.H2Driver.api._
 
 case class FZombie(
     override val lifePoints: Int,
@@ -31,4 +32,16 @@ case class FZombie(
   override def selectTarget(p: FPlayerInterface): FZombieInterface = {
     copy(archenemy = p)
   }
+}
+
+class ZombieTable(tag: Tag) extends Table[(Int, Int, String)](tag, "Zombie") {
+  def id = column[Int]("ID", O.PrimaryKey)
+
+  def fieldId = column[Int]("F_Field")
+
+  def name = column[String]("Name")
+
+  def * = (id, fieldId, name)
+
+  def myField = foreignKey("MY_FIELD_ZOMBIE", fieldId, TableQuery[FieldTable])(_.id)
 }
