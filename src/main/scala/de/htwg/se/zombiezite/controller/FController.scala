@@ -336,7 +336,7 @@ class FController() extends Publisher with FControllerInterface {
     val p4 = FPlayer(name = "P. B. Rainbow", x = 5, y = 0)
     val retState = cState().buildArea().enterField(p1).enterField(p2).enterField(p3).enterField(p4)
     publish(Update(retState))
-    buildTables(retState)
+    //buildTables(retState)
     retState
   }
 

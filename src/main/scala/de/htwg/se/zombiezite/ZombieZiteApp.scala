@@ -1,7 +1,8 @@
 package de.htwg.se.zombiezite
 
+import de.htwg.se.zombiezite.MicroServices.{ Simulation, SimulationServer }
 import de.htwg.se.zombiezite.aview.gui.{ FGui, Gui }
-import de.htwg.se.zombiezite.aview.api.{ HttpServer }
+import de.htwg.se.zombiezite.aview.api.HttpServer
 import de.htwg.se.zombiezite.aview.tui.Tui
 import de.htwg.se.zombiezite.controller._
 import de.htwg.se.zombiezite.model.FItemInterface
@@ -15,6 +16,12 @@ object ZombieZiteApp {
   val c = new FController()
 
   def main(args: Array[String]): Unit = {
+    val simu = new SimulationServer(c)
+    println(s"Server online at http://localhost:8002/")
+    while (true) {
+      Thread.sleep(10000000)
+    }
+    simu.unbind
     val gui = new FGui(c)
     /*val gui = new Gui(c)
     val tui = new Tui(c)
