@@ -1,7 +1,5 @@
 package de.htwg.se.zombiezite.aview.gui
 
-import de.htwg.se.zombiezite.util.Observer
-import de.htwg.se.zombiezite.model._
 import de.htwg.se.zombiezite.controller._
 import scala.swing._
 

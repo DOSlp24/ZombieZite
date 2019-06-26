@@ -10,7 +10,7 @@ import scala.concurrent.{ Await, Future }
 import scala.runtime.BoxedUnit
 import scala.util.{ Failure, Success }
 
-case class SlickDAO() {
+case class SlickDAO() extends DAOTrait {
   val db = Database.forConfig("zombieDb")
 
   val areaTable = TableQuery[AreaTable]

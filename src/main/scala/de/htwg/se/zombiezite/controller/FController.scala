@@ -5,7 +5,7 @@ import de.htwg.se.zombiezite.CustomTypes.ItemMonad
 import de.htwg.se.zombiezite.model
 import de.htwg.se.zombiezite.model.baseImpl._
 import de.htwg.se.zombiezite.model.{ PlayerInterface, ZombieInterface, _ }
-import de.htwg.se.zombiezite.util.SlickDAO
+import de.htwg.se.zombiezite.util.{ MongoDAO, SlickDAO }
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ Await, Future }
@@ -472,6 +472,9 @@ class FController() extends Publisher with FControllerInterface {
           println(e)
         }
       }
+
+      Await.result(MongoDAO().create(state), Duration.Inf)
+      MongoDAO().read()
 
       /*setupFuture.onComplete(_ => {
       })*/
